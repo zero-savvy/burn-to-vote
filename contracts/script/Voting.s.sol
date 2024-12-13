@@ -5,14 +5,14 @@ import {Script, console} from "forge-std/Script.sol";
 import {Voting} from "../src/Voting.sol";
 
 contract VotingScript is Script {
-    Counter public counter;
+    Voting public voting;
 
     function setUp() public {}
 
     function run() public {
         vm.startBroadcast();
 
-        counter = new Counter();
+        voting = new Voting();
 
         vm.stopBroadcast();
     }
