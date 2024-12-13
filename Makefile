@@ -1,4 +1,4 @@
-//circuits
+# circuit commands
 
 rapidSnark:
 	cd circuits/rapidsnark && git submodule init
@@ -38,4 +38,10 @@ vote_vkey:
 
 
 
+# contract commands
 
+
+deploy:
+	cd contracts && forge compile
+	cd contracts && forge create src/Voting.sol:Voting  --broadcast --private-key {private_key} --json  > output.json
+	
