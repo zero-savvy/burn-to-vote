@@ -4,6 +4,3 @@
 [submodule "circuits/circomlib"]
 	path = circuits/circomlib
 	url = https://github.com/iden3/circomlib.git
-[submodule "circuits/rapidsnark"]
-	path = circuits/rapidsnark
-	url = https://github.com/iden3/rapidsnark.git
