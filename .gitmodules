@@ -1,3 +1,9 @@
 [submodule "contracts/lib/forge-std"]
 	path = contracts/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "circuits/circomlib"]
+	path = circuits/circomlib
+	url = https://github.com/iden3/circomlib.git
+[submodule "circuits/rapidsnark"]
+	path = circuits/rapidsnark
+	url = https://github.com/iden3/rapidsnark.git
