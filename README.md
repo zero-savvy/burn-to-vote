@@ -4,6 +4,56 @@
 
 This project implements a decentralized voting protocol that combines token burning mechanisms with zero-knowledge proofs to ensure vote privacy and weight verification. The protocol achieves perfect ballot secrecy and public verifiability without trusted setup ceremonies.
 
+## Setup
+
+To set up the project, Follow these steps to get the project up and running on your local machine.
+
+
+1. **Clone the Repository**:
+    ```sh
+    git clone https://github.com/toolabi/POB-Anonymous-Voting.git
+    cd POB-Anonymous-Voting
+    ```
+
+2. **Download and run ganache(to run locally)**:
+    ```sh
+    npm i ganache-cli
+    ganche
+    ```
+
+3. **Add the deployer private key to Makefile deploy command**
+
+4. **Deploy contract**:
+    ```sh
+    make deploy
+    ```
+
+5. **run circuit commands**:
+    ```sh
+    make trusted_setup
+    make vote_circuit
+    make vote_zkey
+    make vote_vkey
+    ```
+
+6. **Generate a burn address**:
+    ```sh
+    cargo run -- burn-address
+    ```
+7. **Burn some ETH**:
+    ```sh
+    cargo run -- burn
+    ```
+8. **Vote**:
+    ```sh
+    cargo run -- vote
+    ```
+9. **check your vote proof**:
+    ```sh
+    cargo run -- verify
+    ```
+
+
 ## Features
 
 - **Vote Privacy**: Ensures complete privacy in proof generation and submission using zero-knowledge proofs.
