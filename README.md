@@ -2,7 +2,7 @@
 
 ## Abstract
 
-This project implements a decentralized voting protocol that combines token burning mechanisms with zero-knowledge proofs to ensure vote privacy and weight verification. The protocol achieves perfect ballot secrecy and public verifiability without trusted setup ceremonies.
+This project implements a decentralized voting protocol that combines token burning mechanisms with zero-knowledge proofs to ensure vote privacy and weight verification. 
 
 ## Setup
 
@@ -67,10 +67,7 @@ To set up the project, Follow these steps to get the project up and running on y
 2. **Zero-Knowledge Proofs**: Prove correct weight attribution while preserving vote privacy.
 3. **Nullifier Construction**: Prevents double voting and allows public verification.
 
-## Setup
 
-1. **System Parameters**: Initialize time parameters, cryptographic parameters, and economic parameters.
-2. **Setup Algorithm**: Generate group, select generators, initialize Merkle tree, and set time parameters.
 
 ## Voting Process
 
@@ -84,14 +81,7 @@ To set up the project, Follow these steps to get the project up and running on y
 - **Privacy**: zk-SNARKs ensure voter identities and token amounts remain hidden.
 - **Verifiable Results**: All proofs and votes are verified and tallied on-chain.
 
-## Implementation
 
-The smart contract leverages zero-knowledge proofs to ensure votes are private and valid, preventing manipulation and double voting. The contract enforces strict time constraints to maintain the integrity of the voting process.
-
-## Smart Contracts
-
-- **With Known Ceremony ID**: Implements voting with a predefined ceremony ID.
-- **Without Known Ceremony ID**: Allows voting without a predefined ceremony ID.
 
 ## Conclusion
 
