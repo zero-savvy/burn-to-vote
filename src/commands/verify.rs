@@ -1,3 +1,3 @@
-pub async fn verify(){
+pub async fn verify() {
     println!("verify burn proof");
 }

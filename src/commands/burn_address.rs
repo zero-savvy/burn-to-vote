@@ -1,6 +1,6 @@
 use alloy::{
+    hex::FromHex,
     primitives::{keccak256, Address, U8},
-    hex::FromHex
 };
 use structopt::StructOpt;
 
@@ -22,12 +22,16 @@ pub async fn burn_address(burn_address: BurnAddress) {
     let ceremony_id_bytes = burn_address.ceremony_id.to_be_bytes();
     let vote_bytes = burn_address.vote.to_be_bytes();
 
-    let data = [private_key_bytes, ceremony_id_bytes, blinding_factor_bytes, personal_id_bytes_bytes, vote_bytes].concat();
+    let data = [
+        private_key_bytes,
+        ceremony_id_bytes,
+        blinding_factor_bytes,
+        personal_id_bytes_bytes,
+        vote_bytes,
+    ]
+    .concat();
 
-    let burn_address = Address::from_slice(
-        &keccak256(data).0[12..],
-    );
+    let burn_address = Address::from_slice(&keccak256(data).0[12..]);
 
     println!("Burn Address: {:?}", burn_address)
 }
-

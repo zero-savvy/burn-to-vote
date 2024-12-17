@@ -14,8 +14,7 @@ enum Opt {
 async fn main() {
     let opt = Opt::from_args();
     match opt {
-        Opt::BurnAddress(burn_address) => 
-        commands::burn_address::burn_address(burn_address ).await,
+        Opt::BurnAddress(burn_address) => commands::burn_address::burn_address(burn_address).await,
         Opt::Burn => commands::burn::burn().await,
         Opt::Vote => commands::vote::vote().await,
         Opt::Verify => commands::verify::verify().await,
