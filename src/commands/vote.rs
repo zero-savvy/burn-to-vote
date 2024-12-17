@@ -1,3 +1,3 @@
-pub async fn vote(){
+pub async fn vote() {
     println!("submit vote");
 }
