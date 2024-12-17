@@ -7,3 +7,6 @@
 [submodule "circuits/rapidsnark"]
 	path = circuits/rapidsnark
 	url = https://github.com/iden3/rapidsnark.git
+[submodule "circuits/circom-ecdsa"]
+	path = circuits/circom-ecdsa
+	url = https://github.com/0xPARC/circom-ecdsa
