@@ -11,7 +11,7 @@ To set up the project, Follow these steps to get the project up and running on y
 
 1. **Clone the Repository**:
     ```sh
-    git clone https://github.com/toolabi/POB-Anonymous-Voting.git
+    git clone git@github.com:zero-savvy/POB-Anonymous-Voting.git
     cd POB-Anonymous-Voting
     ```
 
