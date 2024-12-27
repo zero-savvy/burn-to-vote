@@ -1,3 +1,3 @@
-pub async fn burn() {
-    println!("burn token and generate burn proof");
+pub async fn burn() -> String {
+    "burn token and generate burn proof".to_string()
 }
