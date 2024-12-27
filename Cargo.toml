@@ -9,3 +9,14 @@ structopt = "0.3.26"
 tokio = { version = "1.39.2", features = ["full"] }
 alloy = { version = "0.4", features = ["full", "rlp"] }
 alloy-sol-types = "0.8.15"
+poseidon-rs = "0.0.10"
+blstrs = "0.7.1"
+hex = "0.4.3"
+ethers = "2.0.14"
+
+[dependencies.ff]
+version = "0.11"
+features = ["derive"]
+package = "ff_ce"
+
+
