@@ -1,37 +1,25 @@
-use alloy::{
-    hex::FromHex,
-    primitives::{keccak256, Address, U8},
-};
+use ff::PrimeField;
+use poseidon_rs::{Fr, FrRepr, Poseidon};
 use structopt::StructOpt;
-
 // 	BA = H(pkv  ||  vid || β  ||  pid || v)
 
 #[derive(Debug, StructOpt)]
 pub struct BurnAddress {
     private_key: String,
-    ceremony_id: U8,
-    blinding_factor: U8,
-    personal_id: U8,
-    vote: U8,
+    ceremony_id: u64,
+    blinding_factor: u64,
+    personal_id: u64,
+    vote: u64,
 }
 
-pub async fn burn_address(burn_address: BurnAddress) {
-    let private_key_bytes = <[u8; 32]>::from_hex(burn_address.private_key).unwrap();
-    let personal_id_bytes_bytes = burn_address.personal_id.to_be_bytes();
-    let blinding_factor_bytes = burn_address.blinding_factor.to_be_bytes();
-    let ceremony_id_bytes = burn_address.ceremony_id.to_be_bytes();
-    let vote_bytes = burn_address.vote.to_be_bytes();
+pub async fn burn_address(burn_address: BurnAddress) -> String {
+    let private_key = Fr::from_str(&burn_address.private_key).unwrap();
+    let ceremony_id = Fr::from_repr(FrRepr::from(burn_address.ceremony_id)).unwrap();
+    let blinding_factor = Fr::from_repr(FrRepr::from(burn_address.blinding_factor)).unwrap();
+    let personal_id = Fr::from_repr(FrRepr::from(burn_address.personal_id)).unwrap();
+    let vote = Fr::from_repr(FrRepr::from(burn_address.vote)).unwrap();
 
-    let data = [
-        private_key_bytes,
-        ceremony_id_bytes,
-        blinding_factor_bytes,
-        personal_id_bytes_bytes,
-        vote_bytes,
-    ]
-    .concat();
-
-    let burn_address = Address::from_slice(&keccak256(data).0[12..]);
-
-    println!("Burn Address: {:?}", burn_address)
+    let poseidon = Poseidon::new();
+    let input: Vec<Fr> = vec![private_key, ceremony_id, blinding_factor, personal_id, vote];
+    poseidon.hash(input).unwrap().to_string()
 }
