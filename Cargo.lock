@@ -24,6 +24,7 @@ dependencies = [
  "hex",
  "poseidon-rs",
  "sha2",
+ "sha3",
  "structopt",
  "tokio",
 ]
