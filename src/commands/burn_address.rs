@@ -1,8 +1,8 @@
 use alloy::primitives::Address;
 use ff::PrimeField;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
-use structopt::StructOpt;
 use sha3::{Digest, Keccak256};
+use structopt::StructOpt;
 // 	BA = H(pkv  ||  vid || β  ||  pid || v)
 
 #[derive(Debug, StructOpt)]
@@ -15,9 +15,8 @@ pub struct BurnAddress {
 }
 
 fn fr_repr_to_bytes(fr_repr: &FrRepr) -> [u8; 32] {
-    unsafe { std::mem::transmute(*fr_repr) } 
+    unsafe { std::mem::transmute(*fr_repr) }
 }
-
 
 pub async fn burn_address(burn_address: BurnAddress) -> Address {
     let private_key = Fr::from_str(&burn_address.private_key).unwrap();
@@ -34,7 +33,6 @@ pub async fn burn_address(burn_address: BurnAddress) -> Address {
 
     let serialized_hash = fr_repr_to_bytes(&rep);
     let keccak_hash = Keccak256::digest(&serialized_hash);
-    let address_bytes:[u8;20] = keccak_hash[12..32].try_into().unwrap();
+    let address_bytes: [u8; 20] = keccak_hash[12..32].try_into().unwrap();
     Address::from(address_bytes)
-    
 }
