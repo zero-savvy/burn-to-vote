@@ -1,0 +1,8 @@
+{
+  "burn_address": "0xf7aa7b23031e7be2a0533a2199e52ca5df5042fd",
+  "private_key": "0x11a7afdcd70bf31688e535cd7269fb26c75220cacae765b3a04fc30ee9a11f64",
+  "blinding_factor": 13412950857260235267,
+  "ceremony_id": 1,
+  "personal_id": 56789,
+  "vote": 100
+}
