@@ -1,8 +1,8 @@
 use ff::PrimeField;
-use poseidon_rs::{Fr, FrRepr};
-use primitive_types::U256;
 use num_bigint::BigUint;
 use num_traits::Num;
+use poseidon_rs::{Fr, FrRepr};
+use primitive_types::U256;
 
 pub fn fr_repr_to_bytes(fr_repr: &FrRepr) -> [u8; 32] {
     let mut bytes: [u8; 32] = unsafe { std::mem::transmute(*fr_repr) };
@@ -11,7 +11,11 @@ pub fn fr_repr_to_bytes(fr_repr: &FrRepr) -> [u8; 32] {
 }
 
 pub fn u256_to_fp(pk: U256) -> Fr {
-    let modulus: BigUint = BigUint::from_str_radix("21888242871839275222246405745257275088548364400416034343698204186575808495617", 10).unwrap();
+    let modulus: BigUint = BigUint::from_str_radix(
+        "21888242871839275222246405745257275088548364400416034343698204186575808495617",
+        10,
+    )
+    .unwrap();
     let pk_biguint = BigUint::from_bytes_le(&pk.to_little_endian());
     let reduced_biguint = pk_biguint % modulus;
     let mut repr_bytes = [0u8; 32];

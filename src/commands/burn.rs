@@ -34,10 +34,10 @@ pub async fn burn(burn_data: Burn) -> String {
     let client = SignerMiddleware::new(provider.clone(), wallet);
 
     let pre_tx_balance = provider
-    .clone()
-    .get_balance(burn_data.burn_address, None)
-    .await
-    .unwrap();
+        .clone()
+        .get_balance(burn_data.burn_address, None)
+        .await
+        .unwrap();
 
     let tx = TransactionRequest::new()
         .to(to_address)
@@ -62,7 +62,10 @@ pub async fn burn(burn_data: Burn) -> String {
 
     println!("Sent tx: {}\n", serde_json::to_string(&tx).unwrap());
     println!("Tx receipt: {}", serde_json::to_string(&receipt).unwrap());
-    assert_eq!(pre_tx_balance + U256::from(utils::parse_ether(burn_data.amount).unwrap()), post_tx_balance );
+    assert_eq!(
+        pre_tx_balance + U256::from(utils::parse_ether(burn_data.amount).unwrap()),
+        post_tx_balance
+    );
 
     "burn token and generate burn proof".to_string()
     // to do : add generate proof
