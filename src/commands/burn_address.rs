@@ -1,9 +1,10 @@
 use alloy::primitives::Address;
 use ff::PrimeField;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
-use sha3::{Digest, Keccak256};
 use structopt::StructOpt;
-// 	BA = H(pkv  ||  vid || β  ||  pid || v)
+use primitive_types::U256;
+use super::utils::{fr_repr_to_bytes, u256_to_fp};
+
 
 #[derive(Debug, StructOpt)]
 pub struct BurnAddress {
@@ -14,25 +15,23 @@ pub struct BurnAddress {
     vote: u64,
 }
 
-fn fr_repr_to_bytes(fr_repr: &FrRepr) -> [u8; 32] {
-    unsafe { std::mem::transmute(*fr_repr) }
-}
-
 pub async fn burn_address(burn_address: BurnAddress) -> Address {
-    let private_key = Fr::from_str(&burn_address.private_key).unwrap();
-    let ceremony_id = Fr::from_repr(FrRepr::from(burn_address.ceremony_id)).unwrap();
-    let blinding_factor = Fr::from_repr(FrRepr::from(burn_address.blinding_factor)).unwrap();
-    let personal_id = Fr::from_repr(FrRepr::from(burn_address.personal_id)).unwrap();
-    let vote = Fr::from_repr(FrRepr::from(burn_address.vote)).unwrap();
+    let private_key = U256::from_str_radix(&burn_address.private_key, 16).unwrap();
+    let private_key_fp = u256_to_fp(private_key);
 
-    let input: Vec<Fr> = vec![private_key, ceremony_id, blinding_factor, personal_id, vote];
+    let ceremony_id_fp = Fr::from_repr(FrRepr::from(burn_address.ceremony_id)).unwrap();
+    let blinding_factor_fp = Fr::from_repr(FrRepr::from(burn_address.blinding_factor)).unwrap();
+    let personal_id_fp = Fr::from_repr(FrRepr::from(burn_address.personal_id)).unwrap();
+    let vote_fp = Fr::from_repr(FrRepr::from(burn_address.vote)).unwrap();
+
+    let input: Vec<Fr> = vec![private_key_fp, ceremony_id_fp, blinding_factor_fp, personal_id_fp, vote_fp];
 
     let poseidon = Poseidon::new();
     let hash = poseidon.hash(input).unwrap();
     let rep = hash.into_repr();
-
-    let serialized_hash = fr_repr_to_bytes(&rep);
-    let keccak_hash = Keccak256::digest(&serialized_hash);
-    let address_bytes: [u8; 20] = keccak_hash[12..32].try_into().unwrap();
-    Address::from(address_bytes)
+    let bytes = fr_repr_to_bytes(&rep);
+    let address_bytes = &bytes[12..];
+    let address = Address::from_slice(address_bytes);
+    println!("burn_address: 0x{}", hex::encode(address_bytes));
+    address
 }
