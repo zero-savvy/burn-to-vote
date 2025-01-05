@@ -27,6 +27,7 @@ dependencies = [
  "num-traits",
  "poseidon-rs",
  "primitive-types 0.13.1",
+ "rand 0.8.5",
  "serde_json",
  "sha2",
  "sha3",
