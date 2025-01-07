@@ -38,4 +38,4 @@ template BurnAddress() {
 }
 
 
-component main  = BurnAddress(); 
+component main{public[ceremonyID, vote]}  = BurnAddress(); 
