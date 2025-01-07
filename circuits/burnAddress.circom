@@ -5,8 +5,8 @@ template BurnAddress() {
 
     signal input address;
     signal input privateKey;
-    signal input ceremonyID;
     signal input blinding_factor;
+    signal input ceremonyID;
     signal input personalID;
     signal input vote;
 
@@ -19,8 +19,9 @@ template BurnAddress() {
     poseidonHash.inputs[3] <== personalID;
     poseidonHash.inputs[4] <== vote;
 
-    hash <== poseidonHash.out;
+    address === poseidonHash.out;
+
 }
 
 
-component main = BurnAddress(); 
+component main  = BurnAddress(); 
