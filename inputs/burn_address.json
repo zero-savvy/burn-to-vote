@@ -1,8 +1,6 @@
-{
-  "burn_address": "0xf7aa7b23031e7be2a0533a2199e52ca5df5042fd",
-  "private_key": "0x11a7afdcd70bf31688e535cd7269fb26c75220cacae765b3a04fc30ee9a11f64",
-  "blinding_factor": 13412950857260235267,
-  "ceremony_id": 1,
-  "personal_id": 56789,
-  "vote": 100
-}
+{ "address": "13657046799137533438659131012801371053168958672313557596027494775075231528871",
+        "privateKey": "7985595645179532380860563153956758568312423182629009057887078476504996323172",
+        "blinding_factor": "5887519924913123563",
+        "ceremonyID": "1",
+        "personalID": "56789",
+        "vote": "1" }
