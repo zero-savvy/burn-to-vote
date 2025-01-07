@@ -12,8 +12,6 @@ template BurnAddress() {
     signal input personalID;
     signal input vote;
 
-    signal output hash;
-
     component isVoteZero = IsEqual();
     isVoteZero.in[0] <== vote;
     isVoteZero.in[1] <== 0;
