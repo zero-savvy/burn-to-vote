@@ -18,7 +18,7 @@ To set up the project, Follow these steps to get the project up and running on y
 2. **Download and run ganache(to run locally)**:
     ```sh
     npm i ganache-cli
-    ganche
+    ganache
     ```
 
 3. **Add the deployer private key to Makefile deploy command**
