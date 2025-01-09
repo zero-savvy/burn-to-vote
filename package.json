@@ -13,9 +13,8 @@
     "foundry": ">=1.0.0"
   },
   "scripts": {
-    "install-circom": "git clone https://github.com/iden3/circom.git && cd circom && cargo build --release",
     "install-circomlib": "git clone https://github.com/iden3/circomlib.git circuits/circomlib && cd circuits/circomlib && npm install",
     "install-rapidsnark": "git clone https://github.com/iden3/rapidsnark.git circuits/rapidsnark && cd circuits/rapidsnark && npm install",
-    "install-deps": "npm run install-circom && npm run install-circomlib && npm run install-rapidsnark"
+    "install-deps": "npm run install-circomlib && npm run install-rapidsnark"
   }
 }

@@ -12,6 +12,7 @@ Before setting up the project, ensure the following tools are installed:
 1. **Node.js** (>=16.0.0) - [Install Node.js](https://nodejs.org/)
 2. **Rust** (for Cargo) - [Install Rust](https://www.rust-lang.org/tools/install)
 3. **Homebrew** (for macOS) - [Install Homebrew](https://brew.sh/)
+4. **Circom** - [Install Circom](https://docs.circom.io/getting-started/installation/)
 
 ## Setup
 
@@ -32,13 +33,7 @@ To set up the project, Follow these steps to get the project up and running on y
 
     This will:
     - Install all Node.js dependencies including ganache-cli and snarkjs.
-    - Run additional setup scripts to install Circom, Circomlib, and Rapidsnark in the circuits folder.
-
-    For macOS users, you need to install nlohmann-json separately using Homebrew:
-    
-    ```sh
-    brew install nlohmann-json
-    ```
+    - Run additional setup scripts to install Circomlib, and Rapidsnark in the circuits folder.
 
 3. **Start Ganache Locally**
 
