@@ -1,27 +1,53 @@
-# POB-Anonymous-Voting
+# Proof-of-burn Anonymous Voting
 
 ## Abstract
 
 This project implements a decentralized voting protocol that combines token burning mechanisms with zero-knowledge proofs to ensure vote privacy and weight verification. 
 
+
+## Prerequisites
+
+Before setting up the project, ensure the following tools are installed:
+
+1. **Node.js** (>=16.0.0) - [Install Node.js](https://nodejs.org/)
+2. **Rust** (for Cargo) - [Install Rust](https://www.rust-lang.org/tools/install)
+3. **Homebrew** (for macOS) - [Install Homebrew](https://brew.sh/)
+4. **Circom** - [Install Circom](https://docs.circom.io/getting-started/installation/)
+
 ## Setup
 
 To set up the project, Follow these steps to get the project up and running on your local machine.
 
-
 1. **Clone the Repository**:
     ```sh
-    git clone https://github.com/toolabi/POB-Anonymous-Voting.git
+    git clone git@github.com:zero-savvy/POB-Anonymous-Voting.git
     cd POB-Anonymous-Voting
     ```
+2. **Install Project Dependencies**
 
-2. **Download and run ganache(to run locally)**:
+    Run the following command to install all dependencies:
     ```sh
-    npm i ganache-cli
-    ganche
+    npm install
+    npm run install-deps
     ```
 
-3. **Add the deployer private key to Makefile deploy command**
+    This will:
+    - Install all Node.js dependencies including ganache-cli and snarkjs.
+    - Run additional setup scripts to install Circomlib, and Rapidsnark in the circuits folder.
+
+3. **Start Ganache Locally**
+
+    Since ganache-cli is included in the project dependencies, you can run it directly:
+    ```sh
+    ganache
+    ```
+
+    This will start a local blockchain instance for testing.
+
+
+3. **Add the deployer private key to Makefile deploy command**:
+    
+    Copy Private key from ganache accounts and add to deploy command in Makefile.
 
 4. **Deploy contract**:
     ```sh
