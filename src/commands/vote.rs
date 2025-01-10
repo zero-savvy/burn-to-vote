@@ -1,3 +1,3 @@
-pub async fn vote(){
-    println!("submit vote");
+pub async fn vote() -> String {
+    "submit vote".to_string()
 }

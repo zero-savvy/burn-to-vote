@@ -4,5 +4,26 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+sha2 = "0.10.8"
 structopt = "0.3.26"
 tokio = { version = "1.39.2", features = ["full"] }
+alloy = { version = "0.4", features = ["full", "rlp"] }
+alloy-sol-types = "0.8.15"
+poseidon-rs = "0.0.10"
+blstrs = "0.7.1"
+hex = "0.4.3"
+ethers = "2.0.14"
+sha3 = "0.10.8"
+eyre = "0.6.12"
+serde_json = "1.0.134"
+primitive-types = { version =  "0.13.1", features = ["serde"] }
+num-bigint = "0.4.6"
+num-traits = "0.2.19"
+rand = "0.8.5"
+openssl = { version = "0.10.64", features = ["vendored"] } 
+
+[dependencies.ff]
+version = "0.11"
+features = ["derive"]
+package = "ff_ce"
+

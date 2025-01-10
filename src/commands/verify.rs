@@ -1,3 +1,3 @@
-pub async fn verify(){
-    println!("verify burn proof");
+pub async fn verify() -> String {
+    "verify burn proof".to_string()
 }
