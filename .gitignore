@@ -2,7 +2,19 @@
 .DS_Store
 circuits/setup
 contracts/output.json
-.env
+
 circuits/burnAddress_files
 circuits/circomlib
 circuits/rapidsnark
+
+# Environment files
+.env
+
+# Node.js
+node_modules/
+package-lock.json
+yarn.lock
+
+# IDE/Editor files
+.idea/
+.vscode/
