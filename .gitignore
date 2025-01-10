@@ -4,3 +4,5 @@ circuits/setup
 contracts/output.json
 .env
 circuits/burnAddress_files
+circuits/circomlib
+circuits/rapidsnark
