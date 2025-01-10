@@ -6,12 +6,15 @@
   "dependencies": {
     "ganache": "^7.9.2",
     "ganache-cli": "^6.12.2",
-    "snarkjs": "^0.6.11",
-    "circom": "2.2.0",
-    "circomlib": "^2.0.5"
+    "snarkjs": "^0.6.11"
   },
   "engines": {
     "node": ">=16.0.0",
     "foundry": ">=1.0.0"
+  },
+  "scripts": {
+    "install-circomlib": "git clone https://github.com/iden3/circomlib.git circuits/circomlib && cd circuits/circomlib && npm install",
+    "install-rapidsnark": "git clone https://github.com/iden3/rapidsnark.git circuits/rapidsnark && cd circuits/rapidsnark && npm install",
+    "install-deps": "npm run install-circomlib && npm run install-rapidsnark"
   }
 }
