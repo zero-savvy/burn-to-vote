@@ -47,7 +47,6 @@ burnAddress_circuit:
 	mv circuits/burnAddress_files/burnAddress_cpp/main.cpp circuits/burnAddress_files/burnAddress_cpp/main.cpp.tmp
 	python3 scripts/spit_output.py < circuits/burnAddress_files/burnAddress_cpp/main.cpp.tmp > circuits/burnAddress_files/burnAddress_cpp/main.cpp
 	rm circuits/burnAddress_files/burnAddress_cpp/main.cpp.tmp
-	# cd circuits/burnAddress_files/burnAddress_cpp && make
 	mv circuits/burnAddress.r1cs circuits/burnAddress_files/burnAddress.r1cs
 	mv circuits/burnAddress.sym circuits/burnAddress_files/burnAddress.sym 
 burnAddress_witness:
