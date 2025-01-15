@@ -4,57 +4,51 @@
 
 This project implements a decentralized voting protocol that combines token burning mechanisms with zero-knowledge proofs to ensure vote privacy and weight verification. 
 
-
 ## Prerequisites
 
 Before setting up the project, ensure the following tools are installed:
 
-1. **Node.js** (>=16.0.0) - [Install Node.js](https://nodejs.org/)
-2. **Rust** (for Cargo) - [Install Rust](https://www.rust-lang.org/tools/install)
-3. **Homebrew** (for macOS) - [Install Homebrew](https://brew.sh/)
-4. **Circom** - [Install Circom](https://docs.circom.io/getting-started/installation/)
+- **Node.js** (>=16.0.0) - [Install Node.js](https://nodejs.org/)
+- **Rust** (for Cargo) - [Install Rust](https://www.rust-lang.org/tools/install)
+- **Homebrew** (for macOS) - [Install Homebrew](https://brew.sh/)
+- **Circom** - [Install Circom](https://docs.circom.io/getting-started/installation/)
 
 ## Setup
 
-To set up the project, Follow these steps to get the project up and running on your local machine.
+To set up the project, follow these steps to get the project up and running on your local machine.
 
 1. **Clone the Repository**:
     ```sh
     git clone git@github.com:zero-savvy/POB-Anonymous-Voting.git
     cd POB-Anonymous-Voting
     ```
-2. **Install Project Dependencies**
-
-    Run the following command to install all dependencies:
+2. **Install Project Dependencies**:
     ```sh
     npm install
     npm run install-deps
     ```
 
     This will:
-    - Install all Node.js dependencies including ganache-cli and snarkjs.
-    - Run additional setup scripts to install Circomlib, and Rapidsnark in the circuits folder.
+    - Install all Node.js dependencies including Circomlib, ganache-cli and snarkjs.
+    - Run additional setup scripts to install Rapidsnark in the circuits folder.
 
-3. **Start Ganache Locally**
-
-    Since ganache-cli is included in the project dependencies, you can run it directly:
+3. **Start Ganache Locally**:
     ```sh
     ganache
     ```
 
     This will start a local blockchain instance for testing.
 
-
-3. **Add the deployer private key to Makefile deploy command**:
+4. **Add the deployer private key to Makefile deploy command**:
     
     Copy Private key from ganache accounts and add to deploy command in Makefile.
 
-4. **Deploy contract**:
+5. **Deploy contract**:
     ```sh
     make deploy
     ```
 
-5. **run circuit commands**:
+6. **Run circuit commands**:
     ```sh
     make trusted_setup
     make vote_circuit
@@ -62,23 +56,45 @@ To set up the project, Follow these steps to get the project up and running on y
     make vote_vkey
     ```
 
-6. **Generate a burn address**:
+7. **Generate a burn address**:
     ```sh
     cargo run -- burn-address
     ```
-7. **Burn some ETH**:
+
+8. **Generate Nullifier**:
+
+    First, generate the required input.json file:
+    ```sh
+    cargo run -- nullifier <private-key> <ceremony-id> <blinding-factor>
+    ```
+
+    Then, execute the entire nullifier workflow with:
+    ```sh
+    make nullifier
+    ```
+
+    This command will:
+    - Compile the circuit.
+    - Perform the trusted setup.
+    - Generate the witness.
+    - Create the proof.
+    - Verify the proof.
+    - Clean up intermediate files.
+
+9. **Burn some ETH**:
     ```sh
     cargo run -- burn
     ```
-8. **Vote**:
+
+10. **Vote**:
     ```sh
     cargo run -- vote
     ```
-9. **check your vote proof**:
+
+11. **Check your vote proof**:
     ```sh
     cargo run -- verify
     ```
-
 
 ## Features
 
@@ -93,8 +109,6 @@ To set up the project, Follow these steps to get the project up and running on y
 2. **Zero-Knowledge Proofs**: Prove correct weight attribution while preserving vote privacy.
 3. **Nullifier Construction**: Prevents double voting and allows public verification.
 
-
-
 ## Voting Process
 
 1. **Burn Transaction**: Users burn tokens during the voting period, generating a unique burn address.
@@ -106,8 +120,6 @@ To set up the project, Follow these steps to get the project up and running on y
 - **Replay Attack Prevention**: Nullifiers prevent resubmission of votes.
 - **Privacy**: zk-SNARKs ensure voter identities and token amounts remain hidden.
 - **Verifiable Results**: All proofs and votes are verified and tallied on-chain.
-
-
 
 ## Conclusion
 
