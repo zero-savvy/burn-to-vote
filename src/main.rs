@@ -2,11 +2,13 @@ use structopt::StructOpt;
 mod commands;
 use commands::burn::Burn;
 use commands::burn_address::BurnAddress;
+use commands::nullifier::Nullifier;
 
 #[derive(Debug, StructOpt)]
 enum Opt {
     BurnAddress(BurnAddress),
     Burn(Burn),
+    Nullifier(Nullifier),
     Vote,
     Verify,
 }
@@ -21,12 +23,16 @@ async fn main() {
         Opt::Burn(burn_data) => {
             commands::burn::burn(burn_data).await;
         }
+        Opt::Nullifier(nullifier) => {
+            commands::nullifier::generate_nullifier(nullifier);
+        }
         Opt::Vote => {
             commands::vote::vote().await;
         }
         Opt::Verify => {
             commands::verify::verify().await;
         }
+
     }
 }
 // cargo run -- Burn --private-key <private_key> --ceremony-id <ceremony_id> --blinding-factor <blinding_factor> --personal-id <personal_id> --vote <vote>
