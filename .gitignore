@@ -2,6 +2,7 @@
 .DS_Store
 circuits/setup
 contracts/output.json
+circuits/nullifier
 
 circuits/burnAddress_files
 circuits/circomlib
