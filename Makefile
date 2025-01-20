@@ -77,7 +77,7 @@ clean_burnAddress_circuit:
 
 nullifier_circuit:
 	mkdir -p circuits/nullifier
-	circom circuits/nullifier/nullifier.circom --r1cs --wasm --sym -o circuits/nullifier -l ./node_modules
+	circom circuits/nullifier.circom --r1cs --wasm --sym -o circuits/nullifier -l ./node_modules
 
 nullifier_zkey:
 	snarkjs groth16 setup circuits/nullifier/nullifier.r1cs circuits/setup/pot12_final.ptau circuits/nullifier/nullifier_0000.zkey
@@ -86,8 +86,8 @@ nullifier_zkey:
 
 nullifier_witness:
 	snarkjs wtns calculate circuits/nullifier/nullifier_js/nullifier.wasm circuits/nullifier/input.json circuits/nullifier/witness.wtns
-	snarkjs wtns check circuits/burnAddress_files/burnAddress.r1cs circuits/burnAddress_files/witness.wtns
-	snarkjs wtns export json circuits/burnAddress_files/witness.wtns circuits/burnAddress_files/witness.json
+	snarkjs wtns check circuits/nullifier/nullifier.r1cs circuits/nullifier/witness.wtns
+	snarkjs wtns export json circuits/nullifier/witness.wtns circuits/nullifier/witness.json
 
 nullifier_proof: 
 	snarkjs groth16 prove circuits/nullifier/nullifier_final.zkey circuits/nullifier/witness.wtns circuits/nullifier/proof.json circuits/nullifier/public.json
@@ -103,7 +103,7 @@ nullifier_clean:
 	       circuits/nullifier/witness.wtns \
 	       circuits/nullifier/nullifier_js
 
-nullifier: nullifier_circuit nullifier_zkey nullifier_witness nullifier_proof nullifier_proof_verify nullifier_clean
+nullifier: nullifier_clean nullifier_circuit nullifier_zkey nullifier_witness nullifier_proof nullifier_proof_verify
 
 # contract commands
 
