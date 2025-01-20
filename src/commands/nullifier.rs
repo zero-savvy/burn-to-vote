@@ -40,7 +40,7 @@ pub fn generate_nullifier(data: Nullifier) -> Fr {
     inputs.insert("privateKey", private_key.to_string());
     inputs.insert("blindingFactor", data.blinding_factor.to_string());
     inputs.insert("ceremonyID", data.ceremony_id.to_string());
-    inputs.insert("nullifier", hash_string);
+    inputs.insert("nullifier", U256::from_str_radix(&hash_string[2..], 16).unwrap().to_string());
 
     // Write inputs to a JSON file
     let dir_path = "circuits/nullifier";
