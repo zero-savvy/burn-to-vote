@@ -1,13 +1,10 @@
 use super::utils::u256_to_fp;
 use primitive_types::U256;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
-use std::fs;
 use ff::PrimeField;
-use std::fs::File;
-use std::io::Write;
-use std::collections::HashMap;
 use structopt::StructOpt;
-
+use crate::circuits::nullifier::*;
+use crate::circuits::Circuit;
 
 #[derive(Debug, StructOpt)]
 pub struct Nullifier {
@@ -34,22 +31,19 @@ pub fn generate_nullifier(data: Nullifier) -> Fr {
 
     let hash_string = hash.into_repr().to_string();
 
+    let circuit = NullifierCircuit::new(
+        private_key,
+        data.blinding_factor,
+        data.ceremony_id,
+        hash_string,
+    );
 
-    // Create a HashMap to store inputs
-    let mut inputs = HashMap::new();
-    inputs.insert("privateKey", private_key.to_string());
-    inputs.insert("blindingFactor", data.blinding_factor.to_string());
-    inputs.insert("ceremonyID", data.ceremony_id.to_string());
-    inputs.insert("nullifier", U256::from_str_radix(&hash_string[2..], 16).unwrap().to_string());
-
-    // Write inputs to a JSON file
-    let dir_path = "circuits/nullifier";
-    fs::create_dir_all(dir_path).expect("Failed to create directories");
-
-    let file_path = format!("{}/input.json", dir_path);
-    let mut file = File::create(&file_path).expect("Unable to create file");
-    let json_data = serde_json::to_string_pretty(&inputs).expect("Failed to serialize JSON");
-    file.write_all(json_data.as_bytes()).expect("Failed to write to file");
+    circuit.generate_inputs().unwrap();
+    circuit.generate_witness().unwrap();
+    circuit.setup_zkey().unwrap();
+    circuit.generate_proof().unwrap();
+    circuit.setup_vkey().unwrap();
+    circuit.verify_proof().unwrap();
 
     hash
 }
