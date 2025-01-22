@@ -1,13 +1,12 @@
 pub mod burn_address;
 pub mod nullifier;
-use std::fs::{self, File};
-use std::error::Error;
 use log::info;
-use std::process::Command;
+use std::error::Error;
+use std::fs::{self, File};
 use std::io::Write;
+use std::process::Command;
 
 pub trait Circuit {
-
     fn generate_input_file(&self, inputs: String) -> Result<(), Box<dyn Error>>;
     fn generate_witness(&self) -> Result<(), Box<dyn Error>>;
     fn setup_zkey(&self) -> Result<(), Box<dyn Error>>;
@@ -21,7 +20,6 @@ pub struct CircuitIdentifier<'a> {
 }
 
 impl<'a> Circuit for CircuitIdentifier<'a> {
-
     fn generate_input_file(&self, inputs: String) -> Result<(), Box<dyn Error>> {
         info!("Generating inputs ...");
         fs::create_dir_all("circuits/inputs")?;
@@ -92,7 +90,7 @@ impl<'a> Circuit for CircuitIdentifier<'a> {
     }
 
     fn verify_proof(&self) -> Result<(), Box<dyn Error>> {
-        info!("Verifying proof ...", );
+        info!("Verifying proof ...");
 
         let verify_command = format!(
             "snarkjs groth16 verify circuits/{name}/verification_key.json circuits/proofs/{name}_public.json circuits/proofs/{name}_proof.json",
@@ -104,7 +102,6 @@ impl<'a> Circuit for CircuitIdentifier<'a> {
         Ok(())
     }
 }
-
 
 impl<'a> CircuitIdentifier<'a> {
     fn run_command(&self, command: &str) -> Result<(), Box<dyn Error>> {
