@@ -23,7 +23,7 @@ nullifier_circuit:
 	mkdir -p circuits/nullifier
 	circom circuits/nullifier.circom --r1cs --wasm --sym -o circuits/nullifier -l ./node_modules
 
-circuits:burnAddress_circuit nullifier_circuit
+circuits:clean_circuits burnAddress_circuit nullifier_circuit
 
 
 clean_inputs:
