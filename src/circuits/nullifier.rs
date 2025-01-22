@@ -1,6 +1,5 @@
-use primitive_types::U256;
 use crate::circuits::{Circuit, CircuitIdentifier};
-
+use primitive_types::U256;
 
 pub struct NullifierCircuit {
     identifier: CircuitIdentifier<'static>,
@@ -11,9 +10,16 @@ pub struct NullifierCircuit {
 }
 
 impl NullifierCircuit {
-    pub fn new(private_key: U256, blinding_factor: u64, ceremony_id: u64, nullifier: String) -> Self {
+    pub fn new(
+        private_key: U256,
+        blinding_factor: u64,
+        ceremony_id: u64,
+        nullifier: String,
+    ) -> Self {
         Self {
-            identifier: CircuitIdentifier { circuit_name: "nullifier" },
+            identifier: CircuitIdentifier {
+                circuit_name: "nullifier",
+            },
             private_key,
             blinding_factor,
             ceremony_id,
@@ -29,14 +35,16 @@ impl NullifierCircuit {
             self.private_key.to_string(),
             self.blinding_factor.to_string(),
             self.ceremony_id.to_string(),
-            U256::from_str_radix(&self.nullifier[2..], 16).unwrap().to_string()
+            U256::from_str_radix(&self.nullifier[2..], 16)
+                .unwrap()
+                .to_string()
         );
         Ok(inputs)
     }
 }
 
 impl Circuit for NullifierCircuit {
-    fn generate_input_file(&self, inputs:String) -> Result<(), Box<dyn std::error::Error>> {
+    fn generate_input_file(&self, inputs: String) -> Result<(), Box<dyn std::error::Error>> {
         self.identifier.generate_input_file(inputs)?;
         Ok(())
     }
@@ -61,7 +69,7 @@ impl Circuit for NullifierCircuit {
         self.identifier.setup_vkey()?;
         Ok(())
     }
-    
+
     fn verify_proof(&self) -> Result<(), Box<dyn std::error::Error>> {
         self.identifier.verify_proof()?;
         Ok(())
