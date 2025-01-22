@@ -21,6 +21,8 @@ num-bigint = "0.4.6"
 num-traits = "0.2.19"
 rand = "0.8.5"
 openssl = { version = "0.10.64", features = ["vendored"] } 
+log = "0.4.25"
+env_logger = "0.11.6"
 
 [dependencies.ff]
 version = "0.11"
