@@ -5,6 +5,8 @@ use ff::PrimeField;
 use structopt::StructOpt;
 use crate::circuits::nullifier::*;
 use crate::circuits::Circuit;
+use log::info;
+
 
 #[derive(Debug, StructOpt)]
 pub struct Nullifier {
@@ -38,7 +40,9 @@ pub fn generate_nullifier(data: Nullifier) -> Fr {
         hash_string,
     );
 
-    circuit.generate_inputs().unwrap();
+    info!("nullifier circuit: ");
+    let inputs = circuit.format_inputs().unwrap();
+    circuit.generate_input_file(inputs).unwrap();
     circuit.generate_witness().unwrap();
     circuit.setup_zkey().unwrap();
     circuit.generate_proof().unwrap();
