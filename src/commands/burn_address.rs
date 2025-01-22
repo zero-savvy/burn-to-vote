@@ -1,12 +1,12 @@
 use super::utils::{fr_repr_to_bytes, u256_to_fp};
+use crate::circuits::burn_address::*;
+use crate::circuits::Circuit;
 use alloy::primitives::Address;
 use ff::PrimeField;
 use log::info;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
 use primitive_types::U256;
 use structopt::StructOpt;
-use crate::circuits::burn_address::*;
-use crate::circuits::Circuit;
 
 #[derive(Debug, StructOpt)]
 pub struct BurnAddress {
@@ -50,8 +50,8 @@ pub async fn burn_address(burn_address: BurnAddress) -> Address {
         burn_address.ceremony_id,
         burn_address.personal_id,
         burn_address.vote,
-    );  
-    
+    );
+
     info!("Burn address circuit: ");
     let inputs = circuit.format_inputs().unwrap();
     circuit.generate_input_file(inputs).unwrap();
