@@ -8,6 +8,7 @@ circuits/burnAddress_files
 circuits/circomlib
 circuits/rapidsnark
 
+
 # Environment files
 .env
 
