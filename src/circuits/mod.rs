@@ -24,6 +24,7 @@ impl<'a> Circuit for CircuitIdentifier<'a> {
 
     fn generate_input_file(&self, inputs: String) -> Result<(), Box<dyn Error>> {
         info!("Generating inputs ...");
+        fs::create_dir_all("circuits/inputs")?;
         let inputs_path = format!("circuits/inputs/{}.json", self.circuit_name);
         let mut file = File::create(inputs_path)?;
         file.write_all(inputs.as_bytes())?;
