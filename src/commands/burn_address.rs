@@ -4,8 +4,6 @@ use ff::PrimeField;
 use log::info;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
 use primitive_types::U256;
-use std::fs::File;
-use std::io::prelude::*;
 use structopt::StructOpt;
 use crate::circuits::burn_address::*;
 use crate::circuits::Circuit;
@@ -46,15 +44,17 @@ pub async fn burn_address(burn_address: BurnAddress) -> Address {
     let address = Address::from_slice(address_bytes);
 
     let circuit = BurnAddressCircuit::new(
-        rep_str,
+        rep_str.clone(),
         private_key,
         blinding_factor,
         burn_address.ceremony_id,
         burn_address.personal_id,
         burn_address.vote,
     );  
+    
     info!("Burn address circuit: ");
-    circuit.generate_inputs().unwrap();
+    let inputs = circuit.format_inputs().unwrap();
+    circuit.generate_input_file(inputs).unwrap();
     circuit.generate_witness().unwrap();
     circuit.setup_zkey().unwrap();
     circuit.generate_proof().unwrap();
