@@ -1,12 +1,10 @@
 use structopt::StructOpt;
-mod commands;
 mod circuits;
+mod commands;
 use commands::burn::Burn;
 use commands::burn_address::BurnAddress;
 use commands::nullifier::Nullifier;
 use env_logger::Env;
-
-
 
 #[derive(Debug, StructOpt)]
 enum Opt {
@@ -20,7 +18,7 @@ enum Opt {
 #[tokio::main]
 async fn main() {
     env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
-    
+
     let opt = Opt::from_args();
     match opt {
         Opt::BurnAddress(burn_address) => {
@@ -38,7 +36,5 @@ async fn main() {
         Opt::Verify => {
             commands::verify::verify().await;
         }
-
     }
 }
-// cargo run -- Burn --private-key <private_key> --ceremony-id <ceremony_id> --blinding-factor <blinding_factor> --personal-id <personal_id> --vote <vote>
