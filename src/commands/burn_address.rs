@@ -1,11 +1,14 @@
 use super::utils::{fr_repr_to_bytes, u256_to_fp};
 use alloy::primitives::Address;
 use ff::PrimeField;
+use log::info;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
 use primitive_types::U256;
 use std::fs::File;
 use std::io::prelude::*;
 use structopt::StructOpt;
+use crate::circuits::burn_address::*;
+use crate::circuits::Circuit;
 
 #[derive(Debug, StructOpt)]
 pub struct BurnAddress {
@@ -42,23 +45,20 @@ pub async fn burn_address(burn_address: BurnAddress) -> Address {
     let address_bytes = &bytes[12..];
     let address = Address::from_slice(address_bytes);
 
-    let inputs_json = format!(
-        "{{ \"address\": \"{}\",
-        \"privateKey\": \"{}\",
-        \"blinding_factor\": \"{}\",
-        \"ceremonyID\": \"{}\",
-        \"personalID\": \"{}\",
-        \"vote\": \"{}\" }}",
-        U256::from_str_radix(&rep_str[2..], 16).unwrap().to_string(),
-        private_key.to_string(),
-        serde_json::to_string(&blinding_factor).unwrap(),
-        serde_json::to_string(&burn_address.ceremony_id).unwrap(),
-        serde_json::to_string(&burn_address.personal_id).unwrap(),
-        serde_json::to_string(&burn_address.vote).unwrap()
-    );
-
-    let mut f = File::create("inputs/burn_address.json").unwrap();
-    f.write_all(inputs_json.as_bytes()).unwrap();
-
+    let circuit = BurnAddressCircuit::new(
+        rep_str,
+        private_key,
+        blinding_factor,
+        burn_address.ceremony_id,
+        burn_address.personal_id,
+        burn_address.vote,
+    );  
+    info!("Burn address circuit: ");
+    circuit.generate_inputs().unwrap();
+    circuit.generate_witness().unwrap();
+    circuit.setup_zkey().unwrap();
+    circuit.generate_proof().unwrap();
+    circuit.setup_vkey().unwrap();
+    circuit.verify_proof().unwrap();
     address
 }
