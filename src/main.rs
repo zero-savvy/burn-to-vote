@@ -1,8 +1,12 @@
 use structopt::StructOpt;
 mod commands;
+mod circuits;
 use commands::burn::Burn;
 use commands::burn_address::BurnAddress;
 use commands::nullifier::Nullifier;
+use env_logger::Env;
+
+
 
 #[derive(Debug, StructOpt)]
 enum Opt {
@@ -15,6 +19,8 @@ enum Opt {
 
 #[tokio::main]
 async fn main() {
+    env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+    
     let opt = Opt::from_args();
     match opt {
         Opt::BurnAddress(burn_address) => {
