@@ -1,12 +1,11 @@
 use super::utils::u256_to_fp;
-use primitive_types::U256;
-use poseidon_rs::{Fr, FrRepr, Poseidon};
-use ff::PrimeField;
-use structopt::StructOpt;
 use crate::circuits::nullifier::*;
 use crate::circuits::Circuit;
+use ff::PrimeField;
 use log::info;
-
+use poseidon_rs::{Fr, FrRepr, Poseidon};
+use primitive_types::U256;
+use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 pub struct Nullifier {
@@ -16,17 +15,13 @@ pub struct Nullifier {
 }
 
 pub fn generate_nullifier(data: Nullifier) -> Fr {
-    let private_key = U256::from_str_radix(&data.private_key, 16).unwrap();    
+    let private_key = U256::from_str_radix(&data.private_key, 16).unwrap();
     let private_key_fp = u256_to_fp(private_key);
-    
+
     let blinding_factor_fp = Fr::from_repr(FrRepr::from(data.blinding_factor)).unwrap();
     let ceremony_id_fp = Fr::from_repr(FrRepr::from(data.ceremony_id)).unwrap();
 
-    let input: Vec<Fr> = vec![
-        private_key_fp,
-        ceremony_id_fp,
-        blinding_factor_fp,
-    ];
+    let input: Vec<Fr> = vec![private_key_fp, ceremony_id_fp, blinding_factor_fp];
 
     let poseidon = Poseidon::new();
     let hash = poseidon.hash(input).unwrap();
