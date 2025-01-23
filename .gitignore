@@ -2,11 +2,16 @@
 .DS_Store
 circuits/setup
 contracts/output.json
-circuits/nullifier
 
-circuits/burnAddress_files
+
+# circuits
+circuits/burnAddress
+circuits/nullifier
 circuits/circomlib
 circuits/rapidsnark
+circuits/inputs/*
+circuits/proofs
+
 
 # Environment files
 .env
