@@ -1,6 +1,7 @@
 use structopt::StructOpt;
 mod circuits;
 mod commands;
+mod utils;
 use commands::burn::Burn;
 use commands::burn_address::BurnAddress;
 use commands::nullifier::Nullifier;
