@@ -1,5 +1,5 @@
 use super::address_to_fr;
-use crate::circuits::merkle_tree::*;
+use crate::circuits::merkle_tree_c::*;
 use crate::circuits::Circuit;
 use alloy::primitives::Address;
 use core::prelude::v1;
