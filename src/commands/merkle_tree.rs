@@ -8,6 +8,7 @@ use poseidon_rs::{Fr, FrRepr, Poseidon};
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::Path;
+use structopt::StructOpt;
 
 pub async fn generate_tree() -> MerkleTree {
     let path = Path::new("data/whitelist.json");
@@ -17,10 +18,12 @@ pub async fn generate_tree() -> MerkleTree {
     let mut tree = MerkleTree::new(depth as usize, whitelist);
 
     tree.build_tree();
-    generate_proof(tree.clone(), 1).await;
-
     tree
 }
+
+
+#[derive(StructOpt, Debug)]
+pub struct UserIndex{pub index: usize}
 
 pub async fn generate_proof(tree: MerkleTree, index: usize) -> Proof {
     let proof = tree.generate_proof(index);
