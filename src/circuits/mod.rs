@@ -14,6 +14,8 @@ pub trait Circuit {
     fn setup_vkey(&self) -> Result<(), Box<dyn Error>>;
     fn generate_proof(&self) -> Result<(), Box<dyn Error>>;
     fn verify_proof(&self) -> Result<(), Box<dyn Error>>;
+    fn generate_verifier(&self) -> Result<(), Box<dyn Error>>;
+
 }
 
 pub struct CircuitIdentifier<'a> {
@@ -100,6 +102,19 @@ impl<'a> Circuit for CircuitIdentifier<'a> {
         self.run_command(&verify_command)?;
 
         info!("Proof verified.");
+        Ok(())
+    }
+
+    fn generate_verifier(&self) -> Result<(), Box<dyn Error>> {
+        info!("generating verifier contract ...");
+
+        let verify_command = format!(
+            "snarkjs zkey export solidityverifier circuits/{name}/{name}_0000.zkey circuits/{name}/{name}_verifier.sol",
+            name = self.circuit_name
+        );
+        self.run_command(&verify_command)?;
+
+        info!("smart contract genrated.");
         Ok(())
     }
 }
