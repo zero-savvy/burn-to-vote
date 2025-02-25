@@ -1,4 +1,4 @@
-use crate::circuits::merkle_tree::*;
+use crate::circuits::merkle_tree_c::*;
 use crate::circuits::Circuit;
 use crate::utils::mt::Proof;
 use crate::utils::{address_to_fr, mt::MerkleTree};
