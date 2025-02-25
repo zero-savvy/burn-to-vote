@@ -1,3 +1,5 @@
+pub mod mt;
+use alloy::primitives::Address;
 use ff::PrimeField;
 use num_bigint::BigUint;
 use num_traits::Num;
@@ -28,4 +30,10 @@ pub fn u256_to_fp(pk: U256) -> Fr {
     }
     let repr = FrRepr(u64s);
     Fr::from_repr(repr).unwrap()
+}
+
+pub fn address_to_fr(address: Address) -> Fr {
+    let bytes = address.into_word();
+    let u256 = U256::from_big_endian(&bytes[..]);
+    Fr::from_str(&u256.to_string()).unwrap()
 }

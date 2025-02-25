@@ -1,6 +1,6 @@
-use super::utils::u256_to_fp;
-use crate::circuits::nullifier::*;
+use crate::circuits::nullifier_c::*;
 use crate::circuits::Circuit;
+use crate::utils::u256_to_fp;
 use ff::PrimeField;
 use log::info;
 use poseidon_rs::{Fr, FrRepr, Poseidon};

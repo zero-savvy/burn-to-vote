@@ -1,6 +1,6 @@
-use super::utils::{fr_repr_to_bytes, u256_to_fp};
-use crate::circuits::burn_address::*;
+use crate::circuits::burn_address_c::*;
 use crate::circuits::Circuit;
+use crate::utils::{fr_repr_to_bytes, u256_to_fp};
 use alloy::primitives::Address;
 use ff::PrimeField;
 use log::info;
