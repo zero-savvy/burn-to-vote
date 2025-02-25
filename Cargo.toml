@@ -23,7 +23,7 @@ rand = "0.8.5"
 openssl = { version = "0.10.64", features = ["vendored"] } 
 log = "0.4.25"
 env_logger = "0.11.6"
-
+serde = { version = "1.0", features = ["derive"] }
 [dependencies.ff]
 version = "0.11"
 features = ["derive"]

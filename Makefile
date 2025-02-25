@@ -22,6 +22,9 @@ burnAddress_circuit:
 nullifier_circuit:
 	mkdir -p circuits/nullifier
 	circom circuits/nullifier.circom --r1cs --wasm --sym -o circuits/nullifier -l ./node_modules
+merkleTree_circuit:
+	mkdir -p circuits/merkleTree
+	circom circuits/merkleTree.circom --r1cs --wasm --sym -o circuits/merkleTree -l ./node_modules
 
 circuits:clean_circuits burnAddress_circuit nullifier_circuit
 
