@@ -1,6 +1,6 @@
-pub mod burn_address;
-pub mod merkle_tree;
-pub mod nullifier;
+pub mod burn_address_c;
+pub mod merkle_tree_c;
+pub mod nullifier_c;
 use log::info;
 use std::error::Error;
 use std::fs::{self, File};
