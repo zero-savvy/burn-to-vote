@@ -17,6 +17,8 @@ pub async fn generate_tree() -> MerkleTree {
     let mut tree = MerkleTree::new(depth as usize, whitelist);
 
     tree.build_tree();
+    generate_proof(tree.clone(), 1).await;
+
     tree
 }
 
@@ -30,6 +32,7 @@ pub async fn generate_proof(tree: MerkleTree, index: usize) -> Proof {
     circuit.generate_proof().unwrap();
     circuit.setup_vkey().unwrap();
     circuit.verify_proof().unwrap();
+    circuit.generate_verifier().unwrap();
 
     proof
 }
