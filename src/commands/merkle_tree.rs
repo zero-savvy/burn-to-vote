@@ -36,7 +36,6 @@ pub async fn generate_proof(tree: MerkleTree, index: usize) -> Proof {
 
 #[cfg(test)]
 mod tests {
-    use serde::de::Expected;
 
     use super::*;
     #[tokio::test]
