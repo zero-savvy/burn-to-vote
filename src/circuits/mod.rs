@@ -1,4 +1,5 @@
 pub mod burn_address;
+pub mod merkle_tree;
 pub mod nullifier;
 use log::info;
 use std::error::Error;
