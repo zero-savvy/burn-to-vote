@@ -1,6 +1,7 @@
 use structopt::StructOpt;
 mod circuits;
 mod commands;
+mod utils;
 use commands::burn::Burn;
 use commands::burn_address::BurnAddress;
 use commands::nullifier::Nullifier;
@@ -13,6 +14,7 @@ enum Opt {
     Nullifier(Nullifier),
     Vote,
     Verify,
+    GenerateTree,
 }
 
 #[tokio::main]
@@ -32,6 +34,9 @@ async fn main() {
         }
         Opt::Vote => {
             commands::vote::vote().await;
+        }
+        Opt::GenerateTree => {
+            commands::merkle_tree::generate_tree().await;
         }
         Opt::Verify => {
             commands::verify::verify().await;
