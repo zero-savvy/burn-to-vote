@@ -7,6 +7,8 @@ contracts/output.json
 # circuits
 circuits/burnAddress
 circuits/nullifier
+circuits/merkleTree
+circuits/rlp
 circuits/circomlib
 circuits/rapidsnark
 circuits/inputs/*
