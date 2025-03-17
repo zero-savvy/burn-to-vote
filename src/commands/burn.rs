@@ -5,9 +5,8 @@ use ethers::{
     prelude::*,
     providers::{Http, Middleware, Provider},
     signers::{LocalWallet, Signer},
-    utils,
+    utils
 };
-use eyre::Result;
 use structopt::StructOpt;
 
 use std::convert::TryFrom;
@@ -34,9 +33,9 @@ pub async fn burn(burn_data: Burn) -> String {
     let to_address = burn_data.burn_address;
     // create circuit data
     let addres_proof = get_account_proof(burn_data.burn_address).await;
-    let account_rlp = get_account_rlp(addres_proof);
-    println!("Account RLP: {}", account_rlp);
-    //
+    let _account_rlp = get_account_rlp(addres_proof);
+    println!("Account RLP: {:?}", _account_rlp);
+
     let client = SignerMiddleware::new(provider.clone(), wallet);
 
     let pre_tx_balance = provider
