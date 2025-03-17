@@ -1,4 +1,4 @@
-use ethers::{prelude::*, types::Bytes, utils::rlp};
+use ethers::{prelude::*, utils::rlp};
 pub async fn get_account_proof(address: H160) -> EIP1186ProofResponse {
     let provider: Provider<Http> = Provider::<Http>::try_from("http://localhost:8545/")
         .unwrap()
@@ -9,7 +9,7 @@ pub async fn get_account_proof(address: H160) -> EIP1186ProofResponse {
         .await
         .unwrap()
 }
-pub fn get_account_rlp(proof: EIP1186ProofResponse) -> Bytes {
+pub fn get_account_rlp(proof: EIP1186ProofResponse) -> Vec<u8> {
     let mut rlp_stream = rlp::RlpStream::new();
     rlp_stream.begin_unbounded_list();
     rlp_stream.append(&proof.nonce);
@@ -17,5 +17,5 @@ pub fn get_account_rlp(proof: EIP1186ProofResponse) -> Bytes {
     rlp_stream.append(&proof.storage_hash);
     rlp_stream.append(&proof.code_hash);
     rlp_stream.finalize_unbounded_list();
-    Bytes::from(rlp_stream.out().to_vec())
+    rlp_stream.out().to_vec()
 }
