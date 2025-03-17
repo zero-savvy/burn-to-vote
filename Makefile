@@ -26,6 +26,7 @@ nullifier_circuit:
 rlp_circuit:
 	mkdir -p circuits/rlp
 	circom circuits/rlp.circom --r1cs --wasm --sym -o circuits/rlp -l ./node_modules
+	snarkjs wtns calculate circuits/rlp/rlp_js/rlp.wasm circuits/inputs/rlp.json circuits/rlp/witness.wtns
 
 circuits:clean_circuits burnAddress_circuit nullifier_circuit
 
