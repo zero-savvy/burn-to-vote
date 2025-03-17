@@ -1,65 +1,72 @@
-pragma circom  2.2.0;
-
+pragma circom 2.0.0;
 include "circomlib/circuits/comparators.circom";
-include "circomlib/circuits/mux1.circom";
+include "utils.circom";
 
-template rlp(byteLength) {
+  
 
-    signal input in[byteLength];
-    signal output rlp;
+template rlp(len){
+    signal output nonce;
+    signal output balance;
+    signal output storageHash[32];
+    signal output codeHash[32];
+    signal input rlp[len];
 
+    rlp[0] === 0xf8;
+    // dataLen <== rlp[1];
+    // the nonce should be zero
+    rlp[2] === 0x80;
+    signal balanceLen;
+    // 70 =  1(0xf8) +1(dataLen) + 1(balanceLen) + 1(nonce) + 33 + 33 
+    balanceLen <== len - 70;
 
-
-    assert(byteLength != 0);
-
-    signal isOne;
-    signal isLess;
-    component eq1 = IsEqual();
-    eq1.in[0] <== byteLength;
-    eq1.in[1] <== 1;
-    eq1.out ==> isOne;
-
-    component lt1 = LessThan(byteLength);
-    lt1.in[0] <== in[0];
-    lt1.in[1] <== 127;
-    lt1.out ==> isLess;
-
-    signal isOneByte;
-    isOneByte <== isOne * isLess;
+    // balance prefix (rlp[3]) check
+    rlp[3] === 128 + balanceLen;
 
 
-    component mux = Mux1();
-    mux.c[0] <== 0;
-    mux.c[1] <== in[0];
-    mux.s <== isOneByte;
-    log(mux.out);
-
-    rlp <== mux.out;
+    // nonce
+    nonce <== 0;
 
 
+    // balance
+    // balance stats from th fifth index
+    // first index rlp[0] is 0xf8(list prefix)
+    // second index rlp[1] is the data length
+    // third index rlp[2]should be 0x80 since the nonce is zero
+    // fourth index rlp[3]is the length of the balnce(128 + balanceLen)
+    component balanceSub = SubArray(len, 32, 8);
+    balanceSub.in <== rlp;
+    balanceSub.start <== 4;
+    balanceSub.end <== 4 + balanceLen;
 
+
+    component balanceInt = BytesToNum(len - 70);
+    for (var i=0; i<len - 70; i++ ){
+        balanceInt.bytes[i] <== balanceSub.out[i];
+        log(balanceSub.out[i]);
+    }
+
+    balance <== balanceInt.num;
+
+    component storageHashSub = SubArray(len, 32, 8);
+    storageHashSub.in <== rlp;
+    //  4 + balanceLen + 1(storage length 160(128+32))
+    storageHashSub.start <== 5 + balanceLen ;
+    storageHashSub.end <== 37 + balanceLen;
+
+    component CodeHashSub = SubArray(len, 32, 8);
+    CodeHashSub.in <== rlp;
+    //  4 + balanceLen + 1(storage length 160(128+32))+ 32 +1)
+    CodeHashSub.start <== 38 + balanceLen ;
+    CodeHashSub.end <== 70 + balanceLen;
+
+    storageHash <== storageHashSub.out;
+    codeHash <==  CodeHashSub.out;
+
+    log(balance);
 
 
 }
 
-// template Encode_length(){
-//     signal input l;
-//     signal input offset;
-//     signal output encoded_length;
-//     if (l < 56) {
-//         encoded_length <== l + offset;
-//     } else {
 
-//     }
-//     // if the length is the than 56
-//     // if the length is less than 256**8
-//     // if the length is more than 256**8
-//     // raise error
-
-// }
-
-
-
-component main = rlp(1);
-
+// component main = rlp(78);
 
