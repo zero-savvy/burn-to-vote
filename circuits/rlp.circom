@@ -11,6 +11,7 @@ template rlp(len){
     signal output codeHash[32];
     signal input rlp[len];
 
+    // prefix of a list with more than 55 bytes data
     rlp[0] === 0xf8;
     // dataLen <== rlp[1];
     // the nonce should be zero
