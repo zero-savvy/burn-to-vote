@@ -5,7 +5,7 @@ use ethers::{
     prelude::*,
     providers::{Http, Middleware, Provider},
     signers::{LocalWallet, Signer},
-    utils
+    utils,
 };
 use structopt::StructOpt;
 
