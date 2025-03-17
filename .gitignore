@@ -1,18 +1,12 @@
 /target
 .DS_Store
-circuits/setup
 contracts/output.json
 
 
 # circuits
-circuits/burnAddress
-circuits/nullifier
-circuits/merkleTree
-circuits/rlp
-circuits/circomlib
-circuits/rapidsnark
-circuits/inputs/*
-circuits/proofs
+
+circuits/*/
+
 
 
 # Environment files

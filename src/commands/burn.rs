@@ -1,3 +1,4 @@
+use crate::utils::account::{get_account_proof, get_account_rlp};
 use ethers::{
     core::types::TransactionRequest,
     middleware::SignerMiddleware,
@@ -6,7 +7,6 @@ use ethers::{
     signers::{LocalWallet, Signer},
     utils,
 };
-use eyre::Result;
 use structopt::StructOpt;
 
 use std::convert::TryFrom;
@@ -31,6 +31,11 @@ pub async fn burn(burn_data: Burn) -> String {
         .with_chain_id(chain_id.as_u64());
 
     let to_address = burn_data.burn_address;
+    // create circuit data
+    let addres_proof = get_account_proof(burn_data.burn_address).await;
+    let _account_rlp = get_account_rlp(addres_proof);
+    println!("Account RLP: {:?}", _account_rlp);
+
     let client = SignerMiddleware::new(provider.clone(), wallet);
 
     let pre_tx_balance = provider
