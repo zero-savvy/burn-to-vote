@@ -4,7 +4,9 @@ contracts/output.json
 
 
 # circuits
+
 circuits/*/
+
 
 
 # Environment files

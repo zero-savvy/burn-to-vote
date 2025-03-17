@@ -74,4 +74,8 @@ impl Circuit for NullifierCircuit {
         self.identifier.verify_proof()?;
         Ok(())
     }
+    fn generate_verifier(&self) -> Result<(), Box<dyn std::error::Error>> {
+        self.identifier.generate_verifier()?;
+        Ok(())
+    }
 }
