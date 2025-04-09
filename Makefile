@@ -11,7 +11,7 @@ rapidSnark:
 
 trusted_setup:
 	mkdir -p circuits/setup
-	cd circuits && snarkjs powersoftau new bn128 12 setup/pot12_0000.ptau -v
+	cd circuits && snarkjs powersoftau new bn128 24 setup/pot12_0000.ptau -v
 	cd circuits && snarkjs powersoftau contribute setup/pot12_0000.ptau setup/pot12_0001.ptau --entropy=1234 --name="first contribution" -v
 	cd circuits && snarkjs powersoftau prepare phase2 setup/pot12_0001.ptau setup/pot12_final.ptau -v
 
@@ -30,6 +30,10 @@ rlp_circuit:
 	mkdir -p circuits/rlp
 	circom circuits/rlp.circom --r1cs --wasm --sym -o circuits/rlp -l ./node_modules
 	snarkjs wtns calculate circuits/rlp/rlp_js/rlp.wasm circuits/inputs/rlp.json circuits/rlp/witness.wtns
+
+mpt_circuit:
+	mkdir -p circuits/mpt
+	circom circuits/mpt.circom --r1cs --wasm --sym --verbose -o circuits/mpt -l ./node_modules
 
 circuits:clean_circuits burnAddress_circuit nullifier_circuit
 
