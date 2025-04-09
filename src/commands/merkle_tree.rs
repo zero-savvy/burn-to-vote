@@ -21,9 +21,10 @@ pub async fn generate_tree() -> MerkleTree {
     tree
 }
 
-
 #[derive(StructOpt, Debug)]
-pub struct UserIndex{pub index: usize}
+pub struct UserIndex {
+    pub index: usize,
+}
 
 pub async fn generate_proof(tree: MerkleTree, index: usize) -> Proof {
     let proof = tree.generate_proof(index);
