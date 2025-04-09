@@ -2,6 +2,8 @@ pragma circom 2.0.0;
 // include "circuits/circom-ecdsa/circuits/vocdoni-keccak/keccak.circom";
 include "./keccak.circom";
 include "./utils.circom";
+include "./rlp.circom";
+
 
 template mpt(maxDepth){
     // , keyHexLen, maxValueHexLen
@@ -16,10 +18,10 @@ template mpt(maxDepth){
 
 
     // signal input address[20];
-    // signal input nonce;
-    // signal input balance;
-    // signal input storage_hash;
-    // signal input code_hash;
+    signal input nonce;
+    signal input balance;
+    signal input storage_hash[32];
+    signal input code_hash[32];
 
     // addressRlpPrefix:      2
     // addressRlpLength:      2
@@ -100,16 +102,54 @@ template mpt(maxDepth){
         nodeHash[i].in <== account_proof[maxDepth - i];
         nodeHash[i].inLen <== node_length[maxDepth - i];
 
-        subChecks[i] = IsPaddedSubarray(1064, 64);
+        subChecks[i] = IsSubarray(1064, 64);
         subChecks[i].base <== account_proof[maxDepth - i -1];
         subChecks[i].sub <== nodeHash[i].out;
-        subChecks[i].subRealLen <== 64;
 
         1 === subChecks[i].out;
     }
 
 
+    // check account proof
+
+    component rlpHexToByte = HexToBytes(164,82);
+    rlpHexToByte.hexArray <== account_rlp;
+
+    component rlpDecode = Rlp(82);
+    rlpDecode.rlp <== rlpHexToByte.out;
+    rlpDecode.rlpLen <== account_rlp_len / 2;
+
+    nonce === rlpDecode.nonce;
+    balance === rlpDecode.balance;
+    storage_hash === rlpDecode.storageHash;
+    code_hash === rlpDecode.codeHash;
+
+    log(rlpDecode.nonce);
+    log(rlpDecode.balance);
+    log(rlpDecode.storageHash[0]);
+    log(rlpDecode.storageHash[31]);
+    log(rlpDecode.codeHash[0]);
+    log(rlpDecode.codeHash[31]);
+
+
     a <== account_proof_length;
+
+
+
+}
+
+
+template HexToBytes(hexLen, bytesLen){
+    signal input hexArray[hexLen];
+    signal output out[bytesLen];
+
+    hexLen/2 === bytesLen;
+
+    var j = 0;
+    for (var i=0; i< hexLen; i+=2){
+        out[j] <== hexArray[i] * 16 + hexArray[i+1];
+        j = j +1;
+    }
 
 }
 
@@ -118,6 +158,7 @@ template mpt(maxDepth){
 
 
 component main = mpt(4);
+// component main = HexToBytes(164,82);
 // component main = SubarrayExists(25,5);
 // component main = IsSubarray(7,3);
 // 0x158730abb7b01c5c78b
