@@ -1,5 +1,5 @@
-pub mod mt;
 pub mod account;
+pub mod mt;
 use alloy::primitives::Address;
 use ff::PrimeField;
 use num_bigint::BigUint;
@@ -39,3 +39,26 @@ pub fn address_to_fr(address: Address) -> Fr {
     Fr::from_str(&u256.to_string()).unwrap()
 }
 
+// 1 -> branch
+// 0 -> extention or if the last node -> leaf
+pub fn get_mpt_node_type(nodes: Vec<Vec<Vec<u8>>>) -> Vec<usize> {
+    nodes
+        .into_iter()
+        .map(|node| if node.len() == 17 { 1 } else { 0 })
+        .collect()
+}
+
+pub fn serialize_hex(val_hex: &str) -> Vec<u8> {
+    val_hex
+        .chars()
+        .filter_map(|c| c.to_digit(16).map(|d| d as u8))
+        .collect()
+}
+
+pub fn hexToBytes(hex: Vec<u8>) -> Vec<u8> {
+    let mut v: Vec<u8> = vec![];
+    for i in (0..hex.len()).step_by(2) {
+        v.push(hex[i] * 16 + hex[i + 1]);
+    }
+    v
+}
