@@ -1,12 +1,8 @@
 use super::address_to_fr;
-use crate::circuits::merkle_tree_c::*;
-use crate::circuits::Circuit;
+
 use alloy::primitives::Address;
-use core::prelude::v1;
-use ff::PrimeField;
-use poseidon_rs::{Fr, FrRepr, Poseidon};
-use primitive_types::U256;
-use std::collections::HashMap;
+
+use poseidon_rs::{Fr, Poseidon};
 
 #[derive(Debug, Clone)]
 struct MerkleTreeNode {

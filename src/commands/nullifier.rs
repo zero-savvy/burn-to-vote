@@ -1,4 +1,3 @@
-
 use crate::circuits::nullifier_c::*;
 use crate::circuits::Circuit;
 use crate::utils::u256_to_fp;

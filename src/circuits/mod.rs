@@ -1,5 +1,6 @@
 pub mod burn_address_c;
 pub mod merkle_tree_c;
+pub mod mpt_c;
 pub mod nullifier_c;
 use log::info;
 use std::error::Error;
@@ -15,7 +16,6 @@ pub trait Circuit {
     fn generate_proof(&self) -> Result<(), Box<dyn Error>>;
     fn verify_proof(&self) -> Result<(), Box<dyn Error>>;
     fn generate_verifier(&self) -> Result<(), Box<dyn Error>>;
-
 }
 
 pub struct CircuitIdentifier<'a> {
@@ -55,7 +55,7 @@ impl<'a> Circuit for CircuitIdentifier<'a> {
         info!("Setting up zkey ...");
 
         let setup_command = format!(
-            "snarkjs groth16 setup circuits/{name}/{name}.r1cs circuits/setup/pot12_final.ptau circuits/{name}/{name}_0000.zkey",
+            "snarkjs groth16 setup circuits/{name}/{name}.r1cs circuits/setup/pot_final.ptau circuits/{name}/{name}_0000.zkey",
             name = self.circuit_name
         );
         self.run_command(&setup_command)?;
@@ -81,11 +81,11 @@ impl<'a> Circuit for CircuitIdentifier<'a> {
         info!("Generating proof ...");
 
         fs::create_dir_all("circuits/proofs")?;
-
         let proof_command = format!(
             "snarkjs groth16 prove circuits/{name}/{name}_0000.zkey circuits/{name}/witness.wtns circuits/proofs/{name}_proof.json circuits/proofs/{name}_public.json",
             name = self.circuit_name
         );
+
         self.run_command(&proof_command)?;
 
         info!("Proof generated.");

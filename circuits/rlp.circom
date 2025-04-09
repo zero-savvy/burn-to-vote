@@ -4,12 +4,13 @@ include "utils.circom";
 
   
 
-template rlp(len){
+template Rlp(len){
     signal output nonce;
     signal output balance;
     signal output storageHash[32];
     signal output codeHash[32];
     signal input rlp[len];
+    signal input rlpLen;
 
     // prefix of a list with more than 55 bytes data
     rlp[0] === 0xf8;
@@ -17,16 +18,14 @@ template rlp(len){
     // the nonce should be zero
     rlp[2] === 0x80;
     signal balanceLen;
-    // 70 =  1(0xf8) +1(dataLen) + 1(balanceLen) + 1(nonce) + 33 + 33 
-    balanceLen <== len - 70;
+    // 70 =  1(0xf8) +1(dataLen)  + 1(nonce) + 1(balanceLen) + 33 + 33 
+    balanceLen <== rlpLen - 70;
 
     // balance prefix (rlp[3]) check
     rlp[3] === 128 + balanceLen;
 
-
     // nonce
     nonce <== 0;
-
 
     // balance
     // balance stats from th fifth index
@@ -34,19 +33,21 @@ template rlp(len){
     // second index rlp[1] is the data length
     // third index rlp[2]should be 0x80 since the nonce is zero
     // fourth index rlp[3]is the length of the balnce(128 + balanceLen)
+
     component balanceSub = SubArray(len, 32, 8);
     balanceSub.in <== rlp;
     balanceSub.start <== 4;
     balanceSub.end <== 4 + balanceLen;
 
 
-    component balanceInt = BytesToNum(len - 70);
-    for (var i=0; i<len - 70; i++ ){
+    component balanceInt = PaddedBytesToNum(32);
+    balanceInt.realLen <== balanceLen;
+    for (var i=0; i<32; i++ ){
         balanceInt.bytes[i] <== balanceSub.out[i];
-        log(balanceSub.out[i]);
     }
 
     balance <== balanceInt.num;
+    
 
     component storageHashSub = SubArray(len, 32, 8);
     storageHashSub.in <== rlp;
@@ -63,11 +64,8 @@ template rlp(len){
     storageHash <== storageHashSub.out;
     codeHash <==  CodeHashSub.out;
 
-    log(balance);
-
 
 }
 
 
-// component main = rlp(78);
-
+// component main = rlp(82);
