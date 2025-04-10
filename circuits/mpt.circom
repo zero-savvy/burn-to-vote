@@ -11,7 +11,7 @@ template mpt(maxDepth){
     // addressRlpPrefix:      2
     // addressRlpLength:      2
     // nonceRlpPrefix         2
-    // nonce                  <= 0 nonce hash to be 0
+    // nonce                  <= 0 nonce has to be 0
     // balanceRlpPrefix       2
     // balance                <= 24
     // storageRootRlpPrefix   2
@@ -34,11 +34,9 @@ template mpt(maxDepth){
     signal input node_length[maxDepth];
 
 
-    // signal roothash
+    // check state_root of the block
     component rootHash = KeccakOrLiteralHex(1064);
-    for (var i=0;i< 1064;i++){
-        rootHash.in[i] <== account_proof[0][i];
-    }
+    rootHash.in <== account_proof[0];
     rootHash.inLen <== node_length[0];
     state_root === rootHash.out;
 
