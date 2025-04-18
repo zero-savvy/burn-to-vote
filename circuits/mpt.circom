@@ -2,9 +2,9 @@ pragma circom 2.0.0;
 include "./keccak.circom";
 include "./utils.circom";
 include "./rlp.circom";
+// add dynamic length
 
-
-template mpt(maxDepth){
+template Mpt(maxDepth){
 
     // var maxBranchRlpHexLen = 1064;
 
@@ -82,4 +82,4 @@ template mpt(maxDepth){
 
 
 
-component main = mpt(4);
+// component main = mpt(4);
