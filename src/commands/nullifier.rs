@@ -9,12 +9,12 @@ use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 pub struct Nullifier {
-    private_key: String,
-    ceremony_id: u64,
-    blinding_factor: u64,
+    pub private_key: String,
+    pub ceremony_id: u64,
+    pub blinding_factor: u64,
 }
 
-pub fn generate_nullifier(data: Nullifier) -> Fr {
+pub fn generate_nullifier(data: Nullifier) -> String {
     let private_key = U256::from_str_radix(&data.private_key, 16).unwrap();
     let private_key_fp = u256_to_fp(private_key);
 
@@ -27,22 +27,8 @@ pub fn generate_nullifier(data: Nullifier) -> Fr {
     let hash = poseidon.hash(input).unwrap();
 
     let hash_string = hash.into_repr().to_string();
-
-    let circuit = NullifierCircuit::new(
-        private_key,
-        data.blinding_factor,
-        data.ceremony_id,
-        hash_string,
-    );
-
-    info!("nullifier circuit: ");
-    let inputs = circuit.format_inputs().unwrap();
-    circuit.generate_input_file(inputs).unwrap();
-    circuit.generate_witness().unwrap();
-    circuit.setup_zkey().unwrap();
-    circuit.generate_proof().unwrap();
-    circuit.setup_vkey().unwrap();
-    circuit.verify_proof().unwrap();
-
-    hash
+    
+    hash_string
 }
+
+
