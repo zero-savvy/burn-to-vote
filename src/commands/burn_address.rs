@@ -1,7 +1,7 @@
 use crate::circuits::burn_address_c::*;
 use crate::circuits::Circuit;
 use crate::utils::{fr_repr_to_bytes, u256_to_fp};
-use alloy::primitives::Address;
+use ethers::types::Address;
 use ff::PrimeField;
 use log::info;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
@@ -10,13 +10,15 @@ use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
 pub struct BurnAddress {
-    private_key: String,
-    ceremony_id: u64,
-    personal_id: u64,
-    vote: u64,
+    pub private_key: String,
+    pub ceremony_id: u64,
+    pub personal_id: u64,
+    pub vote: u64,
 }
 
-pub async fn burn_address(burn_address: BurnAddress) -> Address {
+pub async fn burn_address(burn_address: BurnAddress) -> (BurnAddressCircuit, Address) {
+    info!("Genrating burn address ...");
+
     let blinding_factor = rand::random::<u64>();
     let private_key = U256::from_str_radix(&burn_address.private_key, 16).unwrap();
 
@@ -51,8 +53,13 @@ pub async fn burn_address(burn_address: BurnAddress) -> Address {
         burn_address.personal_id,
         burn_address.vote,
     );
+    info!("burn address generated: {:?}", address);
 
-    info!("Burn address circuit: ");
+    (circuit, address)
+}
+
+pub async fn generate_burn_address_proof (circuit: BurnAddressCircuit) {
+    info!("Generating urn address proof ...");
     let inputs = circuit.format_inputs().unwrap();
     circuit.generate_input_file(inputs).unwrap();
     circuit.generate_witness().unwrap();
@@ -60,5 +67,5 @@ pub async fn burn_address(burn_address: BurnAddress) -> Address {
     circuit.generate_proof().unwrap();
     circuit.setup_vkey().unwrap();
     circuit.verify_proof().unwrap();
-    address
-}
+
+} 
