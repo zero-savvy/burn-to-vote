@@ -1,13 +1,13 @@
 use crate::circuits::{Circuit, CircuitIdentifier};
 use primitive_types::U256;
 pub struct BurnAddressCircuit {
-    identifier: CircuitIdentifier<'static>,
-    address: String,
-    private_key: U256,
-    blinding_factor: u64,
-    ceremony_id: u64,
-    personal_id: u64,
-    vote: u64,
+    pub identifier: CircuitIdentifier<'static>,
+    pub address: String,
+    pub private_key: U256,
+    pub blinding_factor: u64,
+    pub ceremony_id: u64,
+    pub personal_id: u64,
+    pub vote: u64,
 }
 
 impl BurnAddressCircuit {
