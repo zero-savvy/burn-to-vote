@@ -1,28 +1,27 @@
 use crate::circuits::{Circuit, CircuitIdentifier};
 // use primitive_types::U256;
-use ethers::types::{
-    serde_helpers::deserialize_stringified_numeric, Address, Bytes, H256, U256, U64,
-};
+use ethers::types::{serde_helpers::deserialize_stringified_numeric, Address, Bytes, H256, U64};
+type EthersU256 = ethers::types::U256;
 use serde_json::json;
 pub struct MptCircuit {
     identifier: CircuitIdentifier<'static>,
-    nonce: U64,
-    balance: U256,
-    code_hash: [u8; 32],
-    storage_hash: [u8; 32],
-    state_root: Vec<u8>,
-    account_rlp: Vec<u8>,
-    account_rlp_len: usize,
-    account_proof: Vec<Vec<u8>>,
-    account_proof_length: usize,
-    node_length: Vec<usize>,
+    pub nonce: U64,
+    pub balance: EthersU256,
+    pub code_hash: [u8; 32],
+    pub storage_hash: [u8; 32],
+    pub state_root: Vec<u8>,
+    pub account_rlp: Vec<u8>,
+    pub account_rlp_len: usize,
+    pub account_proof: Vec<Vec<u8>>,
+    pub account_proof_length: usize,
+    pub node_length: Vec<usize>,
     // node_types: Vec<usize> ,
 }
 
 impl MptCircuit {
     pub fn new(
         nonce: U64,
-        balance: U256,
+        balance: EthersU256,
         code_hash: [u8; 32],
         storage_hash: [u8; 32],
         state_root: Vec<u8>,
