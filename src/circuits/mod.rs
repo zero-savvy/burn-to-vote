@@ -2,6 +2,7 @@ pub mod burn_address_c;
 pub mod merkle_tree_c;
 pub mod mpt_c;
 pub mod nullifier_c;
+pub mod vote_c;
 use log::info;
 use std::error::Error;
 use std::fs::{self, File};
