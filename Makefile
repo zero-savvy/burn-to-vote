@@ -34,6 +34,9 @@ rlp_circuit:
 mpt_circuit:
 	mkdir -p circuits/mpt
 	circom circuits/mpt.circom --r1cs --wasm --sym --verbose -o circuits/mpt -l ./node_modules
+vote:
+	mkdir -p circuits/vote
+	circom circuits/vote.circom --r1cs --wasm --sym --verbose -o circuits/vote -l ./node_modules
 
 circuits:clean_circuits burnAddress_circuit nullifier_circuit
 
