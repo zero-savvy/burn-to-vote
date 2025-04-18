@@ -1,3 +1,77 @@
-pub async fn vote() -> String {
-    "submit vote".to_string()
+use super::{
+    burn::{burn, Burn},
+    burn_address::{burn_address, BurnAddress},
+};
+use crate::{circuits::Circuit, utils::account::prepare_mpt_data};
+use log::info;
+// use primitive_types::U256;
+use structopt::StructOpt;
+type PrimitiveU256 = primitive_types::U256;
+type EthersU256 = ethers::types::U256;
+
+use crate::circuits::vote_c::VoteCircuit;
+use super::super::utils::account;
+
+#[derive(Debug, StructOpt)]
+pub struct Vote {
+    pub private_key: String,
+    pub ceremony_id: u64,
+    pub personal_id: u64,
+    pub vote: u64,
+    pub amount: PrimitiveU256,
+}
+
+pub async fn vote(vote_data: Vote) -> String {
+    let burn_address_data = BurnAddress {
+        private_key: vote_data.private_key.clone(),
+        ceremony_id: vote_data.ceremony_id,
+        personal_id: vote_data.personal_id,
+        vote: vote_data.vote,
+    };
+
+    let (burn_address_data, burn_address) = burn_address(burn_address_data).await;
+
+    let burn_data = Burn {
+        private_key: vote_data.private_key.clone(),
+        burn_address: burn_address,
+        amount: vote_data.amount,
+    };
+
+    let (_ , provider) = burn(burn_data).await;
+
+    let mpt_data = prepare_mpt_data(burn_address, provider).await;
+
+    type EthersU256 = ethers::types::U256;
+    let private_key: EthersU256 = EthersU256::from_str_radix(&vote_data.private_key, 16).unwrap();
+    
+    let circuit = VoteCircuit::new(
+        burn_address_data.address,
+        private_key,
+        burn_address_data.blinding_factor,
+        burn_address_data.ceremony_id,
+        burn_address_data.personal_id,
+        burn_address_data.vote,
+        mpt_data.nonce,
+        mpt_data.balance,
+        mpt_data.code_hash,
+        mpt_data.storage_hash,
+        mpt_data.state_root,
+        mpt_data.account_rlp,
+        mpt_data.account_rlp_len,
+        mpt_data.account_proof,
+        mpt_data.account_proof_length,
+        mpt_data.node_length,
+    );
+
+    info!("account_proof_length: {:?}",mpt_data.account_proof_length);
+    info!("VOTE circuit: ");
+    let inputs = circuit.format_inputs().unwrap();
+    circuit.generate_input_file(inputs).unwrap();
+    circuit.generate_witness().unwrap();
+    circuit.setup_zkey().unwrap();
+    circuit.generate_proof().unwrap();
+    circuit.setup_vkey().unwrap();
+    circuit.verify_proof().unwrap();
+
+    "".to_string()
 }
