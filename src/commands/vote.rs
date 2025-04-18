@@ -2,7 +2,7 @@ use super::{
     burn::{burn, Burn},
     burn_address::{burn_address, BurnAddress},
 };
-use crate::{circuits::Circuit, utils::account::prepare_mpt_data};
+use crate::{circuits::Circuit, commands::nullifier::{self, generate_nullifier, Nullifier}, utils::account::prepare_mpt_data};
 use log::info;
 // use primitive_types::U256;
 use structopt::StructOpt;
@@ -24,9 +24,9 @@ pub struct Vote {
 pub async fn vote(vote_data: Vote) -> String {
     let burn_address_data = BurnAddress {
         private_key: vote_data.private_key.clone(),
-        ceremony_id: vote_data.ceremony_id,
-        personal_id: vote_data.personal_id,
-        vote: vote_data.vote,
+        ceremony_id: vote_data.ceremony_id.clone(),
+        personal_id: vote_data.personal_id.clone(),
+        vote: vote_data.vote.clone(),
     };
 
     let (burn_address_data, burn_address) = burn_address(burn_address_data).await;
@@ -39,10 +39,20 @@ pub async fn vote(vote_data: Vote) -> String {
 
     let (_ , provider) = burn(burn_data).await;
 
+    let nullifier_data = Nullifier{
+        private_key: vote_data.private_key.clone(),
+        ceremony_id: vote_data.ceremony_id.clone(),
+        blinding_factor: burn_address_data.blinding_factor.clone(),
+    };
+
+    let nullifier = generate_nullifier(nullifier_data);
+
+
+
     let mpt_data = prepare_mpt_data(burn_address, provider).await;
 
     type EthersU256 = ethers::types::U256;
-    let private_key: EthersU256 = EthersU256::from_str_radix(&vote_data.private_key, 16).unwrap();
+    let private_key: EthersU256 = EthersU256::from_str_radix(&vote_data.private_key.clone(), 16).unwrap();
     
     let circuit = VoteCircuit::new(
         burn_address_data.address,
@@ -51,6 +61,7 @@ pub async fn vote(vote_data: Vote) -> String {
         burn_address_data.ceremony_id,
         burn_address_data.personal_id,
         burn_address_data.vote,
+        nullifier,
         mpt_data.nonce,
         mpt_data.balance,
         mpt_data.code_hash,
