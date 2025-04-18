@@ -9,6 +9,16 @@ use commands::nullifier::Nullifier;
 use commands::vote::Vote;
 use env_logger::Env;
 
+// TO DO:
+// error handling
+// add mpt dynamic length
+// add address to mpt
+// dynamic config and chain
+// prepare vote contract
+// check variables name convention
+// add contract tests
+// deploy contract
+
 #[derive(Debug, StructOpt)]
 enum Opt {
     BurnAddress(BurnAddress),
