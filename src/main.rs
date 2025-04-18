@@ -6,6 +6,7 @@ use commands::burn::Burn;
 use commands::burn_address::BurnAddress;
 use commands::merkle_tree::UserIndex;
 use commands::nullifier::Nullifier;
+use commands::vote::Vote;
 use env_logger::Env;
 
 #[derive(Debug, StructOpt)]
@@ -13,7 +14,7 @@ enum Opt {
     BurnAddress(BurnAddress),
     Burn(Burn),
     Nullifier(Nullifier),
-    Vote,
+    Vote(Vote),
     Verify,
     GenerateTree,
     GenerateProof(UserIndex),
@@ -34,8 +35,8 @@ async fn main() {
         Opt::Nullifier(nullifier) => {
             commands::nullifier::generate_nullifier(nullifier);
         }
-        Opt::Vote => {
-            commands::vote::vote().await;
+        Opt::Vote(vote_data) => {
+            commands::vote::vote(vote_data).await;
         }
         Opt::GenerateTree => {
             commands::merkle_tree::generate_tree().await;
