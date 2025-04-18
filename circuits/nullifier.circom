@@ -10,14 +10,14 @@ template Nullifier() {
     
     // Public inputs
     signal input ceremonyID;
-    signal input nullifier;
+    signal output nullifier;
 
     component poseidonHash = Poseidon(3);
     poseidonHash.inputs[0] <== privateKey;
     poseidonHash.inputs[1] <== ceremonyID;
     poseidonHash.inputs[2] <== blindingFactor;
 
-    nullifier === poseidonHash.out;
+    nullifier <== poseidonHash.out;
 }
 
-component main{public[ceremonyID, nullifier]}  = Nullifier();
+// component main{public[ceremonyID, nullifier]}  = Nullifier();
