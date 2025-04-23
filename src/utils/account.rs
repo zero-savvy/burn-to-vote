@@ -69,6 +69,14 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
         proof.push(node_hex_array);
     }
 
+    let max_proof_len = 8;
+    let real_proof_len = proof.len().clone();
+    let empty_array = [0;1064].to_vec();
+    for i in 0 .. max_proof_len - real_proof_len{
+        proof.push(empty_array.clone());
+        prooflen.push(0);
+    }
+
     info!("MPT circuit data generated.");
 
     MptCircuit::new(
@@ -80,7 +88,7 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
         serilized_rlp.clone(),
         serilized_rlp_len,
         proof.clone(),
-        proof.len().clone(),
+        real_proof_len,
         prooflen,
     )
     
