@@ -1,5 +1,6 @@
 pragma circom 2.0.0;
 include "circomlib/circuits/comparators.circom";
+include "circomlib/circuits/mux1.circom";
 template SubArray(nIn, maxSelect, nInBits) {
     signal input in[nIn];
     signal input start;
@@ -73,7 +74,7 @@ template PaddedBytesToNum(N) {
 
     pow256[0] <== 1;
     for (var i = 1; i < N; i++) {
-        lennCheck[i] = LessEqThan(8);
+        lennCheck[i] = LessEqThan(10);
         lennCheck[i].in[0] <== N - i ;
         lennCheck[i].in[1] <== realLen - 1;
         isPowerValid[i] <== lennCheck[i].out * 255 + 1;
@@ -91,7 +92,7 @@ template PaddedBytesToNum(N) {
     signal isLenValid[N];
     // signal isPowerValid[N];
     for (var i = 0; i < N; i++) {
-        lenCheck[i] = LessEqThan(8);
+        lenCheck[i] = LessEqThan(10);
         lenCheck[i].in[0] <== N - 1 - i ;
         lenCheck[i].in[1] <== realLen - 1;
         weight[i] <== pow256[i] * bytes[N - 1 - i ];
@@ -108,13 +109,11 @@ template PaddedBytesToNum(N) {
 }
 
 
-
 // aggregated sum verification method
 template IsSubarray(n, m) {
     signal input base[n];
     signal input sub[m];
     signal output out;
-
     var isLenValid = 1;
     if (n < m){
         isLenValid = 0;
@@ -144,7 +143,7 @@ template IsSubarray(n, m) {
 
     } 
 
-    component isOne = GreaterEqThan(8);
+    component isOne = GreaterEqThan(10);
     isOne.in[0] <== isValid[n-m];
     isOne.in[1] <== 1;
     out <== isOne.out ;
@@ -167,7 +166,7 @@ template IsPaddedSubarray(baseLen, subLen) {
     }
     isLenValid === 1;
 
-    component issubRealLenValid = LessEqThan(8);
+    component issubRealLenValid = LessEqThan(10);
     issubRealLenValid.in[0] <== subRealLen;
     issubRealLenValid.in[1] <== subLen;
     issubRealLenValid.out === 1;
@@ -180,7 +179,7 @@ template IsPaddedSubarray(baseLen, subLen) {
     signal subWeight[subLen];
 
     for (var j=0; j<subLen; j++){
-        isSubIndexValid[j] = LessThan(8);
+        isSubIndexValid[j] = LessThan(10);
         isSubIndexValid[j].in[0] <== j;
         isSubIndexValid[j].in[1] <== subRealLen;
         subWeight[j] <== (sub[j] * (2 ** j)) * isSubIndexValid[j].out;
@@ -200,7 +199,7 @@ template IsPaddedSubarray(baseLen, subLen) {
     for (var i=0; i<baseLen-subLen+1; i++){
         var sum = 0 ;
         for (var j=0; j<subLen; j++){
-            isIndexValid[i][j] = LessThan(8);
+            isIndexValid[i][j] = LessThan(10);
             isIndexValid[i][j].in[0] <== j;
             isIndexValid[i][j].in[1] <== subRealLen;
             weigth[i][j] <== (base[i+j] * (2 ** j)) * isIndexValid[i][j].out;
@@ -223,7 +222,7 @@ template IsPaddedSubarray(baseLen, subLen) {
     } 
 
     // aggregatedSums[baseLen-subLen] is the number of times the subarray apperard in the base array 
-    component isOne = GreaterEqThan(8);
+    component isOne = GreaterEqThan(10);
     isOne.in[0] <== aggregatedSums[baseLen-subLen];
     isOne.in[1] <== 1;
     out <== isOne.out ;
