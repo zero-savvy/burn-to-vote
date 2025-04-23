@@ -2,6 +2,8 @@ pragma circom 2.0.0;
 include "./keccak.circom";
 include "./utils.circom";
 include "./rlp.circom";
+include "circomlib/circuits/multiplexer.circom";
+
 // add dynamic length
 
 template Mpt(maxDepth){
@@ -41,27 +43,41 @@ template Mpt(maxDepth){
     state_root === rootHash.out;
 
     // rlp existence check
+
+
+    component getLeaf = Multiplexer(1064,maxDepth);
+    getLeaf.inp <== account_proof;
+    getLeaf.sel <== account_proof_length -1 ;
+
     component isRlpValid = IsPaddedSubarray(1064, 164);
-    isRlpValid.base <== account_proof[maxDepth -1];
+    isRlpValid.base <== getLeaf.out;
     isRlpValid.sub <== account_rlp;
     isRlpValid.subRealLen <== account_rlp_len;
     isRlpValid.out === 1;
 
     // check to see if the keccak of each layer exist in the upper layer
 
-    component subChecks[maxDepth];
     component nodeHash[maxDepth];
-    for (var i=1; i < maxDepth; i++){
+    signal nodeHashes[maxDepth][64];
+    for (var i=0; i < maxDepth; i++){
         nodeHash[i] = KeccakOrLiteralHex(1064);
-        nodeHash[i].in <== account_proof[maxDepth - i];
-        nodeHash[i].inLen <== node_length[maxDepth - i];
+        nodeHash[i].in <== account_proof[i];
+        nodeHash[i].inLen <== node_length[i];
 
-        subChecks[i] = IsSubarray(1064, 64);
-        subChecks[i].base <== account_proof[maxDepth - i -1];
-        subChecks[i].sub <== nodeHash[i].out;
-
-        1 === subChecks[i].out;
+        nodeHashes[i] <== nodeHash[i].out;
     }
+
+
+    component subChecks[maxDepth];
+    for (var i=0; i < maxDepth-1; i++){
+        subChecks[i] = IsSubarray(1064, 64);
+        subChecks[i].base <== account_proof[i];
+        subChecks[i].sub <== nodeHashes[i+1];
+
+        1 === subChecks[i].out ;
+
+    }
+
 
 
     // check account proof
@@ -82,4 +98,4 @@ template Mpt(maxDepth){
 
 
 
-// component main = mpt(4);
+// component main = Mpt(8);
