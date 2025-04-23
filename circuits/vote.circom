@@ -57,4 +57,4 @@ template vote(maxDepth) {
 
 }
 
-component main = vote(3);
+component main = vote(8);
