@@ -5,6 +5,7 @@ type EthersU256 = ethers::types::U256;
 use serde_json::json;
 pub struct MptCircuit {
     identifier: CircuitIdentifier<'static>,
+    pub address: Vec<u8>,
     pub nonce: U64,
     pub balance: EthersU256,
     pub code_hash: [u8; 32],
@@ -15,11 +16,13 @@ pub struct MptCircuit {
     pub account_proof: Vec<Vec<u8>>,
     pub account_proof_length: usize,
     pub node_length: Vec<usize>,
-    // node_types: Vec<usize> ,
+    pub leaf_nibbles: usize
+
 }
 
 impl MptCircuit {
     pub fn new(
+        address: Vec<u8>,
         nonce: U64,
         balance: EthersU256,
         code_hash: [u8; 32],
@@ -30,12 +33,16 @@ impl MptCircuit {
         account_proof: Vec<Vec<u8>>,
         account_proof_length: usize,
         node_length: Vec<usize>,
-        // node_types: Vec<usize>
+        leaf_nibbles: usize
+
+
+
     ) -> Self {
         Self {
             identifier: CircuitIdentifier {
                 circuit_name: "mpt",
             },
+            address,
             nonce,
             balance,
             code_hash,
@@ -46,11 +53,14 @@ impl MptCircuit {
             account_proof,
             account_proof_length,
             node_length,
-            // node_types
+            leaf_nibbles
+
+
         }
     }
     pub fn format_inputs(&self) -> Result<String, Box<dyn std::error::Error>> {
         let inputs = json!({
+            "address": self.address,
             "nonce" : self.nonce,
             "balance":self.balance,
             "code_hash": self.code_hash,
@@ -61,7 +71,7 @@ impl MptCircuit {
             "account_proof": self.account_proof,
             "account_proof_length":self.account_proof_length,
             "node_length":self.node_length,
-            // "node_types" : self.node_types
+            "leaf_nibbles" : self.leaf_nibbles
         });
         Ok(inputs.to_string())
     }
