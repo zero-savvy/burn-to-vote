@@ -38,9 +38,6 @@ template Mpt(maxDepth){
     signal input account_proof_length;
     signal input node_length[maxDepth];
 
-    // signal input node_types[maxDepth];
-    // signal input node_items_len[maxDepth][17];
-    // signal input extension_nodes_shared_nibbles[maxDepth];
     signal input leaf_nibbles;
 
 
@@ -54,10 +51,6 @@ template Mpt(maxDepth){
     address_hash.inLen <== 40;
 
 
-    // component mux = SingleMultiplexer(8);
-    // mux.inp <== extension_nodes_shared_nibbles;
-    // mux.sel <== account_proof_length -1;
-
     component shift_nibs = VarShiftLeft(64,10);
     shift_nibs.in <== address_hash.out;
     shift_nibs.shift <== 64 - leaf_nibbles;
@@ -65,81 +58,62 @@ template Mpt(maxDepth){
     component is_address_nibbs_in_leaf = IsPaddedSubarray(1064, 64);
     is_address_nibbs_in_leaf.base <== getLeaf.out;
     is_address_nibbs_in_leaf.sub <== shift_nibs.out;
-    // is_address_nibbs_in_leaf.subRealLen <== mux.out;
     is_address_nibbs_in_leaf.subRealLen <== leaf_nibbles;
     is_address_nibbs_in_leaf.out === 1;
 
 
-
-    // // check the path
-    // component nodeTypesValid[maxDepth - 1];
-    // for (var idx = 0; idx < maxDepth - 1; idx++) {
-    // 	nodeTypesValid[idx] = Num2Bits(1);
-	//     nodeTypesValid[idx].in <== nodeTypes[idx];
-    // }
-
-    // // check state_root of the block
-    // component rootHash = KeccakOrLiteralHex(1064);
-    // rootHash.in <== account_proof[0];
-    // rootHash.inLen <== node_length[0];
-    // state_root === rootHash.out;
+    // check state_root of the block
+    component rootHash = KeccakOrLiteralHex(1064);
+    rootHash.in <== account_proof[0];
+    rootHash.inLen <== node_length[0];
+    state_root === rootHash.out;
 
     // rlp existence check
 
-    // component isRlpValid = IsPaddedSubarray(1064, 164);
-    // isRlpValid.base <== getLeaf.out;
-    // isRlpValid.sub <== account_rlp;
-    // isRlpValid.subRealLen <== account_rlp_len;
-    // isRlpValid.out === 1;
+    component isRlpValid = IsPaddedSubarray(1064, 164);
+    isRlpValid.base <== getLeaf.out;
+    isRlpValid.sub <== account_rlp;
+    isRlpValid.subRealLen <== account_rlp_len;
+    isRlpValid.out === 1;
 
-    // // check to see if the keccak of each layer exist in the upper layer
+    // check to see if the keccak of each layer exist in the upper layer
 
-    // component nodeHash[maxDepth];
-    // signal nodeHashes[maxDepth][64];
-    // for (var i=0; i < maxDepth; i++){
-    //     nodeHash[i] = KeccakOrLiteralHex(1064);
-    //     nodeHash[i].in <== account_proof[i];
-    //     nodeHash[i].inLen <== node_length[i];
+    component nodeHash[maxDepth];
+    signal nodeHashes[maxDepth][64];
+    for (var i=0; i < maxDepth; i++){
+        nodeHash[i] = KeccakOrLiteralHex(1064);
+        nodeHash[i].in <== account_proof[i];
+        nodeHash[i].inLen <== node_length[i];
 
-    //     nodeHashes[i] <== nodeHash[i].out;
-    // }
-
-
-    // component subChecks[maxDepth];
-    // for (var i=0; i < maxDepth-1; i++){
-    //     subChecks[i] = IsSubarray(1064, 64);
-    //     subChecks[i].base <== account_proof[i];
-    //     subChecks[i].sub <== nodeHashes[i+1];
-
-    //     1 === subChecks[i].out ;
-
-    // }
+        nodeHashes[i] <== nodeHash[i].out;
+    }
 
 
+    component subChecks[maxDepth];
+    for (var i=0; i < maxDepth-1; i++){
+        subChecks[i] = IsSubarray(1064, 64);
+        subChecks[i].base <== account_proof[i];
+        subChecks[i].sub <== nodeHashes[i+1];
 
-    // // check account proof
+        1 === subChecks[i].out ;
 
-    // component rlpHexToByte = HexToBytes(164,82);
-    // rlpHexToByte.hexArray <== account_rlp;
+    }
 
-    // component rlpDecode = Rlp(82);
-    // rlpDecode.rlp <== rlpHexToByte.out;
-    // rlpDecode.rlpLen <== account_rlp_len / 2;
+    // check account proof
 
-    // nonce === rlpDecode.nonce;
-    // balance === rlpDecode.balance;
-    // storage_hash === rlpDecode.storageHash;
-    // code_hash === rlpDecode.codeHash;
+    component rlpHexToByte = HexToBytes(164,82);
+    rlpHexToByte.hexArray <== account_rlp;
 
+    component rlpDecode = Rlp(82);
+    rlpDecode.rlp <== rlpHexToByte.out;
+    rlpDecode.rlpLen <== account_rlp_len / 2;
 
-
-
-
-
+    nonce === rlpDecode.nonce;
+    balance === rlpDecode.balance;
+    storage_hash === rlpDecode.storageHash;
+    code_hash === rlpDecode.codeHash;
 
 
 }
 
-
-
-component main = Mpt(8);
+// component main = Mpt(8);
