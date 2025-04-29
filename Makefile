@@ -37,6 +37,9 @@ mpt_circuit:
 vote:
 	mkdir -p circuits/vote
 	circom circuits/vote.circom --r1cs --wasm --sym --verbose -o circuits/vote -l ./node_modules
+test:
+	mkdir -p circuits/test
+	circom circuits/test.circom --r1cs --wasm --sym --verbose -o circuits/test -l ./node_modules
 
 circuits:clean_circuits burnAddress_circuit nullifier_circuit
 
