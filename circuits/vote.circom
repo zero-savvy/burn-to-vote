@@ -25,7 +25,10 @@ template vote(maxDepth) {
     signal input account_proof[maxDepth][1064];
     signal input account_proof_length;
     signal input node_length[maxDepth];
+    signal input leaf_nibbles;
 
+
+    log("burn address check ... ");
     component burn_address = BurnAddress();
     burn_address.address <== address;
     burn_address.privateKey <== privateKey;
@@ -33,6 +36,8 @@ template vote(maxDepth) {
     burn_address.ceremonyID <== ceremonyID;
     burn_address.personalID <== personalID;
     burn_address.vote <== vote;
+
+    log("nullifier check ... ");
 
     signal generated_nullifier;
     component nullifier_generator = Nullifier();
@@ -43,17 +48,40 @@ template vote(maxDepth) {
 
     generated_nullifier === nullifier;
 
+
+
+    component n2b_address = Num2Bits(256);
+    n2b_address.in <== address;
+
+    component addr_bit2num = Bits2Num(160);
+    for (var i = 0; i < 160; i++) {
+        addr_bit2num.in[i] <== n2b_address.out[i];
+    }
+
+    signal hex_address[40];
+    component h2d = HexToDigits();
+    h2d.addr <== addr_bit2num.out;
+    hex_address <== h2d.digits; 
+
+    log("mpt check ... ");
+
     component check_account = Mpt(maxDepth);
+
+    check_account.address <== hex_address;
     check_account.nonce <== nonce;
     check_account.balance <== balance;
     check_account.storage_hash <== storage_hash;
     check_account.code_hash <== code_hash;
+
     check_account.state_root <== state_root;
+
     check_account.account_rlp <== account_rlp;
     check_account.account_rlp_len <== account_rlp_len;
+
     check_account.account_proof <== account_proof;
     check_account.account_proof_length <== account_proof_length;
     check_account.node_length <== node_length;
+    check_account.leaf_nibbles <== leaf_nibbles;
 
 }
 
