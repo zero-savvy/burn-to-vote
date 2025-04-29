@@ -1,6 +1,36 @@
 pragma circom 2.0.0;
 include "circomlib/circuits/comparators.circom";
 include "circomlib/circuits/mux1.circom";
+
+include "circomlib/circuits/bitify.circom";
+
+template VarShiftLeft(n, nBits) {
+    signal input in[n]; // x
+    signal input shift; // k
+    
+    signal output out[n]; // y
+
+    component n2b = Num2Bits(nBits);
+    n2b.in <== shift;
+
+    signal tmp[nBits][n];
+    for (var j = 0; j < nBits; j++) {
+        for (var i = 0; i < n; i++) {
+            var offset = (i + (1 << j)) % n;
+            // Shift left by 2^j indices if bit is 1
+            if (j == 0) {
+                tmp[j][i] <== n2b.out[j] * (in[offset] - in[i]) + in[i];
+            } else {
+                tmp[j][i] <== n2b.out[j] * (tmp[j-1][offset] - tmp[j-1][i]) + tmp[j-1][i];
+            }
+        }
+    }
+    
+    // Return last row
+    for (var i = 0; i < n; i++) {
+        out[i] <== tmp[nBits - 1][i];
+    }
+}
 template SubArray(nIn, maxSelect, nInBits) {
     signal input in[nIn];
     signal input start;
@@ -161,7 +191,7 @@ template IsPaddedSubarray(baseLen, subLen) {
 
     // input checks
     var isLenValid = 1;
-    if (baseLen < subLen){
+    if (baseLen <= subLen){
         isLenValid = 0;
     }
     isLenValid === 1;
@@ -240,6 +270,68 @@ template HexToBytes(hexLen, bytesLen){
     for (var i=0; i< hexLen; i+=2){
         out[j] <== hexArray[i] * 16 + hexArray[i+1];
         j = j +1;
+    }
+
+}
+
+template get_branch_nibbles(n, m){
+    signal input branch[n];
+    signal input branch_item_len[m];
+    signal input nibble_index;
+
+    signal output out;
+
+    // var sum = 0;
+    component nibble_len_check[m];
+    signal sums[m];
+    for (var i=0; i< m; i++){
+        nibble_len_check[i] = LessThan(10);
+        nibble_len_check[i].in[0] <== i;
+        nibble_len_check[i].in[1] <== nibble_index;
+        if (i == 0) {
+            sums[i] <== branch_item_len[i] * nibble_len_check[i].out;
+        } else {
+            sums[i] <== sums[i-1] + (branch_item_len[i] * nibble_len_check[i].out);
+        }
+    }
+    
+    // component len_check = GreaterEqThan(10);
+    // len_check.in[0] <== sum;
+    // len_check.in[1] <== 55;
+
+
+    signal rlp_len <== branch[0] * 16 + branch[1];
+    // extra one for the actual data rlp prefix
+    signal prefix_len <== (rlp_len - 247) + 1 ;
+    signal pp <== prefix_len * 2;
+    signal dd <== pp + 2;
+    // signal tt <== dd + sum;
+    // signal prefix_len <== ((rlp_len - 247) + 1 ) * 2;
+
+    log("sum");
+    log(sums[m-1]);
+    log("rlp_len");
+    log(rlp_len);
+    log("prefix_len");
+    log(prefix_len);
+    out <== dd + sums[m-1] ;
+}
+
+
+template HexToDigits() {
+    signal input addr; 
+    signal output digits[40]; 
+
+    component n2b = Num2Bits(160);
+    n2b.in <== addr;
+
+    for (var i = 0; i < 40; i++) {
+        var start_bit = 159 - (4 * i);
+        var bit3 = n2b.out[start_bit];
+        var bit2 = n2b.out[start_bit - 1];
+        var bit1 = n2b.out[start_bit - 2];
+        var bit0 = n2b.out[start_bit - 3];
+        digits[i] <== bit3 * 8 + bit2 * 4 + bit1 * 2 + bit0 * 1;
     }
 
 }
