@@ -77,13 +77,8 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
     }
 
     let mut node_types = get_mpt_node_type(decoded_proof_bytes.clone());
-    log::info!("prooflen{:?}", node_types.len());
-    log::info!("prooflen{:?}", node_types);
     let address_hash = hex::encode(keccak256(burn_address));
     let sa = serialize_hex(&address_hash);
-    log::info!("serialize address: {:?}", sa);
-    log::info!("burn_address: {:?}", burn_address);
-    log::info!("decoded nodes: {:?}", decoded_proof_bytes.len());
     let mut node_items_len: Vec<Vec<usize>> = Vec::new();
     let mut node_lengths = Vec::new();
     for item in decoded_proof_bytes.clone() {
@@ -94,17 +89,14 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
         }
         let nl: Vec<usize> = node_length.iter().map(|x| (x + 1) * 2).collect();
         node_items_len.push(nl);
-        log::info!("decoded nodes: {:?}", item);
-        log::info!("decoded nodes: {:?}", item.len());
+
     }
-    log::info!("address bytes: {:?}", keccak256(burn_address).to_vec());
 
     let aaaaaa = hex::encode([
         51, 93, 253, 141, 184, 39, 12, 245, 120, 220, 164, 70, 79, 239, 185, 39, 116, 83, 11, 202,
         65, 208, 249, 226, 254, 161, 123, 220, 4, 202, 124, 214,
     ]);
-    let h = serialize_hex(&aaaaaa);
-    log::info!("serialize_hex: {:?}", h);
+    let h: Vec<u8> = serialize_hex(&aaaaaa);
 
     let max_proof_len = 8;
     let real_proof_len = proof.len().clone();
@@ -121,7 +113,6 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
         }
     }
 
-    log::info!("node_items_len: {:?}", node_items_len);
 
     // get extension nibbles
     let mut extension_nodes_shared_nibbles = [0; 8];
