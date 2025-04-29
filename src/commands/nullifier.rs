@@ -27,8 +27,6 @@ pub fn generate_nullifier(data: Nullifier) -> String {
     let hash = poseidon.hash(input).unwrap();
 
     let hash_string = hash.into_repr().to_string();
-    
+
     hash_string
 }
-
-

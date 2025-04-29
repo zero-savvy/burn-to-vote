@@ -2,16 +2,20 @@ use super::{
     burn::{burn, Burn},
     burn_address::{burn_address, BurnAddress},
 };
+use crate::{
+    circuits::Circuit,
+    commands::nullifier::{self, generate_nullifier, Nullifier},
+    utils::account::prepare_mpt_data,
+};
 use chrono::Local;
-use crate::{circuits::Circuit, commands::nullifier::{self, generate_nullifier, Nullifier}, utils::account::prepare_mpt_data};
 use log::info;
 // use primitive_types::U256;
 use structopt::StructOpt;
 type PrimitiveU256 = primitive_types::U256;
 type EthersU256 = ethers::types::U256;
 
-use crate::circuits::vote_c::VoteCircuit;
 use super::super::utils::account;
+use crate::circuits::vote_c::VoteCircuit;
 
 #[derive(Debug, StructOpt)]
 pub struct Vote {
@@ -38,9 +42,9 @@ pub async fn vote(vote_data: Vote) -> String {
         amount: vote_data.amount,
     };
 
-    let (_ , provider) = burn(burn_data).await;
+    let (_, provider) = burn(burn_data).await;
 
-    let nullifier_data = Nullifier{
+    let nullifier_data = Nullifier {
         private_key: vote_data.private_key.clone(),
         ceremony_id: vote_data.ceremony_id.clone(),
         blinding_factor: burn_address_data.blinding_factor.clone(),
@@ -48,13 +52,12 @@ pub async fn vote(vote_data: Vote) -> String {
 
     let nullifier = generate_nullifier(nullifier_data);
 
-
-
     let mpt_data = prepare_mpt_data(burn_address, provider).await;
 
     type EthersU256 = ethers::types::U256;
-    let private_key: EthersU256 = EthersU256::from_str_radix(&vote_data.private_key.clone(), 16).unwrap();
-    
+    let private_key: EthersU256 =
+        EthersU256::from_str_radix(&vote_data.private_key.clone(), 16).unwrap();
+
     let circuit = VoteCircuit::new(
         burn_address_data.address,
         private_key,
@@ -73,10 +76,10 @@ pub async fn vote(vote_data: Vote) -> String {
         mpt_data.account_proof,
         mpt_data.account_proof_length,
         mpt_data.node_length,
-        mpt_data.leaf_nibbles
+        mpt_data.leaf_nibbles,
     );
 
-    info!("account_proof_length: {:?}",mpt_data.account_proof_length);
+    info!("account_proof_length: {:?}", mpt_data.account_proof_length);
     info!("VOTE circuit: ");
     let inputs = circuit.format_inputs().unwrap();
     circuit.generate_input_file(inputs).unwrap();

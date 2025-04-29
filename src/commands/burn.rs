@@ -82,6 +82,4 @@ pub async fn burn(burn_data: Burn) -> (H256, Provider<Http>) {
     info!("Burn transaction hash: {:?}", receipt.transaction_hash);
 
     (receipt.transaction_hash, provider)
-    
 }
-

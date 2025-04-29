@@ -23,7 +23,7 @@ pub struct VoteCircuit {
     account_proof: Vec<Vec<u8>>,
     account_proof_length: usize,
     node_length: Vec<usize>,
-    leaf_nibbles: usize
+    leaf_nibbles: usize,
 }
 
 impl VoteCircuit {
@@ -45,7 +45,7 @@ impl VoteCircuit {
         account_proof: Vec<Vec<u8>>,
         account_proof_length: usize,
         node_length: Vec<usize>,
-        leaf_nibbles: usize
+        leaf_nibbles: usize,
     ) -> Self {
         Self {
             identifier: CircuitIdentifier {
@@ -68,7 +68,7 @@ impl VoteCircuit {
             account_proof,
             account_proof_length,
             node_length,
-            leaf_nibbles
+            leaf_nibbles,
         }
     }
     pub fn format_inputs(&self) -> Result<String, Box<dyn std::error::Error>> {

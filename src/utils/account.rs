@@ -1,14 +1,12 @@
-use alloy::primitives::keccak256;
-use alloy_rlp::Encodable;
-use ethers::{prelude::*, utils::rlp};
-use ethers::types::Address;
-use ethers::providers::{Http, Middleware, Provider,
-};
+use super::get_mpt_node_type;
 use super::serialize_hex;
 use crate::circuits::mpt_c::MptCircuit;
+use alloy::primitives::keccak256;
+use alloy_rlp::Encodable;
+use ethers::providers::{Http, Middleware, Provider};
+use ethers::types::Address;
+use ethers::{prelude::*, utils::rlp};
 use log::info;
-use super::get_mpt_node_type;
-
 
 pub async fn get_account_proof(address: H160) -> EIP1186ProofResponse {
     let provider: Provider<Http> = Provider::<Http>::try_from("http://localhost:8545/")
@@ -60,14 +58,14 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
     let mut proof: Vec<Vec<u8>> = vec![];
     let mut prooflen: Vec<usize> = vec![];
 
-    let mut decoded_proof_bytes : Vec<Vec<Vec<u8>>>  = vec![];
+    let mut decoded_proof_bytes: Vec<Vec<Vec<u8>>> = vec![];
     for item in &addres_proof.account_proof {
         let mut node = item.to_vec();
-        let rlp_decode:Vec<Vec<u8>> = rlp::decode_list(&node);
+        let rlp_decode: Vec<Vec<u8>> = rlp::decode_list(&node);
         decoded_proof_bytes.push(rlp_decode.clone());
 
         let mut node_hex_array = serialize_hex(&hex::encode(item));
-  
+
         let len = node_hex_array.len();
 
         prooflen.push(len);
@@ -75,45 +73,46 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
             let diff = 1064 - len;
             node_hex_array.resize(len + diff, 0);
         }
-        proof.push(node_hex_array); 
+        proof.push(node_hex_array);
     }
 
     let mut node_types = get_mpt_node_type(decoded_proof_bytes.clone());
-    log::info!("prooflen{:?}",node_types.len());
-    log::info!("prooflen{:?}",node_types);
-    let address_hash =hex::encode(keccak256(burn_address));
+    log::info!("prooflen{:?}", node_types.len());
+    log::info!("prooflen{:?}", node_types);
+    let address_hash = hex::encode(keccak256(burn_address));
     let sa = serialize_hex(&address_hash);
-    log::info!("serialize address: {:?}",sa);
-    log::info!("burn_address: {:?}",burn_address);
-    log::info!("decoded nodes: {:?}",decoded_proof_bytes.len());
+    log::info!("serialize address: {:?}", sa);
+    log::info!("burn_address: {:?}", burn_address);
+    log::info!("decoded nodes: {:?}", decoded_proof_bytes.len());
     let mut node_items_len: Vec<Vec<usize>> = Vec::new();
     let mut node_lengths = Vec::new();
-    for item in decoded_proof_bytes.clone(){
+    for item in decoded_proof_bytes.clone() {
         let mut node_length = Vec::new();
         node_lengths.push(item.len());
         for i in item.clone() {
             node_length.push(i.len());
         }
-        let nl: Vec<usize> = node_length.iter().map(|x| (x + 1)*2).collect();
+        let nl: Vec<usize> = node_length.iter().map(|x| (x + 1) * 2).collect();
         node_items_len.push(nl);
-        log::info!("decoded nodes: {:?}",item);
-        log::info!("decoded nodes: {:?}",item.len());
+        log::info!("decoded nodes: {:?}", item);
+        log::info!("decoded nodes: {:?}", item.len());
     }
-    log::info!("address bytes: {:?}",keccak256(burn_address).to_vec());
+    log::info!("address bytes: {:?}", keccak256(burn_address).to_vec());
 
-    let aaaaaa = hex::encode([51, 93, 253, 141, 184, 39, 12, 245, 120, 220, 164, 70, 79, 239, 185, 39, 116, 83, 11, 202, 65, 208, 249, 226, 254, 161, 123, 220, 4, 202, 124, 214]);
+    let aaaaaa = hex::encode([
+        51, 93, 253, 141, 184, 39, 12, 245, 120, 220, 164, 70, 79, 239, 185, 39, 116, 83, 11, 202,
+        65, 208, 249, 226, 254, 161, 123, 220, 4, 202, 124, 214,
+    ]);
     let h = serialize_hex(&aaaaaa);
-    log::info!("serialize_hex: {:?}",h);
-
+    log::info!("serialize_hex: {:?}", h);
 
     let max_proof_len = 8;
     let real_proof_len = proof.len().clone();
-    let empty_array = [0;1064].to_vec();
-    for i in 0 .. max_proof_len - real_proof_len{
+    let empty_array = [0; 1064].to_vec();
+    for i in 0..max_proof_len - real_proof_len {
         proof.push(empty_array.clone());
         prooflen.push(0);
     }
-
 
     for item in &mut node_items_len {
         if item.len() < 17 {
@@ -122,14 +121,12 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
         }
     }
 
-
-
     log::info!("node_items_len: {:?}", node_items_len);
 
     // get extension nibbles
-    let mut extension_nodes_shared_nibbles = [0;8];
+    let mut extension_nodes_shared_nibbles = [0; 8];
     for (i, item) in node_types.iter().enumerate() {
-        if *item == 0{
+        if *item == 0 {
             let nibs = &decoded_proof_bytes[i][0];
             // bytes
             let nibs_len = nibs.len();
@@ -139,16 +136,10 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
         }
     }
 
-    let leaf_nibbles = extension_nodes_shared_nibbles[real_proof_len -1 ];
+    let leaf_nibbles = extension_nodes_shared_nibbles[real_proof_len - 1];
 
     let ba = hex::encode(burn_address.clone());
     let s_ba: Vec<u8> = serialize_hex(&ba);
-
-
-    
-
-
-
 
     info!("MPT circuit data generated.");
 
@@ -164,8 +155,6 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
         proof.clone(),
         real_proof_len,
         prooflen,
-        leaf_nibbles
-
+        leaf_nibbles,
     )
-    
 }

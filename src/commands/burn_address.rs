@@ -58,7 +58,7 @@ pub async fn burn_address(burn_address: BurnAddress) -> (BurnAddressCircuit, Add
     (circuit, address)
 }
 
-pub async fn generate_burn_address_proof (circuit: BurnAddressCircuit) {
+pub async fn generate_burn_address_proof(circuit: BurnAddressCircuit) {
     info!("Generating urn address proof ...");
     let inputs = circuit.format_inputs().unwrap();
     circuit.generate_input_file(inputs).unwrap();
@@ -67,5 +67,4 @@ pub async fn generate_burn_address_proof (circuit: BurnAddressCircuit) {
     circuit.generate_proof().unwrap();
     circuit.setup_vkey().unwrap();
     circuit.verify_proof().unwrap();
-
-} 
+}
