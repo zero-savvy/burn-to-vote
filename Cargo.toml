@@ -30,6 +30,7 @@ keccak = "0.1.5"
 keccak-hash = "0.11.0"
 trie-db = "0.30.0"
 keccak-hasher = "0.16.0"
+chrono = "0.4.41"
 
 [dependencies.ff]
 version = "0.11"
