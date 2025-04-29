@@ -2,6 +2,7 @@ use super::{
     burn::{burn, Burn},
     burn_address::{burn_address, BurnAddress},
 };
+use chrono::Local;
 use crate::{circuits::Circuit, commands::nullifier::{self, generate_nullifier, Nullifier}, utils::account::prepare_mpt_data};
 use log::info;
 // use primitive_types::U256;
@@ -72,6 +73,7 @@ pub async fn vote(vote_data: Vote) -> String {
         mpt_data.account_proof,
         mpt_data.account_proof_length,
         mpt_data.node_length,
+        mpt_data.leaf_nibbles
     );
 
     info!("account_proof_length: {:?}",mpt_data.account_proof_length);
@@ -79,10 +81,18 @@ pub async fn vote(vote_data: Vote) -> String {
     let inputs = circuit.format_inputs().unwrap();
     circuit.generate_input_file(inputs).unwrap();
     circuit.generate_witness().unwrap();
-    circuit.setup_zkey().unwrap();
+    // circuit.setup_zkey().unwrap();
+    let now = Local::now();
+    println!("Current time: {}", now);
     circuit.generate_proof().unwrap();
-    circuit.setup_vkey().unwrap();
+    let now = Local::now();
+    println!("generate_proof: {}", now);
+    // circuit.setup_vkey().unwrap();
+    // let now = Local::now();
+    // println!("setup_vkey: {}", now);
     circuit.verify_proof().unwrap();
+    let now = Local::now();
+    println!("verify_proof: {}", now);
 
     "".to_string()
 }
