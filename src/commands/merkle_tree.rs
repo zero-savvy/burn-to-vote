@@ -28,9 +28,9 @@ pub async fn generate_proof<'a>(tree: &'a MerkleTree<'a>, index: usize) -> Proof
     let inputs = circuit.format_inputs().unwrap();
     circuit.generate_input_file(inputs).unwrap();
     circuit.generate_witness().unwrap();
-    // circuit.setup_zkey().unwrap();
+    circuit.setup_zkey().unwrap();
     circuit.generate_proof().unwrap();
-    // circuit.setup_vkey().unwrap();
+    circuit.setup_vkey().unwrap();
     circuit.verify_proof().unwrap();
     // circuit.generate_verifier().unwrap();
 

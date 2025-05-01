@@ -85,18 +85,10 @@ pub async fn vote(vote_data: Vote, provider: Provider<Http>) -> String {
     let inputs = circuit.format_inputs().unwrap();
     circuit.generate_input_file(inputs).unwrap();
     circuit.generate_witness().unwrap();
-    // circuit.setup_zkey().unwrap();
-    let now = Local::now();
-    println!("Current time: {}", now);
+    circuit.setup_zkey().unwrap();
     circuit.generate_proof().unwrap();
-    let now = Local::now();
-    println!("generate_proof: {}", now);
-    // circuit.setup_vkey().unwrap();
-    // let now = Local::now();
-    // println!("setup_vkey: {}", now);
+    circuit.setup_vkey().unwrap();
     circuit.verify_proof().unwrap();
-    let now = Local::now();
-    println!("verify_proof: {}", now);
 
     "".to_string()
 }
