@@ -31,11 +31,8 @@ pub struct Burn {
     pub amount: PrimitiveU256,
 }
 
-pub async fn burn(burn_data: Burn) -> (H256, Provider<Http>) {
+pub async fn burn(burn_data: Burn, provider: Provider<Http>) -> (H256, Provider<Http>) {
     info!("Burnig {:?} Eth ...", burn_data.amount);
-    let provider = Provider::<Http>::try_from("http://localhost:8545/")
-        .unwrap()
-        .clone();
 
     let chain_id = provider.get_chainid().await.unwrap();
     let wallet: LocalWallet = burn_data
