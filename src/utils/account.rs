@@ -89,7 +89,6 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
         }
         let nl: Vec<usize> = node_length.iter().map(|x| (x + 1) * 2).collect();
         node_items_len.push(nl);
-
     }
 
     let aaaaaa = hex::encode([
@@ -112,7 +111,6 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
             item.resize(item.len() + diff, 0);
         }
     }
-
 
     // get extension nibbles
     let mut extension_nodes_shared_nibbles = [0; 8];
