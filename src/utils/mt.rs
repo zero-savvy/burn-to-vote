@@ -28,17 +28,22 @@ pub struct Proof {
     pub pathIndices: Vec<usize>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 
-pub struct MerkleTree {
+pub struct MerkleTree<'a> {
     height: usize,
-    leaves: Vec<Address>,
+    leaves: &'a mut Vec<Address>,
     root: Option<MerkleTreeNode>,
     inner_nodes: Vec<Vec<MerkleTreeNode>>,
 }
 
-impl MerkleTree {
-    pub fn new(height: usize, leaves: Vec<Address>) -> Self {
+impl<'a> MerkleTree<'a> {
+    pub fn new(leaves: &'a mut Vec<Address>) -> Self {
+        assert!(
+            is_power_of_two(leaves.len()),
+            "Error: the whitelist lenghth is incorrect."
+        );
+        let height = ((leaves.len()) as f64).log2() as usize;
         MerkleTree {
             height,
             leaves,
@@ -49,14 +54,6 @@ impl MerkleTree {
 
     pub fn build_tree(&mut self) {
         let fr_leaves: Vec<Fr> = self.leaves.iter().map(|l| hash_address(*l)).collect();
-        let expected = 1 << self.height;
-        if fr_leaves.len() != expected {
-            panic!(
-                "incorrect number of leaves, must be {}, but was {}",
-                expected,
-                fr_leaves.len()
-            );
-        }
 
         self.inner_nodes = Vec::with_capacity(self.height - 1);
         for _ in 0..(self.height - 1) {
@@ -131,4 +128,8 @@ impl MerkleTree {
             pathIndices: path_indices,
         }
     }
+}
+
+fn is_power_of_two(n: usize) -> bool {
+    n != 0 && n & (n - 1) == 0
 }
