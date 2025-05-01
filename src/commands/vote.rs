@@ -8,6 +8,7 @@ use crate::{
     utils::account::prepare_mpt_data,
 };
 use chrono::Local;
+use ethers::providers::{Http, Provider};
 use log::info;
 // use primitive_types::U256;
 use structopt::StructOpt;
@@ -26,7 +27,7 @@ pub struct Vote {
     pub amount: PrimitiveU256,
 }
 
-pub async fn vote(vote_data: Vote) -> String {
+pub async fn vote(vote_data: Vote, provider: Provider<Http>) -> String {
     let burn_address_data = BurnAddress {
         private_key: vote_data.private_key.clone(),
         ceremony_id: vote_data.ceremony_id.clone(),
@@ -42,7 +43,7 @@ pub async fn vote(vote_data: Vote) -> String {
         amount: vote_data.amount,
     };
 
-    let (_, provider) = burn(burn_data).await;
+    let (_, provider) = burn(burn_data, provider).await;
 
     let nullifier_data = Nullifier {
         private_key: vote_data.private_key.clone(),
