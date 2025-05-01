@@ -3,7 +3,7 @@ pub mod merkle_tree_c;
 pub mod mpt_c;
 pub mod nullifier_c;
 pub mod vote_c;
-use log::info;
+use log::{error, info};
 use std::error::Error;
 use std::fs::{self, File};
 use std::io::Write;
@@ -41,13 +41,19 @@ impl<'a> Circuit for CircuitIdentifier<'a> {
             "snarkjs wtns calculate circuits/{name}/{name}_js/{name}.wasm circuits/inputs/{name}.json circuits/{name}/witness.wtns",
             name = self.circuit_name
         );
-        self.run_command(&calculate_command)?;
+        match self.run_command(&calculate_command) {
+            Ok(_) => info!("generate_witness Command ran successfully!"),
+            Err(e) => error!("generate_witness Command failed: {}", e),
+        }
 
-        let export_command = format!(
+        let export_witness = format!(
             "snarkjs wtns export json circuits/{name}/witness.wtns circuits/{name}/witness.json",
             name = self.circuit_name
         );
-        self.run_command(&export_command)?;
+        match self.run_command(&export_witness) {
+            Ok(_) => info!("export_witness Command ran successfully!"),
+            Err(e) => error!("generate_witness Command failed: {}", e),
+        }
 
         info!("Witness generated successfully.");
         Ok(())
@@ -55,27 +61,33 @@ impl<'a> Circuit for CircuitIdentifier<'a> {
 
     fn setup_zkey(&self) -> Result<(), Box<dyn Error>> {
         info!("Setting up {:?} circuits zkey ...", self.circuit_name);
+        info!("This could take a while ...");
 
         let setup_command = format!(
             "snarkjs groth16 setup circuits/{name}/{name}.r1cs circuits/setup/pot_final.ptau circuits/{name}/{name}_0000.zkey",
             name = self.circuit_name
         );
-        self.run_command(&setup_command)?;
+        match self.run_command(&setup_command) {
+            Ok(_) => info!("Setup_zkey Command ran successfully!"),
+            Err(e) => error!("Setup_zkey Command failed: {}", e),
+        }
 
-        info!("Zkey Generated successfully.");
         Ok(())
     }
 
     fn setup_vkey(&self) -> Result<(), Box<dyn Error>> {
         info!("Setting up {:?} circuits vkey ...", self.circuit_name);
+        info!("This could take a while ...");
 
         let vkey_command = format!(
             "snarkjs zkey export verificationkey circuits/{name}/{name}_0000.zkey circuits/{name}/verification_key.json",
             name = self.circuit_name
         );
-        self.run_command(&vkey_command)?;
+        match self.run_command(&vkey_command) {
+            Ok(_) => info!("Setup_vkey Command ran successfully!"),
+            Err(e) => error!("Setup_vkey Command failed: {}", e),
+        }
 
-        info!("Vkey Generated successfully.");
         Ok(())
     }
 
@@ -88,9 +100,11 @@ impl<'a> Circuit for CircuitIdentifier<'a> {
             name = self.circuit_name
         );
 
-        self.run_command(&proof_command)?;
+        match self.run_command(&proof_command) {
+            Ok(_) => info!("generate_proof Command ran successfully!"),
+            Err(e) => error!("generate_proof Command failed: {}", e),
+        }
 
-        info!("Proof generated successfully.");
         Ok(())
     }
 
@@ -101,9 +115,11 @@ impl<'a> Circuit for CircuitIdentifier<'a> {
             "snarkjs groth16 verify circuits/{name}/verification_key.json circuits/proofs/{name}_public.json circuits/proofs/{name}_proof.json",
             name = self.circuit_name
         );
-        self.run_command(&verify_command)?;
+        match self.run_command(&verify_command) {
+            Ok(_) => info!("verify_proof Command ran successfully!"),
+            Err(e) => error!("verify_proof Command failed: {}", e),
+        }
 
-        info!("Proof verified successfully.");
         Ok(())
     }
 
@@ -117,9 +133,11 @@ impl<'a> Circuit for CircuitIdentifier<'a> {
             "snarkjs zkey export solidityverifier circuits/{name}/{name}_0000.zkey circuits/{name}/{name}_verifier.sol",
             name = self.circuit_name
         );
-        self.run_command(&verify_command)?;
+        match self.run_command(&verify_command) {
+            Ok(_) => info!("generate_verifier Command ran successfully!"),
+            Err(e) => error!("generate_verifier Command failed: {}", e),
+        }
 
-        info!("smart contract genrated successfully.");
         Ok(())
     }
 }
