@@ -10,12 +10,8 @@ use std::io::Write;
 use std::path::Path;
 use structopt::StructOpt;
 
-pub async fn generate_tree() -> MerkleTree {
-    let path = Path::new("data/whitelist.json");
-    let file = File::open(path).unwrap();
-    let whitelist: Vec<Address> = serde_json::from_reader(file).unwrap();
-    let depth: u32 = (whitelist.len()).ilog2();
-    let mut tree = MerkleTree::new(depth as usize, whitelist);
+pub async fn generate_tree<'a>(whitelist: &'a mut Vec<Address>) -> MerkleTree<'a> {
+    let mut tree = MerkleTree::new(whitelist);
 
     tree.build_tree();
     tree
@@ -26,7 +22,7 @@ pub struct UserIndex {
     pub index: usize,
 }
 
-pub async fn generate_proof(tree: MerkleTree, index: usize) -> Proof {
+pub async fn generate_proof<'a>(tree: &'a MerkleTree<'a>, index: usize) -> Proof {
     let proof = tree.generate_proof(index);
     let circuit = MtCircuit::new(proof.clone());
     let inputs = circuit.format_inputs().unwrap();
@@ -47,15 +43,15 @@ mod tests {
     use super::*;
     #[tokio::test]
     async fn test() {
-        let addresses = vec![
+        let mut addresses = vec![
             Address::from([1; 20]),
             Address::from([2; 20]),
             Address::from([3; 20]),
             Address::from([4; 20]),
         ];
         let addr: Vec<Fr> = addresses.iter().map(|addr| hash_address(*addr)).collect();
-        let tree = generate_tree().await;
-        let proof = generate_proof(tree, 2).await;
+        let tree = generate_tree(&mut addresses).await;
+        let proof = generate_proof(&tree, 2).await;
         let root = proof.root;
         let hasher = Poseidon::new();
         let node0 = hasher.hash([addr[0], addr[1]].to_vec()).unwrap();
