@@ -21,7 +21,7 @@ pub struct DemoData {
     pk: String,
 }
 
-pub async fn demo(demo_data: DemoData) {
+pub async fn demo(demo_data: DemoData, provider: Provider<Http>) {
     info!("Voting demo ...");
 
     info!("Compiling merkleTree_circuit ...");
@@ -30,9 +30,6 @@ pub async fn demo(demo_data: DemoData) {
 
     info!("MerkleTree_circuit compiled successfully.");
 
-    let provider: Provider<Http> = Provider::<Http>::try_from("http://localhost:8545/")
-        .unwrap()
-        .clone();
     let chain_id = provider.get_chainid().await.unwrap();
 
     let wallet = demo_data

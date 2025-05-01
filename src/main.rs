@@ -72,7 +72,7 @@ async fn main() {
             commands::verify::verify().await;
         }
         Opt::Demo(demo_data) => {
-            commands::demo::demo(demo_data).await;
+            commands::demo::demo(demo_data, provider).await;
         }
     }
 }
