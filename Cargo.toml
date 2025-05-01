@@ -1,5 +1,5 @@
 [package]
-name = "POB-Anonymous-Voting"
+name = "POB_Anonymous_Voting"
 version = "0.1.0"
 edition = "2021"
 
@@ -19,11 +19,9 @@ serde_json = "1.0.134"
 primitive-types = { version =  "0.13.1", features = ["serde"] }
 num-bigint = "0.4.6"
 num-traits = "0.2.19"
-rand = "0.8.5"
 openssl = { version = "0.10.64", features = ["vendored"] } 
 log = "0.4.25"
 env_logger = "0.11.6"
-
 alloy-rlp = "0.3.11"
 serde = { version = "1.0", features = ["derive"] }
 keccak = "0.1.5"
@@ -31,6 +29,7 @@ keccak-hash = "0.11.0"
 trie-db = "0.30.0"
 keccak-hasher = "0.16.0"
 chrono = "0.4.41"
+rand = "0.9.1"
 
 [dependencies.ff]
 version = "0.11"

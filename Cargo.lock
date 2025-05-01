@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "POB-Anonymous-Voting"
+name = "POB_Anonymous_Voting"
 version = "0.1.0"
 dependencies = [
  "alloy",
@@ -35,7 +35,7 @@ dependencies = [
  "openssl",
  "poseidon-rs",
  "primitive-types 0.13.1",
- "rand 0.8.5",
+ "rand 0.9.1",
  "serde",
  "serde_json",
  "sha2",
