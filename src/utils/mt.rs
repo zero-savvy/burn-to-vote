@@ -1,4 +1,4 @@
-use super::address_to_fr;
+use super::hash_address;
 
 use alloy::primitives::Address;
 
@@ -48,7 +48,7 @@ impl MerkleTree {
     }
 
     pub fn build_tree(&mut self) {
-        let fr_leaves: Vec<Fr> = self.leaves.iter().map(|l| address_to_fr(*l)).collect();
+        let fr_leaves: Vec<Fr> = self.leaves.iter().map(|l| hash_address(*l)).collect();
         let expected = 1 << self.height;
         if fr_leaves.len() != expected {
             panic!(
@@ -93,7 +93,7 @@ impl MerkleTree {
             panic!("Leaf index {} out of bounds.", leaf_index);
         }
 
-        let leaf_fr = address_to_fr(self.leaves[leaf_index]);
+        let leaf_fr = hash_address(self.leaves[leaf_index]);
 
         let mut path_elements: Vec<Fr> = Vec::new();
         let mut path_indices: Vec<usize> = Vec::new();
@@ -103,7 +103,7 @@ impl MerkleTree {
         } else {
             leaf_index - 1
         };
-        let sibling_fr = address_to_fr(self.leaves[sibling_index]);
+        let sibling_fr = hash_address(self.leaves[sibling_index]);
         path_elements.push(sibling_fr);
         path_indices.push(leaf_index % 2);
 
