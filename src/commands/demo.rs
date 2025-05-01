@@ -11,6 +11,8 @@ use std::path::Path;
 type PrimitiveU256 = primitive_types::U256;
 use alloy::primitives::{address, Address};
 use log::info;
+use std::error::Error;
+use std::process::Command;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -21,6 +23,12 @@ pub struct DemoData {
 
 pub async fn demo(demo_data: DemoData) {
     info!("Voting demo ...");
+
+    info!("Compiling merkleTree_circuit ...");
+
+    run_command("make merkleTree_circuit").expect("Error: Failed to compile merkle tree circuit.");
+
+    info!("MerkleTree_circuit compile successfully.");
 
     let provider: Provider<Http> = Provider::<Http>::try_from("http://localhost:8545/")
         .unwrap()
@@ -68,6 +76,12 @@ pub async fn demo(demo_data: DemoData) {
 
     info!("Whitelist proof generated successfully");
 
+    info!("Compiling vote_circuit ...");
+    info!("This could take a while ...");
+
+    run_command("make vote").expect("Error: Failed to compile vote circuit.");
+    info!("Vote_circuit compile successfully.");
+
     let vote_data = Vote {
         private_key: demo_data.pk,
         ceremony_id: rand::random::<u64>(),
@@ -77,4 +91,16 @@ pub async fn demo(demo_data: DemoData) {
     };
 
     vote(vote_data, provider).await;
+}
+
+fn run_command(command: &str) -> Result<(), Box<dyn Error>> {
+    let output = Command::new("sh").arg("-c").arg(command).output()?;
+    if !output.status.success() {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("Command failed: {}", stdout),
+        )));
+    }
+    Ok(())
 }
