@@ -28,7 +28,7 @@ pub async fn demo(demo_data: DemoData) {
 
     run_command("make merkleTree_circuit").expect("Error: Failed to compile merkle tree circuit.");
 
-    info!("MerkleTree_circuit compile successfully.");
+    info!("MerkleTree_circuit compiled successfully.");
 
     let provider: Provider<Http> = Provider::<Http>::try_from("http://localhost:8545/")
         .unwrap()
@@ -80,7 +80,7 @@ pub async fn demo(demo_data: DemoData) {
     info!("This could take a while ...");
 
     run_command("make vote").expect("Error: Failed to compile vote circuit.");
-    info!("Vote_circuit compile successfully.");
+    info!("Vote_circuit compiled successfully.");
 
     let vote_data = Vote {
         private_key: demo_data.pk,
