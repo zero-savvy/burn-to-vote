@@ -1,7 +1,7 @@
 use crate::circuits::merkle_tree_c::*;
 use crate::circuits::Circuit;
 use crate::utils::mt::Proof;
-use crate::utils::{address_to_fr, mt::MerkleTree};
+use crate::utils::{hash_address, mt::MerkleTree};
 use alloy::primitives::{address, Address};
 use ff::PrimeField;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
@@ -53,7 +53,7 @@ mod tests {
             Address::from([3; 20]),
             Address::from([4; 20]),
         ];
-        let addr: Vec<Fr> = addresses.iter().map(|addr| address_to_fr(*addr)).collect();
+        let addr: Vec<Fr> = addresses.iter().map(|addr| hash_address(*addr)).collect();
         let tree = generate_tree().await;
         let proof = generate_proof(tree, 2).await;
         let root = proof.root;
