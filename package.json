@@ -15,6 +15,7 @@
   },
   "scripts": {
     "install-rapidsnark": "git clone https://github.com/iden3/rapidsnark.git circuits/rapidsnark && cd circuits/rapidsnark && npm install",
-    "install-deps": "npm run install-rapidsnark"
+    "install_keccak": "git clone https://github.com/vocdoni/keccak256-circom.git circuits/keccak256-circom ",
+    "install-deps": "npm run install-rapidsnark install_keccak"
   }
 }
