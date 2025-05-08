@@ -1,7 +1,10 @@
+use ff::PrimeField;
+use poseidon_rs::Fr;
 use structopt::StructOpt;
 mod circuits;
 mod commands;
 mod utils;
+use utils::u256_to_fp;
 use alloy::primitives::{address, Address};
 use commands::burn::Burn;
 use commands::burn_address::BurnAddress;
@@ -13,6 +16,8 @@ use env_logger::Env;
 use ethers::providers::{Http, Provider};
 use std::fs::{self, File};
 use std::path::Path;
+type PrimitiveU256 = primitive_types::U256;
+
 
 // TO DO:
 // error handling
@@ -29,7 +34,7 @@ enum Opt {
     BurnAddress(BurnAddress),
     Burn(Burn),
     Nullifier(Nullifier),
-    Vote(Vote),
+    // Vote(Vote),
     Verify,
     GenerateTree,
     GenerateProof(UserIndex),
@@ -45,7 +50,12 @@ async fn main() {
 
     let path = Path::new("data/whitelist.json");
     let file = File::open(path).unwrap();
-    let mut whitelist: Vec<Address> = serde_json::from_reader(file).unwrap();
+    let mut whitelist: Vec<String> = serde_json::from_reader(file).unwrap();
+    let mut whitelist_fr = whitelist.iter().map(|x| {
+        let num = PrimitiveU256::from_str_radix(x,16).expect("Error: failed to get u256 from hash.");
+        u256_to_fp(num)
+
+    }).collect();
 
     let opt = Opt::from_args();
     match opt {
@@ -58,14 +68,14 @@ async fn main() {
         Opt::Nullifier(nullifier) => {
             commands::nullifier::generate_nullifier(nullifier);
         }
-        Opt::Vote(vote_data) => {
-            commands::vote::vote(vote_data, provider).await;
-        }
+        // Opt::Vote(vote_data) => {
+        //     commands::vote::vote(vote_data, provider).await;
+        // }
         Opt::GenerateTree => {
-            commands::merkle_tree::generate_tree(&mut whitelist).await;
+            commands::merkle_tree::generate_tree(&mut whitelist_fr).await;
         }
         Opt::GenerateProof(user_index) => {
-            let tree = commands::merkle_tree::generate_tree(&mut whitelist).await;
+            let tree = commands::merkle_tree::generate_tree(&mut whitelist_fr).await;
             commands::merkle_tree::generate_proof(&tree, user_index.index).await;
         }
         Opt::Verify => {
