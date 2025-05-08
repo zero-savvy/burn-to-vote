@@ -12,7 +12,7 @@ use structopt::StructOpt;
 pub struct BurnAddress {
     pub private_key: String,
     pub ceremony_id: u64,
-    pub personal_id: u64,
+    pub random_secret: u64,
     pub vote: u64,
 }
 
@@ -26,14 +26,14 @@ pub async fn burn_address(burn_address: BurnAddress) -> (BurnAddressCircuit, Add
 
     let ceremony_id_fp = Fr::from_repr(FrRepr::from(burn_address.ceremony_id)).unwrap();
     let blinding_factor_fp = Fr::from_repr(FrRepr::from(blinding_factor)).unwrap();
-    let personal_id_fp = Fr::from_repr(FrRepr::from(burn_address.personal_id)).unwrap();
+    let random_secret_fp = Fr::from_repr(FrRepr::from(burn_address.random_secret)).unwrap();
     let vote_fp = Fr::from_repr(FrRepr::from(burn_address.vote)).unwrap();
 
     let input: Vec<Fr> = vec![
         private_key_fp,
         ceremony_id_fp,
         blinding_factor_fp,
-        personal_id_fp,
+        random_secret_fp,
         vote_fp,
     ];
 
@@ -50,7 +50,7 @@ pub async fn burn_address(burn_address: BurnAddress) -> (BurnAddressCircuit, Add
         private_key,
         blinding_factor,
         burn_address.ceremony_id,
-        burn_address.personal_id,
+        burn_address.random_secret,
         burn_address.vote,
     );
     info!("burn address generated: {:?}", address);
