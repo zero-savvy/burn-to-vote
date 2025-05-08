@@ -91,7 +91,9 @@ pub async fn demo(demo_data: DemoData, provider: Provider<Http>) {
         private_key: demo_data.pk,
         random_secret: random_secret,
         ceremony_id: rand::random::<u64>(),
-        vote: 0,
+        vote: 1,
+        revote_op1: 0,
+        revote_op2:0,
         amount: PrimitiveU256::from(1)
     };
 
