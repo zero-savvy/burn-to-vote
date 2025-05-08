@@ -1,19 +1,18 @@
 use super::merkle_tree::{generate_proof, generate_tree};
 use super::vote::{vote, Vote};
-use ::rand::seq::index;
+use ff::PrimeField;
 use ethers::prelude::*;
 use ethers::providers::{Http, Middleware, Provider};
-use serde::Deserializer;
 use serde_json::{json, Value};
 use std::fs;
-use std::io::{Read, Write};
 use std::path::Path;
 type PrimitiveU256 = primitive_types::U256;
-use alloy::primitives::{address, Address};
 use log::info;
 use std::error::Error;
 use std::process::Command;
 use structopt::StructOpt;
+use poseidon_rs::{Fr, FrRepr, Poseidon};
+use crate::utils::u256_to_fp;
 
 #[derive(Debug, StructOpt)]
 
@@ -24,11 +23,6 @@ pub struct DemoData {
 pub async fn demo(demo_data: DemoData, provider: Provider<Http>) {
     info!("Voting demo ...");
 
-    info!("Compiling merkleTree_circuit ...");
-
-    run_command("make merkleTree_circuit").expect("Error: Failed to compile merkle tree circuit.");
-
-    info!("MerkleTree_circuit compiled successfully.");
 
     let chain_id = provider.get_chainid().await.unwrap();
 
@@ -37,9 +31,17 @@ pub async fn demo(demo_data: DemoData, provider: Provider<Http>) {
         .parse::<LocalWallet>()
         .unwrap()
         .with_chain_id(chain_id.as_u64());
-    let address = wallet.address();
 
-    info!("Voting address: {:?}", address);
+    // secret data prepration
+    let secret = PrimitiveU256::from_str_radix(&demo_data.pk, 16).expect("Error: failed to get u256 from secret.");
+    let random_secret = rand::random::<u64>();
+    let serct_fr = u256_to_fp(secret);
+    let random_secret_fr = Fr::from_repr(FrRepr::from(random_secret)).expect("Error: failed to unwrap random secret Fr.");
+    let leaf_data = [serct_fr, random_secret_fr];
+    let leaf_hasher = Poseidon::new();
+    let leaf = leaf_hasher.hash(leaf_data.to_vec()).expect("Error: Failed to hash leaf data.");
+
+    info!("Voting address: {:?}", wallet.address());
     info!("Generating whitelist tree ...");
 
     let path = Path::new("data/whitelist.json");
@@ -51,7 +53,7 @@ pub async fn demo(demo_data: DemoData, provider: Provider<Http>) {
     let mut index = 0;
     if let Value::Array(ref mut arr) = deserialize_data {
         arr.pop();
-        arr.push(json!(address));
+        arr.push(json!(leaf.into_repr().to_string()));
         index = arr.len() - 1;
     }
 
@@ -61,15 +63,21 @@ pub async fn demo(demo_data: DemoData, provider: Provider<Http>) {
     fs::write(path, serialize_data).expect("Error: failed to write the data.");
 
     let white_list_data = fs::read_to_string(path).expect("Error: failed to read the file");
-    let mut addresses: Vec<Address> =
-        serde_json::from_str(&white_list_data).expect("Error reding addresses.");
+    let mut leaves_strings: Vec<String> = serde_json::from_str(&white_list_data).expect("Error reding addresses.");
+    let mut leaves_fr = leaves_strings.iter().map(|x| {
+        let num = PrimitiveU256::from_str_radix(x,16).expect("Error: failed to get u256 from hash.");
+        u256_to_fp(num)
 
-    let tree = generate_tree(&mut addresses).await;
+    }).collect();
+
+
+
+    let tree = generate_tree(&mut leaves_fr).await;
     info!("Whitelist tree generated successfully.");
 
     info!("Generating whitelist proof ...");
 
-    generate_proof(&tree, index).await;
+    let merkle_tree_data = generate_proof(&tree, index).await;
 
     info!("Whitelist proof generated successfully");
 
@@ -81,13 +89,14 @@ pub async fn demo(demo_data: DemoData, provider: Provider<Http>) {
 
     let vote_data = Vote {
         private_key: demo_data.pk,
+        random_secret: random_secret,
         ceremony_id: rand::random::<u64>(),
-        personal_id: rand::random::<u64>(),
         vote: 0,
-        amount: PrimitiveU256::from(1),
+        amount: PrimitiveU256::from(1)
     };
 
-    vote(vote_data, provider).await;
+    vote(vote_data, provider, merkle_tree_data).await;
+
 }
 
 fn run_command(command: &str) -> Result<(), Box<dyn Error>> {
