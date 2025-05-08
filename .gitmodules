@@ -1,0 +1,3 @@
+[submodule "rapidsnark"]
+	path = rapidsnark
+	url = https://github.com/iden3/rapidsnark.git
