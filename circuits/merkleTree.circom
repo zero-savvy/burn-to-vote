@@ -36,6 +36,10 @@ template MerkleTreeChecker(levels) {
     component selectors[levels];
     component hashers[levels];
 
+    for (var i=0; i<levels; i++){
+        pathIndices[i] * (1 - pathIndices[i] ) === 0;
+    }
+
     for (var i = 0; i < levels; i++) {
         selectors[i] = DualMux();
         selectors[i].in[0] <== i == 0 ? leaf : hashers[i - 1].hash;
