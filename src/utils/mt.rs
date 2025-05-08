@@ -1,7 +1,3 @@
-// use super::hash_address;
-
-use alloy::primitives::Address;
-
 use poseidon_rs::{Fr, Poseidon};
 
 #[derive(Debug, Clone)]
