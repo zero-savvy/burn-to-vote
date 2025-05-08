@@ -5,11 +5,12 @@ include "circomlib/circuits/comparators.circom";
 
 template BurnAddress() {
 
-    signal input address;
-    signal input privateKey;
+    signal output address;
+    signal output secret_commitment;
+    signal input secret;
     signal input blinding_factor;
     signal input ceremonyID;
-    signal input personalID;
+    signal input random_secret;
     signal input vote;
 
     component isVoteZero = IsEqual();
@@ -26,14 +27,21 @@ template BurnAddress() {
     isVoteValid === 1;
 
     component poseidonHash = Poseidon(5);
-    poseidonHash.inputs[0] <== privateKey;
+    poseidonHash.inputs[0] <== secret;
     poseidonHash.inputs[1] <== ceremonyID;
     poseidonHash.inputs[2] <== blinding_factor;
-    poseidonHash.inputs[3] <== personalID;
+    poseidonHash.inputs[3] <== random_secret;
     poseidonHash.inputs[4] <== vote;
 
+    component secretHash = Poseidon(2);
+    secretHash.inputs[0] <== secret;
+    secretHash.inputs[1] <== random_secret;
+    secret_commitment <== secretHash.out;
 
-    address === poseidonHash.out;
+
+
+
+    address <== poseidonHash.out;
 
 }
 
