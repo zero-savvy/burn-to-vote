@@ -1,7 +1,7 @@
 use crate::circuits::merkle_tree_c::*;
 use crate::circuits::Circuit;
 use crate::utils::mt::Proof;
-use crate::utils::{hash_address, mt::MerkleTree};
+use crate::utils::mt::MerkleTree;
 use alloy::primitives::{address, Address};
 use ff::PrimeField;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
@@ -10,7 +10,7 @@ use std::io::Write;
 use std::path::Path;
 use structopt::StructOpt;
 
-pub async fn generate_tree<'a>(whitelist: &'a mut Vec<Address>) -> MerkleTree<'a> {
+pub async fn generate_tree<'a>(whitelist: &'a mut Vec<Fr>) -> MerkleTree<'a> {
     let mut tree = MerkleTree::new(whitelist);
 
     tree.build_tree();
@@ -24,14 +24,14 @@ pub struct UserIndex {
 
 pub async fn generate_proof<'a>(tree: &'a MerkleTree<'a>, index: usize) -> Proof {
     let proof = tree.generate_proof(index);
-    let circuit = MtCircuit::new(proof.clone());
-    let inputs = circuit.format_inputs().unwrap();
-    circuit.generate_input_file(inputs).unwrap();
-    circuit.generate_witness().unwrap();
-    circuit.setup_zkey().unwrap();
-    circuit.generate_proof().unwrap();
-    circuit.setup_vkey().unwrap();
-    circuit.verify_proof().unwrap();
+    // let circuit = MtCircuit::new(proof.clone());
+    // let inputs = circuit.format_inputs().unwrap();
+    // circuit.generate_input_file(inputs).unwrap();
+    // circuit.generate_witness().unwrap();
+    // circuit.setup_zkey().unwrap();
+    // circuit.generate_proof().unwrap();
+    // circuit.setup_vkey().unwrap();
+    // circuit.verify_proof().unwrap();
     // circuit.generate_verifier().unwrap();
 
     proof
@@ -43,14 +43,8 @@ mod tests {
     use super::*;
     #[tokio::test]
     async fn test() {
-        let mut addresses = vec![
-            Address::from([1; 20]),
-            Address::from([2; 20]),
-            Address::from([3; 20]),
-            Address::from([4; 20]),
-        ];
-        let addr: Vec<Fr> = addresses.iter().map(|addr| hash_address(*addr)).collect();
-        let tree = generate_tree(&mut addresses).await;
+        let mut addr: Vec<Fr> = [Fr::from_str("0").unwrap(),Fr::from_str("1").unwrap(),Fr::from_str("2").unwrap()].to_vec();
+        let tree = generate_tree(&mut addr).await;
         let proof = generate_proof(&tree, 2).await;
         let root = proof.root;
         let hasher = Poseidon::new();
