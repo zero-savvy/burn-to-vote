@@ -1,4 +1,4 @@
-use super::hash_address;
+// use super::hash_address;
 
 use alloy::primitives::Address;
 
@@ -32,13 +32,13 @@ pub struct Proof {
 
 pub struct MerkleTree<'a> {
     height: usize,
-    leaves: &'a mut Vec<Address>,
+    leaves: &'a mut Vec<Fr>,
     root: Option<MerkleTreeNode>,
     inner_nodes: Vec<Vec<MerkleTreeNode>>,
 }
 
 impl<'a> MerkleTree<'a> {
-    pub fn new(leaves: &'a mut Vec<Address>) -> Self {
+    pub fn new(leaves: &'a mut Vec<Fr>) -> Self {
         assert!(
             is_power_of_two(leaves.len()),
             "Error: the whitelist lenghth is incorrect."
@@ -53,7 +53,7 @@ impl<'a> MerkleTree<'a> {
     }
 
     pub fn build_tree(&mut self) {
-        let fr_leaves: Vec<Fr> = self.leaves.iter().map(|l| hash_address(*l)).collect();
+        let fr_leaves: Vec<Fr> = self.leaves.to_vec();
 
         self.inner_nodes = Vec::with_capacity(self.height - 1);
         for _ in 0..(self.height - 1) {
@@ -90,7 +90,7 @@ impl<'a> MerkleTree<'a> {
             panic!("Leaf index {} out of bounds.", leaf_index);
         }
 
-        let leaf_fr = hash_address(self.leaves[leaf_index]);
+        let leaf_fr = self.leaves[leaf_index];
 
         let mut path_elements: Vec<Fr> = Vec::new();
         let mut path_indices: Vec<usize> = Vec::new();
@@ -100,7 +100,7 @@ impl<'a> MerkleTree<'a> {
         } else {
             leaf_index - 1
         };
-        let sibling_fr = hash_address(self.leaves[sibling_index]);
+        let sibling_fr =self.leaves[sibling_index];
         path_elements.push(sibling_fr);
         path_indices.push(leaf_index % 2);
 
