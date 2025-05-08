@@ -4,13 +4,17 @@ use ethers::types::{
     serde_helpers::deserialize_stringified_numeric, Address, Bytes, H256, U256, U64,
 };
 use serde_json::json;
+use poseidon_rs::{Fr, Poseidon};
+use ff::PrimeField;
+
+
 pub struct VoteCircuit {
     identifier: CircuitIdentifier<'static>,
     address: String,
-    private_key: U256,
+    secret: U256,
     blinding_factor: u64,
     ceremony_id: u64,
-    personal_id: u64,
+    random_secret: u64,
     vote: u64,
     nullifier: String,
     nonce: U64,
@@ -24,15 +28,19 @@ pub struct VoteCircuit {
     account_proof_length: usize,
     node_length: Vec<usize>,
     leaf_nibbles: usize,
+    mt_root: Fr,
+    mt_leaf: Fr,
+    mt_pathElements: Vec<Fr>,
+    mt_pathIndices: Vec<usize>,
 }
 
 impl VoteCircuit {
     pub fn new(
         address: String,
-        private_key: U256,
+        secret: U256,
         blinding_factor: u64,
         ceremony_id: u64,
-        personal_id: u64,
+        random_secret: u64,
         vote: u64,
         nullifier: String,
         nonce: U64,
@@ -46,16 +54,20 @@ impl VoteCircuit {
         account_proof_length: usize,
         node_length: Vec<usize>,
         leaf_nibbles: usize,
+        mt_root: Fr,
+        mt_leaf: Fr,
+        mt_pathElements: Vec<Fr>,
+        mt_pathIndices: Vec<usize>,
     ) -> Self {
         Self {
             identifier: CircuitIdentifier {
                 circuit_name: "vote",
             },
             address,
-            private_key,
+            secret,
             blinding_factor,
             ceremony_id,
-            personal_id,
+            random_secret,
             vote,
             nullifier,
             nonce,
@@ -69,15 +81,24 @@ impl VoteCircuit {
             account_proof_length,
             node_length,
             leaf_nibbles,
+            mt_root,
+            mt_leaf,
+            mt_pathElements,
+            mt_pathIndices
         }
     }
     pub fn format_inputs(&self) -> Result<String, Box<dyn std::error::Error>> {
+        let path_elements: Vec<String> = self
+        .mt_pathElements
+        .iter()
+        .map(|p| p.into_repr().to_string())
+        .collect();
         let inputs = json!({
             "address": self.address,
-            "privateKey":self.private_key.to_string(),
+            "secret":self.secret.to_string(),
             "blinding_factor":self.blinding_factor.to_string(),
             "ceremonyID": self.ceremony_id.to_string(),
-            "personalID": self.personal_id.to_string(),
+            "random_secret": self.random_secret.to_string(),
             "vote": self.vote.to_string(),
             "nullifier": self.nullifier,
             "nonce" : self.nonce,
@@ -90,7 +111,11 @@ impl VoteCircuit {
             "account_proof": self.account_proof,
             "account_proof_length":self.account_proof_length,
             "node_length":self.node_length,
-            "leaf_nibbles" : self.leaf_nibbles
+            "leaf_nibbles" : self.leaf_nibbles,
+            "mt_root": self.mt_root.into_repr().to_string(),
+            "mt_leaf": self.mt_leaf.into_repr().to_string(),
+            "mt_pathElements": path_elements,
+            "mt_pathIndices": self.mt_pathIndices
         });
         Ok(inputs.to_string())
     }
