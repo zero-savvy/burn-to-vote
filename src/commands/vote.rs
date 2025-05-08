@@ -24,6 +24,8 @@ pub struct Vote {
     pub random_secret: u64,
     pub ceremony_id: u64,
     pub vote: u64,
+    pub revote_op1: u64,
+    pub revote_op2:u64,
     pub amount: PrimitiveU256
 }
 
@@ -68,6 +70,8 @@ pub async fn vote(vote_data: Vote, provider: Provider<Http>, merkle_tree_proof: 
         burn_address_data.ceremony_id,
         burn_address_data.random_secret,
         burn_address_data.vote,
+        vote_data.revote_op1,
+        vote_data.revote_op2,
         nullifier,
         mpt_data.nonce,
         mpt_data.balance,
