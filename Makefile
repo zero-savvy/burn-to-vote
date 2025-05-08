@@ -36,7 +36,7 @@ mpt_circuit:
 	circom circuits/mpt.circom --r1cs --wasm --sym --verbose -o circuits/mpt -l ./node_modules
 vote:
 	mkdir -p circuits/vote
-	circom circuits/vote.circom --r1cs --wasm --sym --verbose -o circuits/vote -l ./node_modules
+	circom circuits/vote.circom --r1cs --wasm --verbose -o circuits/vote -l ./node_modules
 test:
 	mkdir -p circuits/test
 	circom circuits/test.circom --r1cs --wasm --sym --verbose -o circuits/test -l ./node_modules
