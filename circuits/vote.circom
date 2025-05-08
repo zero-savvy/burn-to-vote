@@ -8,7 +8,6 @@ include "burnAddress.circom";
 
 template vote(maxDepth) {
 
-
     signal input address;
     signal input nullifier;
 
@@ -33,8 +32,17 @@ template vote(maxDepth) {
 
     signal input vote;
 
+    signal input revote_op1;
+    signal input revote_op2;
+    signal output revote;
+
 
     // security checks
+
+    vote * (1-vote) === 0;
+
+    revote_op1 * revote_op2 === 0;
+    revote <== revote_op1 + revote_op2 - revote_op1 * revote_op2; 
 
     component rlp_len_check = LessEqThan(8);
     rlp_len_check.in[0] <== account_rlp_len;
@@ -56,11 +64,23 @@ template vote(maxDepth) {
 
     address_nibble_length_check.out === 1;
 
-
     nonce === 0;
 
 
+    component balance_check = Num2Bits(256);
+    balance_check.in <== balance;
 
+    component secret_check = Num2Bits(256);
+    secret_check.in <== secret;
+
+    component blinding_factor_check = Num2Bits(64);
+    blinding_factor_check.in <== blinding_factor;
+
+    component ceremony_id_check = Num2Bits(64);
+    ceremony_id_check.in <== ceremonyID;    
+    
+    component random_secret_check = Num2Bits(64);
+    random_secret_check.in <== random_secret;
 
 
 
@@ -75,7 +95,6 @@ template vote(maxDepth) {
     address === burn_address.address;
 
 
-
     log("mt check ... ");
 
     signal input mt_root;
@@ -88,8 +107,6 @@ template vote(maxDepth) {
     merkle_tree_inclusion.pathElements <== mt_pathElements;
     merkle_tree_inclusion.pathIndices <== mt_pathIndices;
 
-    log(mt_leaf);
-    log(burn_address.secret_commitment);
     mt_root === merkle_tree_inclusion.root ;
     mt_leaf === burn_address.secret_commitment;
 
@@ -98,53 +115,49 @@ template vote(maxDepth) {
 
     log("nullifier check ... ");
 
-    // component nullifier_generator = Nullifier();
-    // nullifier_generator.secret <== secret;
-    // nullifier_generator.blindingFactor <== blinding_factor;
-    // nullifier_generator.ceremonyID <== ceremonyID;
+    component nullifier_generator = Nullifier();
+    nullifier_generator.secret <== secret;
+    nullifier_generator.blindingFactor <== blinding_factor;
+    nullifier_generator.ceremonyID <== ceremonyID;
 
-    // nullifier === nullifier_generator.nullifier ;
-
-
-    // log("mpt check ... ");
+    nullifier === nullifier_generator.nullifier ;
 
 
-    // component n2b_address = Num2Bits(256);
-    // n2b_address.in <== address;
-
-    // component addr_bit2num = Bits2Num(160);
-    // for (var i = 0; i < 160; i++) {
-    //     addr_bit2num.in[i] <== n2b_address.out[i];
-    // }
-
-    // signal hex_address[40];
-    // component h2d = HexToDigits();
-    // h2d.addr <== addr_bit2num.out;
-    // hex_address <== h2d.digits; 
+    log("mpt check ... ");
 
 
-    // component check_account = Mpt(maxDepth);
+    component n2b_address = Num2Bits(256);
+    n2b_address.in <== address;
 
-    // check_account.address <== hex_address;
-    // check_account.nonce <== nonce;
-    // check_account.balance <== balance;
-    // check_account.storage_hash <== storage_hash;
-    // check_account.code_hash <== code_hash;
+    component addr_bit2num = Bits2Num(160);
+    for (var i = 0; i < 160; i++) {
+        addr_bit2num.in[i] <== n2b_address.out[i];
+    }
 
-    // check_account.state_root <== state_root;
-
-    // check_account.account_rlp <== account_rlp;
-    // check_account.account_rlp_len <== account_rlp_len;
-
-    // check_account.account_proof <== account_proof;
-    // check_account.account_proof_length <== account_proof_length;
-    // check_account.node_length <== node_length;
-    // check_account.leaf_nibbles <== leaf_nibbles;
+    signal hex_address[40];
+    component h2d = HexToDigits();
+    h2d.addr <== addr_bit2num.out;
+    hex_address <== h2d.digits; 
 
 
+    component check_account = Mpt(maxDepth);
 
+    check_account.address <== hex_address;
+    check_account.nonce <== nonce;
+    check_account.balance <== balance;
+    check_account.storage_hash <== storage_hash;
+    check_account.code_hash <== code_hash;
 
+    check_account.state_root <== state_root;
+
+    check_account.account_rlp <== account_rlp;
+    check_account.account_rlp_len <== account_rlp_len;
+
+    check_account.account_proof <== account_proof;
+    check_account.account_proof_length <== account_proof_length;
+    check_account.node_length <== node_length;
+    check_account.leaf_nibbles <== leaf_nibbles;
 
 }
 
-component main{public[ceremonyID, nullifier]}  = vote(8);
+component main{public[ceremonyID, nullifier, vote]}  = vote(8);
