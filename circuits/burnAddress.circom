@@ -13,18 +13,7 @@ template BurnAddress() {
     signal input random_secret;
     signal input vote;
 
-    component isVoteZero = IsEqual();
-    isVoteZero.in[0] <== vote;
-    isVoteZero.in[1] <== 0;
 
-    component isVoteOne = IsEqual();
-    isVoteOne.in[0] <== vote;
-    isVoteOne.in[1] <== 1;
-
-    signal isVoteValid;
-    isVoteZero.out + isVoteOne.out ==> isVoteValid ;
-
-    isVoteValid === 1;
 
     component poseidonHash = Poseidon(5);
     poseidonHash.inputs[0] <== secret;
