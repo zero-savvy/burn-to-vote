@@ -1,6 +1,6 @@
 use super::{
     burn::{burn, Burn},
-    burn_address::{burn_address, BurnAddress},
+    burn_address::{burn_address, BurnAddress}, merkle_tree,
 };
 use crate::{
     circuits::Circuit,
@@ -17,25 +17,33 @@ type EthersU256 = ethers::types::U256;
 
 use super::super::utils::account;
 use crate::circuits::vote_c::VoteCircuit;
-
+use super::super::utils::mt::Proof;
 #[derive(Debug, StructOpt)]
 pub struct Vote {
     pub private_key: String,
+    pub random_secret: u64,
     pub ceremony_id: u64,
-    pub personal_id: u64,
     pub vote: u64,
-    pub amount: PrimitiveU256,
+    pub amount: PrimitiveU256
 }
 
-pub async fn vote(vote_data: Vote, provider: Provider<Http>) -> String {
+pub async fn vote(vote_data: Vote, provider: Provider<Http>, merkle_tree_proof: Proof) -> String {
     let burn_address_data = BurnAddress {
         private_key: vote_data.private_key.clone(),
         ceremony_id: vote_data.ceremony_id.clone(),
-        personal_id: vote_data.personal_id.clone(),
+        random_secret: vote_data.random_secret,
         vote: vote_data.vote.clone(),
     };
 
     let (burn_address_data, burn_address) = burn_address(burn_address_data).await;
+
+    let nullifier_data = Nullifier {
+        private_key: vote_data.private_key.clone(),
+        ceremony_id: vote_data.ceremony_id.clone(),
+        blinding_factor: burn_address_data.blinding_factor.clone(),
+    };
+
+    let nullifier = generate_nullifier(nullifier_data);
 
     let burn_data = Burn {
         private_key: vote_data.private_key.clone(),
@@ -45,13 +53,7 @@ pub async fn vote(vote_data: Vote, provider: Provider<Http>) -> String {
 
     let (_, provider) = burn(burn_data, provider).await;
 
-    let nullifier_data = Nullifier {
-        private_key: vote_data.private_key.clone(),
-        ceremony_id: vote_data.ceremony_id.clone(),
-        blinding_factor: burn_address_data.blinding_factor.clone(),
-    };
 
-    let nullifier = generate_nullifier(nullifier_data);
 
     let mpt_data = prepare_mpt_data(burn_address, provider).await;
 
@@ -64,7 +66,7 @@ pub async fn vote(vote_data: Vote, provider: Provider<Http>) -> String {
         private_key,
         burn_address_data.blinding_factor,
         burn_address_data.ceremony_id,
-        burn_address_data.personal_id,
+        burn_address_data.random_secret,
         burn_address_data.vote,
         nullifier,
         mpt_data.nonce,
@@ -78,6 +80,10 @@ pub async fn vote(vote_data: Vote, provider: Provider<Http>) -> String {
         mpt_data.account_proof_length,
         mpt_data.node_length,
         mpt_data.leaf_nibbles,
+        merkle_tree_proof.root,
+        merkle_tree_proof.leaf,
+        merkle_tree_proof.pathElements,
+        merkle_tree_proof.pathIndices
     );
 
     info!("account_proof_length: {:?}", mpt_data.account_proof_length);
