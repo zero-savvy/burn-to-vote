@@ -6,7 +6,7 @@ pub struct BurnAddressCircuit {
     pub private_key: U256,
     pub blinding_factor: u64,
     pub ceremony_id: u64,
-    pub personal_id: u64,
+    pub random_secret: u64,
     pub vote: u64,
 }
 
@@ -16,7 +16,7 @@ impl BurnAddressCircuit {
         private_key: U256,
         blinding_factor: u64,
         ceremony_id: u64,
-        personal_id: u64,
+        random_secret: u64,
         vote: u64,
     ) -> Self {
         Self {
@@ -27,7 +27,7 @@ impl BurnAddressCircuit {
             private_key,
             blinding_factor,
             ceremony_id,
-            personal_id,
+            random_secret,
             vote,
         }
     }
@@ -45,7 +45,7 @@ impl BurnAddressCircuit {
             self.private_key.to_string(),
             serde_json::to_string(&self.blinding_factor).unwrap(),
             serde_json::to_string(&self.ceremony_id).unwrap(),
-            serde_json::to_string(&self.personal_id).unwrap(),
+            serde_json::to_string(&self.random_secret).unwrap(),
             serde_json::to_string(&self.vote).unwrap()
         );
         Ok(inputs)
