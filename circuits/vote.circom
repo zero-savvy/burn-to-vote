@@ -160,4 +160,4 @@ template vote(maxDepth) {
 
 }
 
-component main{public[ceremonyID, nullifier, vote]}  = vote(8);
+component main{public[ceremonyID, nullifier, vote, revote_op1, revote_op2]}  = vote(8);
