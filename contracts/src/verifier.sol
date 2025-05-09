@@ -58,6 +58,12 @@ contract Groth16Verifier {
     uint256 constant IC4x = 2867731384327449676339671530064903611605036017221169868474641082032235710190;
     uint256 constant IC4y = 16472764356319146991027076321525953074459544097546118674778201324244398958288;
     
+    uint256 constant IC5x = 19168600062147216431283650940607015829842883979435785251457580470110086808184;
+    uint256 constant IC5y = 17704570753358181961287256322895086428064062212049718920958075442464479145089;
+    
+    uint256 constant IC6x = 10515692761663325218156240391662108066961752654197981009609579714891384776568;
+    uint256 constant IC6y = 737186012675143032781971384240774922069441250472552957044634053282775155321;
+    
  
     // Memory data
     uint16 constant pVk = 0;
@@ -65,7 +71,7 @@ contract Groth16Verifier {
 
     uint16 constant pLastMem = 896;
 
-    function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[4] calldata _pubSignals) public view returns (bool) {
+    function verifyProof(uint[2] calldata _pA, uint[2][2] calldata _pB, uint[2] calldata _pC, uint[6] calldata _pubSignals) public view returns (bool) {
         assembly {
             function checkField(v) {
                 if iszero(lt(v, r)) {
@@ -116,6 +122,10 @@ contract Groth16Verifier {
                 g1_mulAccC(_pVk, IC3x, IC3y, calldataload(add(pubSignals, 64)))
                 
                 g1_mulAccC(_pVk, IC4x, IC4y, calldataload(add(pubSignals, 96)))
+                
+                g1_mulAccC(_pVk, IC5x, IC5y, calldataload(add(pubSignals, 128)))
+                
+                g1_mulAccC(_pVk, IC6x, IC6y, calldataload(add(pubSignals, 160)))
                 
 
                 // -A
@@ -177,6 +187,10 @@ contract Groth16Verifier {
             checkField(calldataload(add(_pubSignals, 64)))
             
             checkField(calldataload(add(_pubSignals, 96)))
+            
+            checkField(calldataload(add(_pubSignals, 128)))
+            
+            checkField(calldataload(add(_pubSignals, 160)))
             
 
             // Validate all evaluations
