@@ -31,18 +31,13 @@ template vote(maxDepth) {
     signal input leaf_nibbles;
 
     signal input vote;
-
-    signal input revote_op1;
-    signal input revote_op2;
-    signal output revote;
+    signal input revote;
 
 
     // security checks
 
     vote * (1-vote) === 0;
-
-    revote_op1 * revote_op2 === 0;
-    revote <== revote_op1 + revote_op2 - revote_op1 * revote_op2; 
+    revote * (1-revote) === 0;
 
     component rlp_len_check = LessEqThan(8);
     rlp_len_check.in[0] <== account_rlp_len;
@@ -160,4 +155,4 @@ template vote(maxDepth) {
 
 }
 
-component main{public[ceremonyID, nullifier, vote, revote_op1, revote_op2]}  = vote(8);
+component main{public[ceremonyID, nullifier, vote, revote]}  = vote(8);
