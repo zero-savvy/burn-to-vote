@@ -1,2 +1,18 @@
-Start time: Tue Apr 29 14:30:25 CEST 2025
-End time: Tue Apr 29 15:06:25 CEST 2025
+make vote
+mkdir -p circuits/vote
+circom circuits/vote.circom --r1cs --wasm --verbose -o circuits/vote -l ./node_modules
+burn address check ... 
+mt check ... 
+nullifier check ... 
+mpt check ... 
+template instances: 447
+non-linear constraints: 8485140
+linear constraints: 3898619
+public inputs: 4
+private inputs: 8827 (8826 belong to witness)
+public outputs: 0
+wires: 12179659
+labels: 87551893
+Written successfully: circuits/vote/vote.r1cs
+Written successfully: circuits/vote/vote_js/vote.wasm
+Everything went okay
