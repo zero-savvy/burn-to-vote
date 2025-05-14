@@ -97,6 +97,7 @@ pub async fn vote(vote_data: Vote, provider: Provider<Http>, merkle_tree_proof: 
     circuit.generate_proof().unwrap();
     circuit.setup_vkey().unwrap();
     circuit.verify_proof().unwrap();
+    circuit.generate_verifier();
 
     "".to_string()
 }
