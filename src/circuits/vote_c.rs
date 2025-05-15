@@ -3,10 +3,9 @@ use crate::circuits::{Circuit, CircuitIdentifier};
 use ethers::types::{
     serde_helpers::deserialize_stringified_numeric, Address, Bytes, H256, U256, U64,
 };
-use serde_json::json;
-use poseidon_rs::{Fr, Poseidon};
 use ff::PrimeField;
-
+use poseidon_rs::{Fr, Poseidon};
+use serde_json::json;
 
 pub struct VoteCircuit {
     identifier: CircuitIdentifier<'static>,
@@ -87,15 +86,15 @@ impl VoteCircuit {
             mt_root,
             mt_leaf,
             mt_pathElements,
-            mt_pathIndices
+            mt_pathIndices,
         }
     }
     pub fn format_inputs(&self) -> Result<String, Box<dyn std::error::Error>> {
         let path_elements: Vec<String> = self
-        .mt_pathElements
-        .iter()
-        .map(|p| p.into_repr().to_string())
-        .collect();
+            .mt_pathElements
+            .iter()
+            .map(|p| p.into_repr().to_string())
+            .collect();
         let inputs = json!({
             "address": self.address,
             "secret":self.secret.to_string(),

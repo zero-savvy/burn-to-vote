@@ -1,7 +1,7 @@
 use crate::circuits::merkle_tree_c::*;
 use crate::circuits::Circuit;
-use crate::utils::mt::Proof;
 use crate::utils::mt::MerkleTree;
+use crate::utils::mt::Proof;
 use alloy::primitives::{address, Address};
 use ff::PrimeField;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
@@ -43,7 +43,12 @@ mod tests {
     use super::*;
     #[tokio::test]
     async fn test() {
-        let mut addr: Vec<Fr> = [Fr::from_str("0").unwrap(),Fr::from_str("1").unwrap(),Fr::from_str("2").unwrap()].to_vec();
+        let mut addr: Vec<Fr> = [
+            Fr::from_str("0").unwrap(),
+            Fr::from_str("1").unwrap(),
+            Fr::from_str("2").unwrap(),
+        ]
+        .to_vec();
         let tree = generate_tree(&mut addr).await;
         let proof = generate_proof(&tree, 2).await;
         let root = proof.root;

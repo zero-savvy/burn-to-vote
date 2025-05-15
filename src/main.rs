@@ -4,7 +4,6 @@ use structopt::StructOpt;
 mod circuits;
 mod commands;
 mod utils;
-use utils::u256_to_fp;
 use alloy::primitives::{address, Address};
 use commands::burn::Burn;
 use commands::burn_address::BurnAddress;
@@ -16,8 +15,8 @@ use env_logger::Env;
 use ethers::providers::{Http, Provider};
 use std::fs::{self, File};
 use std::path::Path;
+use utils::u256_to_fp;
 type PrimitiveU256 = primitive_types::U256;
-
 
 // TO DO:
 // error handling
@@ -51,11 +50,14 @@ async fn main() {
     let path = Path::new("data/whitelist.json");
     let file = File::open(path).unwrap();
     let mut whitelist: Vec<String> = serde_json::from_reader(file).unwrap();
-    let mut whitelist_fr = whitelist.iter().map(|x| {
-        let num = PrimitiveU256::from_str_radix(x,16).expect("Error: failed to get u256 from hash.");
-        u256_to_fp(num)
-
-    }).collect();
+    let mut whitelist_fr = whitelist
+        .iter()
+        .map(|x| {
+            let num =
+                PrimitiveU256::from_str_radix(x, 16).expect("Error: failed to get u256 from hash.");
+            u256_to_fp(num)
+        })
+        .collect();
 
     let opt = Opt::from_args();
     match opt {

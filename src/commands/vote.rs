@@ -1,6 +1,7 @@
 use super::{
     burn::{burn, Burn},
-    burn_address::{burn_address, BurnAddress}, merkle_tree,
+    burn_address::{burn_address, BurnAddress},
+    merkle_tree,
 };
 use crate::{
     circuits::Circuit,
@@ -16,8 +17,8 @@ type PrimitiveU256 = primitive_types::U256;
 type EthersU256 = ethers::types::U256;
 
 use super::super::utils::account;
-use crate::circuits::vote_c::VoteCircuit;
 use super::super::utils::mt::Proof;
+use crate::circuits::vote_c::VoteCircuit;
 #[derive(Debug, StructOpt)]
 pub struct Vote {
     pub private_key: String,
@@ -25,7 +26,7 @@ pub struct Vote {
     pub ceremony_id: u64,
     pub vote: u64,
     pub revote: u64,
-    pub amount: PrimitiveU256
+    pub amount: PrimitiveU256,
 }
 
 pub async fn vote(vote_data: Vote, provider: Provider<Http>, merkle_tree_proof: Proof) -> String {
@@ -53,8 +54,6 @@ pub async fn vote(vote_data: Vote, provider: Provider<Http>, merkle_tree_proof: 
     };
 
     let (_, provider) = burn(burn_data, provider).await;
-
-
 
     let mpt_data = prepare_mpt_data(burn_address, provider).await;
 
@@ -85,7 +84,7 @@ pub async fn vote(vote_data: Vote, provider: Provider<Http>, merkle_tree_proof: 
         merkle_tree_proof.root,
         merkle_tree_proof.leaf,
         merkle_tree_proof.pathElements,
-        merkle_tree_proof.pathIndices
+        merkle_tree_proof.pathIndices,
     );
 
     info!("account_proof_length: {:?}", mpt_data.account_proof_length);

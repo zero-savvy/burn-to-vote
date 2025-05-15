@@ -96,7 +96,7 @@ impl<'a> MerkleTree<'a> {
         } else {
             leaf_index - 1
         };
-        let sibling_fr =self.leaves[sibling_index];
+        let sibling_fr = self.leaves[sibling_index];
         path_elements.push(sibling_fr);
         path_indices.push(leaf_index % 2);
 
