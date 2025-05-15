@@ -15,7 +15,7 @@ pub struct OnchainDemoData {
 
 abigen!(
     Voting,
-    "src/commands/abi.json"
+    "data/abi.json"
 );
 
 pub async fn onchain_demo(demo_data: OnchainDemoData, provider: Provider<Http>) -> Result<(), Box<dyn Error>> {
