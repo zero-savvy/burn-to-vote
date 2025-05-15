@@ -1,0 +1,79 @@
+use ethers::prelude::*;
+use ethers::providers::{Http, Middleware, Provider};
+use log::info;
+use log::error;
+use std::error::Error;
+use structopt::StructOpt;
+use std::sync::Arc;
+use crate::utils::run_command;
+use super::super::utils::proof::{get_proof,get_public, get_contract_address, decode_revert};
+#[derive(Debug, StructOpt)]
+
+pub struct OnchainDemoData {
+    pk: String,
+}
+
+abigen!(
+    Voting,
+    "src/commands/abi.json"
+);
+
+pub async fn onchain_demo(demo_data: OnchainDemoData, provider: Provider<Http>) -> Result<(), Box<dyn Error>> {
+    info!("Voting demo ...");
+    info!("Deploying the contracts ...");
+    let deploy_command = " cd contracts && forge script VotingScript --rpc-url http://localhost:8545 --broadcast && cd ..";
+    run_command(deploy_command).expect("failed to deploy the contracts");
+    info!("Contracts deployed...");
+    info!("Setting up voting contract instance ...");
+
+
+    let chain_id = provider.get_chainid().await.unwrap();
+
+    let wallet = demo_data
+        .pk
+        .parse::<LocalWallet>()
+        .unwrap()
+        .with_chain_id(chain_id.as_u64());
+
+
+    let client = Arc::new(SignerMiddleware::new(provider, wallet));
+    let addr = get_contract_address();
+    let address = addr.parse::<Address>()?;
+    let contract = Voting::new(address, client.clone());
+    info!("contract address: {:?}", address);
+
+    info!("Loading the proof data ...");
+
+    let proof = get_proof().await;
+    let public = get_public().await;
+
+    info!("Sending the vote trx ...");
+
+    let submit_vote_call = contract.submit_vote(proof.pi_a, proof
+        .pi_b, proof.pi_c, public.data);
+
+
+    match submit_vote_call.send().await {
+        Ok(receipt) => {
+            info!("Vote submitted.");
+            info!("Transaction hash: {:?}", receipt.tx_hash());
+        }
+        Err(e) => {
+            error!("Failed to submit proof: {:?}", e);
+            if let Some(revert_data) = e.as_revert() {
+                match decode_revert(&revert_data) {
+                    Some(msg) => error!("Smart Contract Error: {}", msg),
+                    None => error!("Failed to decode revert message"),
+                }
+            }
+            
+            return Err(e.into());
+        }
+    }
+
+
+    Ok(())
+
+}
+
+
