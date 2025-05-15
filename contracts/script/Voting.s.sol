@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import {Script, console} from "forge-std/Script.sol";
 import {Voting} from "../src/Voting.sol";
+import {verifier} from "../src/verifier.sol";
 
 contract VotingScript is Script {
     Voting public voting;
