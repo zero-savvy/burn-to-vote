@@ -84,8 +84,8 @@ pub async fn demo(demo_data: DemoData, provider: Provider<Http>) {
     info!("Compiling vote_circuit ...");
     info!("This could take a while ...");
 
-    // run_command("make vote").expect("Error: Failed to compile vote circuit.");
-    // info!("Vote_circuit compiled successfully.");
+    run_command("make vote").expect("Error: Failed to compile vote circuit.");
+    info!("Vote_circuit compiled successfully.");
 
     let vote_data = Vote {
         private_key: demo_data.pk,
