@@ -30,6 +30,9 @@ trie-db = "0.30.0"
 keccak-hasher = "0.16.0"
 chrono = "0.4.41"
 rand = "0.9.1"
+ethereum-types = "0.15.1"
+serde_with = "3.12.0"
+ethabi = "18.0.0"
 
 [dependencies.ff]
 version = "0.11"
