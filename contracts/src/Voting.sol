@@ -34,22 +34,25 @@ contract Voting {
         uint[2] calldata proofC,     
         uint[4] calldata pubSignals
         ) external {
+            // add ceremony id check
+            // add merkle root as the state var
             require(block.timestamp < voteSubmissionDeadline, "Voting period has ended");
-            require(pubSignals[3] == 0 || pubSignals[3] == 1, "Invalid vote");
-            require(usedNullifiers[pubSignals[2]] < 2, "Nullifier already used");
+            require(pubSignals[2] == 0 || pubSignals[2] == 1, "Invalid vote");
+            require(usedNullifiers[pubSignals[0]] < 2, "Nullifier already used");
+            require(pubSignals[3] != 1 , "revoting is not possible in this function");
 
             bool proofIsValid = verifier.verifyProof(proofA, proofB, proofC, pubSignals);
             require(proofIsValid, "Invalid Merkle proof");
 
-            usedNullifiers[pubSignals[2]] += 1;
+            usedNullifiers[pubSignals[0]] += 1;
 
-            if (pubSignals[3] == 1) {
+            if (pubSignals[2] == 1) {
                 yesVotes++;
             } else {
                 noVotes++;
             }
 
-            emit VoteSubmitted(msg.sender, pubSignals[2], pubSignals[3]);
+            emit VoteSubmitted(msg.sender, pubSignals[0], pubSignals[2]);
         }
 
     function submitRevote(
@@ -64,7 +67,7 @@ contract Voting {
         ) external {
             require(block.timestamp < voteSubmissionDeadline, "Voting period has ended");
             require(old_pubSignals[3] == 0 || old_pubSignals[3] == 1, "Invalid vote");
-            require(new_pubSignals[4] == 1, "Invalid revote proof");
+            require(new_pubSignals[3] == 1, "Invalid revote proof");
             require(usedNullifiers[old_pubSignals[2]] < 2, "Nullifier already used");
 
             bool oldProofIsValid = verifier.verifyProof(old_proofA, old_proofB, old_proofC, old_pubSignals);
