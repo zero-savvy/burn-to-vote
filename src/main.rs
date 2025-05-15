@@ -1,3 +1,4 @@
+use commands::onchain_demo::OnchainDemoData;
 use ff::PrimeField;
 use poseidon_rs::Fr;
 use structopt::StructOpt;
@@ -38,6 +39,7 @@ enum Opt {
     GenerateTree,
     GenerateProof(UserIndex),
     Demo(DemoData),
+    OnchainDemo(OnchainDemoData),
 }
 
 #[tokio::main]
@@ -85,6 +87,9 @@ async fn main() {
         }
         Opt::Demo(demo_data) => {
             commands::demo::demo(demo_data, provider).await;
+        }
+        Opt::OnchainDemo(demo_data) => {
+            commands::onchain_demo::onchain_demo(demo_data, provider).await;
         }
     }
 }
