@@ -19,8 +19,8 @@ contract VotingScript is Script {
         // vm.warp(base_time);
 
 
-        uint256 voting_time = block.timestamp + 100;
-        uint256 tally_time = block.timestamp + 200;
+        uint256 voting_time = block.timestamp + 10000;
+        uint256 tally_time = block.timestamp + 20000;
 
         verifier = new Groth16Verifier();
         voting = new Voting(address(verifier),voting_time,tally_time);
