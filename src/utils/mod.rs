@@ -1,5 +1,6 @@
 pub mod account;
 pub mod mt;
+pub mod proof;
 use alloy::primitives::Address;
 use ethers::utils::keccak256;
 use ff::PrimeField;
@@ -7,6 +8,8 @@ use num_bigint::BigUint;
 use num_traits::Num;
 use poseidon_rs::{Fr, FrRepr};
 use primitive_types::U256;
+use std::error::Error;
+use std::process::Command;
 
 pub fn fr_repr_to_bytes(fr_repr: &FrRepr) -> [u8; 32] {
     let mut bytes: [u8; 32] = unsafe { std::mem::transmute(*fr_repr) };
@@ -63,4 +66,15 @@ pub fn hexToBytes(hex: Vec<u8>) -> Vec<u8> {
         v.push(hex[i] * 16 + hex[i + 1]);
     }
     v
+}
+pub fn run_command(command: &str) -> Result<(), Box<dyn Error>> {
+    let output = Command::new("sh").arg("-c").arg(command).output()?;
+    if !output.status.success() {
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        return Err(Box::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            format!("Command failed: {}", stdout),
+        )));
+    }
+    Ok(())
 }
