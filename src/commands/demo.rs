@@ -7,11 +7,9 @@ use serde_json::{json, Value};
 use std::fs;
 use std::path::Path;
 type PrimitiveU256 = primitive_types::U256;
-use crate::utils::u256_to_fp;
+use crate::utils::{u256_to_fp, run_command};
 use log::info;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
-use std::error::Error;
-use std::process::Command;
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -104,14 +102,3 @@ pub async fn demo(demo_data: DemoData, provider: Provider<Http>) {
     vote(vote_data, provider, merkle_tree_data).await;
 }
 
-fn run_command(command: &str) -> Result<(), Box<dyn Error>> {
-    let output = Command::new("sh").arg("-c").arg(command).output()?;
-    if !output.status.success() {
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        return Err(Box::new(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            format!("Command failed: {}", stdout),
-        )));
-    }
-    Ok(())
-}
