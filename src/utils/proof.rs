@@ -23,7 +23,7 @@ pub struct PublicData {
 
 pub async fn get_proof()->ProofData{
 
-    let proof_file = fs::read_to_string("circuits/proofs/vote_proof.json").expect("failed to load proof file.");
+    let proof_file = fs::read_to_string("data/vote_proof.json").expect("failed to load proof file.");
     let raw_value: serde_json::Value = serde_json::from_str(&proof_file).expect("failed to parse the proof data.");
     let proof_a:Vec<Eth256> = parse_u256_vec(raw_value["pi_a"].as_array().unwrap());
     let proof_c:Vec<Eth256> = parse_u256_vec(raw_value["pi_c"].as_array().unwrap());
@@ -48,7 +48,7 @@ pub async fn get_proof()->ProofData{
 
 pub async fn get_public()->PublicData{
 
-    let public_file = fs::read_to_string("circuits/proofs/vote_public.json").expect("failed to load public data file.");
+    let public_file = fs::read_to_string("data/vote_public.json").expect("failed to load public data file.");
     let raw_value: serde_json::Value = serde_json::from_str(&public_file).expect("failed to parse public data.");
     let data: Vec<Eth256> = parse_u256_vec(raw_value.as_array().unwrap());
     let data: [Eth256; 4] = data.try_into().expect("Expected a Vec of length 4");
