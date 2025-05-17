@@ -69,11 +69,11 @@ contract Voting {
         uint256[2] calldata old_proofA,
         uint256[2][2] calldata old_proofB,
         uint256[2] calldata old_proofC,
-        uint256[4] calldata old_pubSignals,
+        uint256[5] calldata old_pubSignals,
         uint256[2] calldata new_proofA,
         uint256[2][2] calldata new_proofB,
         uint256[2] calldata new_proofC,
-        uint256[4] calldata new_pubSignals
+        uint256[5] calldata new_pubSignals
     ) external {
         if (block.timestamp > voteSubmissionDeadline) revert VotingPeriodEnded(voteSubmissionDeadline, block.timestamp);
 
