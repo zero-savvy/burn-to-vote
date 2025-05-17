@@ -1,12 +1,11 @@
 type Eth256 = ethers::types::U256;
+use ethabi::{ParamType, Token};
+use ethereum_types::Address;
+use ethers::types::Bytes;
 use log::{error, info};
 use serde::Deserialize;
-use std::fs;
 use serde_json::{json, Value};
-use ethereum_types::Address;
-use ethabi::{ParamType, Token};
-use ethers::types::Bytes;
-
+use std::fs;
 
 #[derive(Debug, Deserialize)]
 pub struct ProofData {
@@ -17,16 +16,16 @@ pub struct ProofData {
 
 #[derive(Debug, Deserialize)]
 pub struct PublicData {
-    pub data: [Eth256; 5]
+    pub data: [Eth256; 5],
 }
 
-
-pub async fn get_proof()->ProofData{
-
-    let proof_file = fs::read_to_string("data/vote_proof.json").expect("failed to load proof file.");
-    let raw_value: serde_json::Value = serde_json::from_str(&proof_file).expect("failed to parse the proof data.");
-    let proof_a:Vec<Eth256> = parse_u256_vec(raw_value["pi_a"].as_array().unwrap());
-    let proof_c:Vec<Eth256> = parse_u256_vec(raw_value["pi_c"].as_array().unwrap());
+pub async fn get_proof() -> ProofData {
+    let proof_file =
+        fs::read_to_string("data/vote_proof.json").expect("failed to load proof file.");
+    let raw_value: serde_json::Value =
+        serde_json::from_str(&proof_file).expect("failed to parse the proof data.");
+    let proof_a: Vec<Eth256> = parse_u256_vec(raw_value["pi_a"].as_array().unwrap());
+    let proof_c: Vec<Eth256> = parse_u256_vec(raw_value["pi_c"].as_array().unwrap());
     let proof_b: Vec<Vec<Eth256>> = raw_value["pi_b"]
         .as_array()
         .unwrap()
@@ -34,27 +33,24 @@ pub async fn get_proof()->ProofData{
         .map(|inner| parse_u256_vec(inner.as_array().unwrap()))
         .collect();
     let pi_a: [Eth256; 2] = [proof_a[0], proof_a[1]];
-    let pi_b:[[Eth256; 2];2]= [
+    let pi_b: [[Eth256; 2]; 2] = [
         [proof_b[0][1], proof_b[0][0]],
         [proof_b[1][1], proof_b[1][0]],
-      ];
-    let pi_c:[Eth256; 2] = [proof_c[0], proof_c[1]];
+    ];
+    let pi_c: [Eth256; 2] = [proof_c[0], proof_c[1]];
 
-
-      ProofData { pi_a, pi_b, pi_c }
-    
+    ProofData { pi_a, pi_b, pi_c }
 }
 
-
-pub async fn get_public()->PublicData{
-
-    let public_file = fs::read_to_string("data/vote_public.json").expect("failed to load public data file.");
-    let raw_value: serde_json::Value = serde_json::from_str(&public_file).expect("failed to parse public data.");
+pub async fn get_public() -> PublicData {
+    let public_file =
+        fs::read_to_string("data/vote_public.json").expect("failed to load public data file.");
+    let raw_value: serde_json::Value =
+        serde_json::from_str(&public_file).expect("failed to parse public data.");
     let data: Vec<Eth256> = parse_u256_vec(raw_value.as_array().unwrap());
     let data: [Eth256; 5] = data.try_into().expect("Expected a Vec of length 4");
 
     PublicData { data }
-
 }
 
 fn parse_u256_vec(arr: &Vec<Value>) -> Vec<ethers::types::U256> {
@@ -66,23 +62,24 @@ fn parse_u256_vec(arr: &Vec<Value>) -> Vec<ethers::types::U256> {
         .collect()
 }
 
-pub fn get_contract_address()->String{
-
+pub fn get_contract_address() -> String {
     let path = "contracts/broadcast/Voting.s.sol/1337/run-latest.json";
     let file = fs::read_to_string(path).expect("failed to parse trx file.");
     let raw_data: serde_json::Value = serde_json::from_str(&file).expect("failed to get trx data.");
     let mut addr = String::from("");
 
     if let Some(data) = raw_data["transactions"].as_array() {
-
-
         for tx in data {
             match tx["contractName"].as_str() {
-                Some("Voting") => addr= tx["contractAddress"].as_str().expect("failed to parse contract adress").to_string(),
-                _=> ()
+                Some("Voting") => {
+                    addr = tx["contractAddress"]
+                        .as_str()
+                        .expect("failed to parse contract adress")
+                        .to_string()
+                }
+                _ => (),
             }
         }
-        
     }
 
     if addr == String::from("") {
@@ -90,7 +87,6 @@ pub fn get_contract_address()->String{
     }
     addr
 }
-
 
 pub fn decode_revert(data: &Bytes) -> Option<String> {
     if data.len() < 4 || data[0..4] != [0x08, 0xc3, 0x79, 0xa0] {

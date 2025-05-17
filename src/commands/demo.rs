@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 use std::fs;
 use std::path::Path;
 type PrimitiveU256 = primitive_types::U256;
-use crate::utils::{u256_to_fp, run_command};
+use crate::utils::{run_command, u256_to_fp};
 use log::info;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
 use structopt::StructOpt;
@@ -101,4 +101,3 @@ pub async fn demo(demo_data: DemoData, provider: Provider<Http>) {
 
     vote(vote_data, provider, merkle_tree_data).await;
 }
-
