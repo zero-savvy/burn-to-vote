@@ -20,6 +20,7 @@ template vote(maxDepth) {
     signal input balance;
     signal input storage_hash[32];
     signal input code_hash[32];
+
     signal input state_root[64];
 
     signal input account_rlp[164];
@@ -155,4 +156,4 @@ template vote(maxDepth) {
 
 }
 
-component main{public[ceremonyID, nullifier, vote, revote]}  = vote(8);
+component main{public[ceremonyID, nullifier, vote, revote, mt_root]}  = vote(8);
