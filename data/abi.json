@@ -12,9 +12,22 @@
           "name": "_tallyDeadline",
           "type": "uint256",
           "internalType": "uint256"
-        }
+        },
+        {
+          "name": "_merkle_root",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        { "name": "_ceremony_id", "type": "uint256", "internalType": "uint256" }
       ],
       "stateMutability": "nonpayable"
+    },
+    {
+      "type": "function",
+      "name": "ceremony_id",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
     },
     {
       "type": "function",
@@ -24,6 +37,13 @@
         { "name": "", "type": "uint256", "internalType": "uint256" },
         { "name": "", "type": "uint256", "internalType": "uint256" }
       ],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
+      "name": "merkle_root",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
       "stateMutability": "view"
     },
     {
@@ -47,8 +67,8 @@
         },
         {
           "name": "old_pubSignals",
-          "type": "uint256[4]",
-          "internalType": "uint256[4]"
+          "type": "uint256[5]",
+          "internalType": "uint256[5]"
         },
         {
           "name": "new_proofA",
@@ -67,8 +87,8 @@
         },
         {
           "name": "new_pubSignals",
-          "type": "uint256[4]",
-          "internalType": "uint256[4]"
+          "type": "uint256[5]",
+          "internalType": "uint256[5]"
         }
       ],
       "outputs": [],
@@ -95,8 +115,8 @@
         },
         {
           "name": "pubSignals",
-          "type": "uint256[4]",
-          "internalType": "uint256[4]"
+          "type": "uint256[5]",
+          "internalType": "uint256[5]"
         }
       ],
       "outputs": [],
@@ -212,5 +232,66 @@
         }
       ],
       "anonymous": false
+    },
+    {
+      "type": "error",
+      "name": "InvalidCeremonyId",
+      "inputs": [
+        { "name": "provided", "type": "uint256", "internalType": "uint256" },
+        { "name": "expected", "type": "uint256", "internalType": "uint256" }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "InvalidMerkleRoot",
+      "inputs": [
+        { "name": "provided", "type": "uint256", "internalType": "uint256" },
+        { "name": "expected", "type": "uint256", "internalType": "uint256" }
+      ]
+    },
+    { "type": "error", "name": "InvalidProof", "inputs": [] },
+    { "type": "error", "name": "InvalidRevoteValue", "inputs": [] },
+    {
+      "type": "error",
+      "name": "InvalidVote",
+      "inputs": [
+        { "name": "voteValue", "type": "uint256", "internalType": "uint256" }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "NullifierAlreadyUsed",
+      "inputs": [
+        { "name": "nullifier", "type": "uint256", "internalType": "uint256" }
+      ]
+    },
+    {
+      "type": "error",
+      "name": "NullifierMismatch",
+      "inputs": [
+        {
+          "name": "voteNullifier",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        {
+          "name": "revoteNullifier",
+          "type": "uint256",
+          "internalType": "uint256"
+        }
+      ]
+    },
+    { "type": "error", "name": "RevotingNotAllowed", "inputs": [] },
+    {
+      "type": "error",
+      "name": "VotingPeriodEnded",
+      "inputs": [
+        {
+          "name": "voteSubmissionDeadline",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        { "name": "request_time", "type": "uint256", "internalType": "uint256" }
+      ]
     }
   ]}
