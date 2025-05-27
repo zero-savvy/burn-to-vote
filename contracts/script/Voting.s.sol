@@ -18,13 +18,14 @@ contract VotingScript is Script {
         // uint256 base_time = 1000;
         // vm.warp(base_time);
 
-        uint256 voting_time = block.timestamp + 10000;
-        uint256 tally_time = block.timestamp + 20000;
-        uint256 ceremeny_id = 14564730128827983570;
-        uint256 mt = 16140668641613092893634150840665751551734694739321141751642452107309003732465;
+        uint256 votingTime = block.timestamp + 10000;
+        uint256 tallyTime = block.timestamp + 20000;
+        uint256 ceremeny_id = 16325618567567054338;
+        uint256 mt = 6279442489816579343175600576641714715845361010123760250696645575814262324581;
+        uint state_root = 9133689217370487228376476215699836963181592635914481284078419964281904630813;
 
         verifier = new Groth16Verifier();
-        voting = new Voting(address(verifier), voting_time, tally_time, mt, ceremeny_id);
+        voting = new Voting(address(verifier), votingTime, tallyTime, mt, ceremeny_id, state_root);
 
         vm.stopBroadcast();
         console.logAddress(address(voting));
