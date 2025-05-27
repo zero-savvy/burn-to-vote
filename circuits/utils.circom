@@ -335,3 +335,22 @@ template HexToDigits() {
     }
 
 }
+
+template CombineHex(n) {
+    signal input nibbles[n]; 
+    signal output hexNumber; 
+
+    component nibbleCheckers[n];
+    for (var i = 0; i < n; i++) {
+        nibbleCheckers[i] = Num2Bits(4);
+        nibbleCheckers[i].in <== nibbles[i];
+    }
+
+    var total = 0;
+    for (var i = 0; i < n; i++) {
+        total += nibbles[i] * (16 ** (n - 1 - i));
+    }
+    hexNumber <== total;
+    log("hexNumber");
+    log(hexNumber);
+}
