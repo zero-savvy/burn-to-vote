@@ -22,6 +22,7 @@ template vote(maxDepth) {
     signal input code_hash[32];
 
     signal input state_root[64];
+    signal output state_root_hex;
 
     signal input account_rlp[164];
     signal input account_rlp_len;
@@ -153,6 +154,14 @@ template vote(maxDepth) {
     check_account.account_proof_length <== account_proof_length;
     check_account.node_length <== node_length;
     check_account.leaf_nibbles <== leaf_nibbles;
+
+    component root_hex  = CombineHex(64);
+    root_hex.nibbles <== state_root;
+    state_root_hex <== root_hex.hexNumber;
+
+    log("state_root_hex");
+    log(state_root_hex);
+
 
 }
 
