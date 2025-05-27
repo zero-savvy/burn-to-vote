@@ -5,6 +5,7 @@ error InvalidVote(uint256 voteValue);
 error NullifierAlreadyUsed(uint256 nullifier);
 error RevotingNotAllowed();
 error InvalidMerkleRoot(uint256 provided, uint256 expected);
+error InvalidStateroot(uint256 provided, uint256 expected);
 error InvalidCeremonyId(uint256 provided, uint256 expected);
 error InvalidProof();
 error InvalidRevoteValue();
