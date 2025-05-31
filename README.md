@@ -1,4 +1,4 @@
-# Proof-of-burn Anonymous Voting
+# Anonymous Voting using proof-of-burn
 
 ## Abstract
 
