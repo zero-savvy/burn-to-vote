@@ -18,7 +18,12 @@
           "type": "uint256",
           "internalType": "uint256"
         },
-        { "name": "_ceremony_id", "type": "uint256", "internalType": "uint256" }
+        {
+          "name": "_ceremony_id",
+          "type": "uint256",
+          "internalType": "uint256"
+        },
+        { "name": "_state_root", "type": "uint256", "internalType": "uint256" }
       ],
       "stateMutability": "nonpayable"
     },
@@ -48,6 +53,13 @@
     },
     {
       "type": "function",
+      "name": "state_root",
+      "inputs": [],
+      "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+      "stateMutability": "view"
+    },
+    {
+      "type": "function",
       "name": "submitRevote",
       "inputs": [
         {
@@ -67,8 +79,8 @@
         },
         {
           "name": "old_pubSignals",
-          "type": "uint256[5]",
-          "internalType": "uint256[5]"
+          "type": "uint256[6]",
+          "internalType": "uint256[6]"
         },
         {
           "name": "new_proofA",
@@ -87,8 +99,8 @@
         },
         {
           "name": "new_pubSignals",
-          "type": "uint256[5]",
-          "internalType": "uint256[5]"
+          "type": "uint256[6]",
+          "internalType": "uint256[6]"
         }
       ],
       "outputs": [],
@@ -115,8 +127,8 @@
         },
         {
           "name": "pubSignals",
-          "type": "uint256[5]",
-          "internalType": "uint256[5]"
+          "type": "uint256[6]",
+          "internalType": "uint256[6]"
         }
       ],
       "outputs": [],
@@ -251,6 +263,14 @@
     },
     { "type": "error", "name": "InvalidProof", "inputs": [] },
     { "type": "error", "name": "InvalidRevoteValue", "inputs": [] },
+    {
+      "type": "error",
+      "name": "InvalidStateroot",
+      "inputs": [
+        { "name": "provided", "type": "uint256", "internalType": "uint256" },
+        { "name": "expected", "type": "uint256", "internalType": "uint256" }
+      ]
+    },
     {
       "type": "error",
       "name": "InvalidVote",
