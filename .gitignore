@@ -2,7 +2,7 @@
 .DS_Store
 contracts/output.json
 contracts/broadcast/
-
+voting_db
 
 # circuits
 
