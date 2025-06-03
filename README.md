@@ -121,14 +121,9 @@ cargo run -- demo [PRIVATE-KEY]
 ### 4. Onchain Demo
 
 Demonstrates fully on-chain interactions :
-- creates a burn address
-- creates a nullifier
-- burns a predetermined eth amount
-- adds the data to merkle tree
-- creates the vote circuit inputs, zkey, verification key
-- creates the vote proof
+
 - deploys the voting smart contract
-- submits a vote 
+- submits a pregenerated test vote proof
 - returns the tally results
 
 ```sh
