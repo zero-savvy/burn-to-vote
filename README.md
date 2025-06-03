@@ -63,9 +63,7 @@ To set up the project, follow these steps to get the project up and running on y
 
 ## Usage
 
-```
-pob-voting <SUBCOMMAND> [OPTIONS]
-```
+To vote you need to generate an new ceremony.
 
 ### 1. Initiate Ceremony
 
