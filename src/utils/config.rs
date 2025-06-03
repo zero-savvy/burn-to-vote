@@ -1,3 +1,4 @@
+use log::info;
 use structopt::StructOpt;
 use crate::commands::{demo::DemoData, onchain_demo::OnchainDemoData, vote::Vote};
 use bincode::{Decode, Encode};
@@ -21,6 +22,7 @@ impl Config {
         self.chain_id = Some(provider.get_chainid().await.unwrap().as_u64());
         let white_list = vec![0; 4];
         self.white_list = white_list;
+        info!("config: {:?}",self);
     }
 }
 
