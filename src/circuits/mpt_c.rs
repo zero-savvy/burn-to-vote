@@ -1,6 +1,6 @@
 use crate::circuits::{Circuit, CircuitIdentifier};
 // use primitive_types::U256;
-use ethers::types::{serde_helpers::deserialize_stringified_numeric, Address, Bytes, H256, U64};
+use ethers::types::U64;
 type EthersU256 = ethers::types::U256;
 use serde_json::json;
 pub struct MptCircuit {

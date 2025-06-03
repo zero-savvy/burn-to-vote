@@ -1,16 +1,15 @@
 use crate::circuits::{Circuit, CircuitIdentifier};
-// use primitive_types::U256;
-use ethers::types::{
-    serde_helpers::deserialize_stringified_numeric, Address, Bytes, H256, U256, U64,
+type PrimitiveU256 = primitive_types::U256;
+use ethers::types::{U256, U64,
 };
 use ff::PrimeField;
-use poseidon_rs::{Fr, Poseidon};
+use poseidon_rs::Fr;
 use serde_json::json;
 
 pub struct VoteCircuit {
     identifier: CircuitIdentifier<'static>,
     address: String,
-    secret: U256,
+    secret: PrimitiveU256,
     blinding_factor: u64,
     ceremony_id: u64,
     random_secret: u64,
@@ -37,7 +36,7 @@ pub struct VoteCircuit {
 impl VoteCircuit {
     pub fn new(
         address: String,
-        secret: U256,
+        secret: PrimitiveU256,
         blinding_factor: u64,
         ceremony_id: u64,
         random_secret: u64,
@@ -131,8 +130,7 @@ impl Circuit for VoteCircuit {
     }
 
     fn generate_witness(&self) -> Result<(), Box<dyn std::error::Error>> {
-        self.identifier.generate_witness()?;
-        Ok(())
+        self.identifier.generate_witness()
     }
 
     fn setup_zkey(&self) -> Result<(), Box<dyn std::error::Error>> {
@@ -152,11 +150,9 @@ impl Circuit for VoteCircuit {
     }
 
     fn verify_proof(&self) -> Result<(), Box<dyn std::error::Error>> {
-        self.identifier.verify_proof()?;
-        Ok(())
+        self.identifier.verify_proof()
     }
     fn generate_verifier(&self) -> Result<(), Box<dyn std::error::Error>> {
-        self.identifier.generate_verifier()?;
-        Ok(())
+        self.identifier.generate_verifier()
     }
 }

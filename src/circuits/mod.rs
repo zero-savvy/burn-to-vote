@@ -7,8 +7,8 @@ use log::{error, info};
 use std::error::Error;
 use std::fs::{self, File};
 use std::io::Write;
+use std::io::{BufRead, BufReader};
 use std::process::Command;
-
 pub trait Circuit {
     fn generate_input_file(&self, inputs: String) -> Result<(), Box<dyn Error>>;
     fn generate_witness(&self) -> Result<(), Box<dyn Error>>;
@@ -42,7 +42,7 @@ impl<'a> Circuit for CircuitIdentifier<'a> {
             name = self.circuit_name
         );
         match self.run_command(&calculate_command) {
-            Ok(_) => info!("generate_witness Command ran successfully!"),
+            Ok(_) => info!("export_witness Command ran successfully!"),
             Err(e) => error!("generate_witness Command failed: {}", e),
         }
 
@@ -115,12 +115,7 @@ impl<'a> Circuit for CircuitIdentifier<'a> {
             "snarkjs groth16 verify circuits/{name}/verification_key.json circuits/proofs/{name}_public.json circuits/proofs/{name}_proof.json",
             name = self.circuit_name
         );
-        match self.run_command(&verify_command) {
-            Ok(_) => info!("verify_proof Command ran successfully!"),
-            Err(e) => error!("verify_proof Command failed: {}", e),
-        }
-
-        Ok(())
+        self.run_command(&verify_command)
     }
 
     fn generate_verifier(&self) -> Result<(), Box<dyn Error>> {
@@ -133,25 +128,33 @@ impl<'a> Circuit for CircuitIdentifier<'a> {
             "snarkjs zkey export solidityverifier circuits/{name}/{name}_0000.zkey circuits/{name}/{name}_verifier.sol",
             name = self.circuit_name
         );
-        match self.run_command(&verify_command) {
-            Ok(_) => info!("generate_verifier Command ran successfully!"),
-            Err(e) => error!("generate_verifier Command failed: {}", e),
-        }
-
-        Ok(())
+        self.run_command(&verify_command)
     }
 }
 
 impl<'a> CircuitIdentifier<'a> {
     fn run_command(&self, command: &str) -> Result<(), Box<dyn Error>> {
+        println!("[DEBUG] Executing command: {}", command);
+
         let output = Command::new("sh").arg("-c").arg(command).output()?;
-        if !output.status.success() {
+
+        if output.status.success() {
+            Ok(())
+        } else {
             let stdout = String::from_utf8_lossy(&output.stdout);
-            return Err(Box::new(std::io::Error::new(
+            let stderr = String::from_utf8_lossy(&output.stderr);
+
+            println!("[STDOUT]\n{}", stdout);
+            println!("[STDERR]\n{}", stderr);
+
+            Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::Other,
-                format!("Command failed: {}", stdout),
-            )));
+                format!(
+                    "Command failed with exit code {:?}\n{}",
+                    output.status.code(),
+                    stderr.trim_end()
+                ),
+            )))
         }
-        Ok(())
     }
 }
