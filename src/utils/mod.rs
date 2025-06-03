@@ -1,4 +1,5 @@
 pub mod account;
+pub mod config;
 pub mod mt;
 pub mod proof;
 use alloy::primitives::Address;
