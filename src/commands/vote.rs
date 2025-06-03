@@ -1,70 +1,88 @@
-use super::{
-    burn::{burn, Burn},
-    burn_address::{burn_address, BurnAddress},
-    merkle_tree,
-};
-use crate::{
-    circuits::Circuit,
-    commands::nullifier::{self, generate_nullifier, Nullifier},
-    utils::account::prepare_mpt_data,
-};
-use chrono::Local;
-use ethers::providers::{Http, Provider};
 use log::info;
-// use primitive_types::U256;
 use structopt::StructOpt;
-type PrimitiveU256 = primitive_types::U256;
-type EthersU256 = ethers::types::U256;
 
-use super::super::utils::account;
-use super::super::utils::mt::Proof;
-use crate::circuits::vote_c::VoteCircuit;
-#[derive(Debug, StructOpt)]
+use ethers::providers::{Http, Provider};
+use ff::PrimeField;
+use primitive_types::U256 as PrimitiveU256;
+use poseidon_rs::{Fr, FrRepr, Poseidon};
+
+use crate::{
+    circuits::{Circuit, vote_c::VoteCircuit},
+    commands::{
+        burn::burn,
+        burn_address::burn_address,
+        merkle_tree::{generate_proof, generate_tree},
+        nullifier::generate_nullifier,
+    },
+    utils::{account::prepare_mpt_data, config::*, u256_to_fp},
+};
+
+#[derive(Debug, StructOpt, Clone)]
 pub struct Vote {
-    pub private_key: String,
-    pub random_secret: u64,
-    pub ceremony_id: u64,
+    pub amount: PrimitiveU256,
     pub vote: u64,
     pub revote: u64,
-    pub amount: PrimitiveU256,
+    pub private_key: String,
 }
 
-pub async fn vote(vote_data: Vote, provider: Provider<Http>, merkle_tree_proof: Proof) -> String {
-    let burn_address_data = BurnAddress {
-        private_key: vote_data.private_key.clone(),
-        ceremony_id: vote_data.ceremony_id.clone(),
-        random_secret: vote_data.random_secret,
-        vote: vote_data.vote.clone(),
-    };
+pub async fn vote(mut config: Config, vote_data: Vote) -> Result<(), Box<dyn std::error::Error>> {
+    info!("initiate voting ..");
 
-    let (burn_address_data, burn_address) = burn_address(burn_address_data).await;
+    let provider: Provider<Http> = Provider::<Http>::try_from(config.network.url())?.clone();
 
-    let nullifier_data = Nullifier {
-        private_key: vote_data.private_key.clone(),
-        ceremony_id: vote_data.ceremony_id.clone(),
-        blinding_factor: burn_address_data.blinding_factor.clone(),
-    };
+    let blinding_factor = rand::random::<u64>();
 
-    let nullifier = generate_nullifier(nullifier_data);
+    let (burn_address_data, burn_address) = burn_address(
+        config.clone(),
+        vote_data.private_key.clone(),
+        blinding_factor,
+        vote_data.vote,
+    )
+    .await;
 
-    let burn_data = Burn {
-        private_key: vote_data.private_key.clone(),
-        burn_address: burn_address,
-        amount: vote_data.amount,
-    };
+    let nullifier = generate_nullifier(
+        config.clone(),
+        blinding_factor,
+        vote_data.private_key.clone(),
+    );
 
-    let (_, provider) = burn(burn_data, provider).await;
+    let (_, provider) = burn(
+        provider,
+        burn_address,
+        vote_data.amount,
+        vote_data.private_key.clone(),
+    )
+    .await;
 
     let mpt_data = prepare_mpt_data(burn_address, provider).await;
 
-    type EthersU256 = ethers::types::U256;
-    let private_key: EthersU256 =
-        EthersU256::from_str_radix(&vote_data.private_key.clone(), 16).unwrap();
+    let secret: PrimitiveU256 = PrimitiveU256::from_str_radix(&vote_data.private_key, 16)
+        .expect("Error: failed to get u256 from secret.");
+    let random_secret_fr = Fr::from_repr(FrRepr::from(blinding_factor))
+        .expect("Error: failed to unwrap random secret Fr.");
+    let index = config.white_list.len() - 1;
+    let serct_fr = u256_to_fp(secret);
+    let leaf_data = [serct_fr, random_secret_fr];
+    let leaf_hasher = Poseidon::new();
+    let leaf = leaf_hasher
+        .hash(leaf_data.to_vec())
+        .expect("Error: Failed to hash leaf data.");
+    println!("5");
+
+    let mut fr_white_list: Vec<Fr> = config
+        .white_list
+        .iter_mut()
+        .map(|x| Fr::from_repr(FrRepr::from(*x)).unwrap())
+        .collect();
+    fr_white_list[index] = leaf;
+    let tree = generate_tree(&mut fr_white_list).await;
+    let merkle_tree_proof = generate_proof(&tree, index).await;
+    println!("8");
 
     let circuit = VoteCircuit::new(
         burn_address_data.address,
-        private_key,
-        burn_address_data.blinding_factor,
+        secret,
+        blinding_factor,
         burn_address_data.ceremony_id,
         burn_address_data.random_secret,
         burn_address_data.vote,
@@ -87,16 +105,13 @@ pub async fn vote(vote_data: Vote, provider: Provider<Http>, merkle_tree_proof: 
         merkle_tree_proof.pathIndices,
     );
 
-    info!("account_proof_length: {:?}", mpt_data.account_proof_length);
     info!("VOTE circuit: ");
-    let inputs = circuit.format_inputs().unwrap();
-    circuit.generate_input_file(inputs).unwrap();
-    circuit.generate_witness().unwrap();
-    circuit.setup_zkey().unwrap();
-    circuit.generate_proof().unwrap();
-    circuit.setup_vkey().unwrap();
-    circuit.verify_proof().unwrap();
-    circuit.generate_verifier();
-
-    "".to_string()
+    let inputs = circuit.format_inputs()?;
+    circuit.generate_input_file(inputs)?;
+    circuit.generate_witness()?;
+    // circuit.setup_zkey()?;
+    circuit.generate_proof()?;
+    // circuit.setup_vkey()?;
+    circuit.verify_proof()?;
+    circuit.generate_verifier()
 }
