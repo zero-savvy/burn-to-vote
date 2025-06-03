@@ -1,4 +1,4 @@
-# Burn Your Vote (POB-Voting)
+# Anonymous Voting using proof-of-burn
 
 A Rust-based implementation of a fully on-chain, anonymous voting protocol using Proof-of-Burn and zk-SNARKs. Voters burn tokens to unspendable addresses, generate a zero-knowledge proof, and submit their vote on Ethereum-compatible chains without sacrificing privacy or verifiability.
 
