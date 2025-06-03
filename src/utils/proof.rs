@@ -1,10 +1,9 @@
 type Eth256 = ethers::types::U256;
 use ethabi::{ParamType, Token};
-use ethereum_types::Address;
 use ethers::types::Bytes;
-use log::{error, info};
+use log::error;
 use serde::Deserialize;
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::fs;
 
 #[derive(Debug, Deserialize)]
@@ -16,7 +15,7 @@ pub struct ProofData {
 
 #[derive(Debug, Deserialize)]
 pub struct PublicData {
-    pub data: [Eth256; 5],
+    pub data: [Eth256; 6],
 }
 
 pub async fn get_proof() -> ProofData {
@@ -48,7 +47,7 @@ pub async fn get_public() -> PublicData {
     let raw_value: serde_json::Value =
         serde_json::from_str(&public_file).expect("failed to parse public data.");
     let data: Vec<Eth256> = parse_u256_vec(raw_value.as_array().unwrap());
-    let data: [Eth256; 5] = data.try_into().expect("Expected a Vec of length 4");
+    let data: [Eth256; 6] = data.try_into().expect("Expected a Vec of length 6");
 
     PublicData { data }
 }
