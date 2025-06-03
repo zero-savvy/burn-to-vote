@@ -1,8 +1,30 @@
-# Anonymous Voting using proof-of-burn
+# Burn Your Vote (POB-Voting)
 
-## Abstract
+A Rust-based implementation of a fully on-chain, anonymous voting protocol using Proof-of-Burn and zk-SNARKs. Voters burn tokens to unspendable addresses, generate a zero-knowledge proof, and submit their vote on Ethereum-compatible chains without sacrificing privacy or verifiability.
 
-This project implements a decentralized voting protocol that combines token burning mechanisms with zero-knowledge proofs to ensure vote privacy and weight verification. 
+## Features
+
+- **Fully On-Chain**: No trusted third parties or off-chain tallying—everything happens in smart contracts.
+- **Anonymous & Coercion-Resistant**: Each burn address is a hash commitment (binding and hiding). Voters can cast multiple unlinkable burns to override coerced votes.
+- **Flexible Voting Schemes**: Supports majority voting, token-weighted, quadratic, ranked-choice, or open-content ballots via on-chain tally logic.
+- **Lightweight ZKPs**: Uses Circom + Groth16 for succinct proofs; avoids heavy homomorphic encryption or MPC overhead.
+- **Rust CLI**: Convenient command-line interface powered by `structopt` and `tokio`.
+
+## Repository Layout
+
+```
+.
+├── Cargo.toml
+├── README.md
+├── src
+│   ├── main.rs       # CLI entry point
+│   ├── circuits      # Circom circuit handlers
+│   ├── commands      # vote, demo, onchain_demo handlers
+│   ├── utils         # configuration parsing, helper functions
+│   └── db            # simple on-disk storage for ceremony state
+└── contracts         # Solidity contracts (verifier + voting logic)
+└── circuits          # circom circuits (vote + burn address + nullifier + mpt)
+```
 
 ## Prerequisites
 
@@ -19,8 +41,8 @@ To set up the project, follow these steps to get the project up and running on y
 
 1. **Clone the Repository**:
     ```sh
-    git clone git@github.com:zero-savvy/POB-Anonymous-Voting.git
-    cd POB-Anonymous-Voting
+    git clone git@github.com:zero-savvy/burn-to-vote.git
+    cd burn-to-vote
     ```
 2. **Install Project Dependencies**:
     ```sh
@@ -39,88 +61,119 @@ To set up the project, follow these steps to get the project up and running on y
 
     This will start a local blockchain instance for testing.
 
-4. **Add the deployer private key to Makefile deploy command**:
-    
-    Copy Private key from ganache accounts and add to deploy command in Makefile.
+## Usage
 
-5. **Deploy contract**:
-    ```sh
-    make deploy
-    ```
+```
+pob-voting <SUBCOMMAND> [OPTIONS]
+```
 
-6. **Run circuit commands**:
-    ```sh
-    make trusted_setup
-    make vote_circuit
-    make vote_zkey
-    make vote_vkey
-    ```
+### 1. Initiate Ceremony
 
-7. **Generate a burn address**:
-    ```sh
-    cargo run -- burn-address
-    ```
+Configure a new voting instance with default config:
 
-8. **Generate Nullifier**:
+network options: Ganache, Sepolia, Ethereum 
 
-    First, generate the required input.json file:
-    ```sh
-    cargo run -- nullifier <private-key> <ceremony-id> <blinding-factor>
-    ```
+```sh
+ cargo run -- initiate [NETWORK]
+```
 
-    Then, execute the entire nullifier workflow with:
-    ```sh
-    make nullifier
-    ```
+- Generates initial parameters
+```sh
+Config { 
+    network,
+    ceremony_id(random u64), 
+    chain_id,
+    white_list(empty tree)
+ }
+```
 
-    This command will:
-    - Compile the circuit.
-    - Perform the trusted setup.
-    - Generate the witness.
-    - Create the proof.
-    - Verify the proof.
-    - Clean up intermediate files.
+### 2. Vote
 
-9. **Burn some ETH**:
-    ```sh
-    cargo run -- burn
-    ```
+Burn-to-vote flow: compute a burn address, nullifier, burn eth and generate a proof:
 
-10. **Vote**:
-    ```sh
-    cargo run -- vote
-    ```
+```sh
+cargo run -- vote [AMOUNT] [VOTE] [REVOTE] [PRIVATE-KEY]
+```
 
-11. **Check your vote proof**:
-    ```sh
-    cargo run -- verify
-    ```
+- `AMOUNT`: The amout of ETH to burn.
+- `VOTE`:  vote value (e.g., 0 or 1 for yes/no).
+- `REVOTE`:  revote flag value (e.g., 0 1 for revoting).
+- `PRIVATE-KEY`: private key (for ZK burn transaction).
 
-## Features
+### 3. Demo
 
-- **Vote Privacy**: Ensures complete privacy in proof generation and submission using zero-knowledge proofs.
-- **Public Verifiability**: Allows public verification of vote weights without revealing individual votes.
-- **Coercion Resistance**: Prevents vote selling and coercion through unique burn addresses tied to personal data.
-- **Double Voting Prevention**: Uses nullifiers to prevent double voting and ensure each vote is unique.
+Runs an in-memory ceremony without on-chain dependencies (for testing):
+- compiles the vote circuit (~ 40 min)
+- creates a burn address
+- creates a nullifier
+- burns a predetermined eth amount
+- adds the data to merkle tree
+- creates the vote circuit inputs, zkey, verification key
+- creates the vote proof
+- verifies the proof off-chain
 
-## Protocol Overview
 
-1. **Token Burning**: Users burn tokens to create irreversible, publicly verifiable vote weights.
-2. **Zero-Knowledge Proofs**: Prove correct weight attribution while preserving vote privacy.
-3. **Nullifier Construction**: Prevents double voting and allows public verification.
+```sh
+cargo run -- demo [PRIVATE-KEY]
+```
 
-## Voting Process
 
-1. **Burn Transaction**: Users burn tokens during the voting period, generating a unique burn address.
-2. **Proof Generation**: Generate zero-knowledge proofs to prove token burn and vote validity.
-3. **Proof Submission**: Submit proofs and votes to the smart contract for verification.
+### 4. Onchain Demo
 
-## Security
+Demonstrates fully on-chain interactions :
+- creates a burn address
+- creates a nullifier
+- burns a predetermined eth amount
+- adds the data to merkle tree
+- creates the vote circuit inputs, zkey, verification key
+- creates the vote proof
+- deploys the voting smart contract
+- submits a vote 
+- returns the tally results
 
-- **Replay Attack Prevention**: Nullifiers prevent resubmission of votes.
-- **Privacy**: zk-SNARKs ensure voter identities and token amounts remain hidden.
-- **Verifiable Results**: All proofs and votes are verified and tallied on-chain.
+```sh
+ cargo run -- onchain-demo [PRIVATE-KEY]
+```
 
-## Conclusion
 
-This protocol provides a secure, private, and verifiable decentralized voting system using token burning and zero-knowledge proofs. It addresses key challenges in decentralized voting, including vote privacy, public verifiability, and double voting prevention.
+## Smart Contract Details
+
+The Solidity contract in `contracts/` expects:
+
+- **Verifier Address**: Deployed Groth16 verifier (BN254).
+- **Submission Deadline**: UNIX timestamp to lock voting.
+- **Tally Deadline**: After this, anyone can call `tallyVotes()`.
+- **Merkle Root**: Allow-list root for eligible voters.
+- **State Root**: Ethereum state root at voting end (for verifying burn balances).
+- **Ceremony ID**: Unique voting id.
+
+Key functions (see `contracts/Voting.sol` for details):
+
+- `submitVote(proofA, proofB, proofC, [nullifier, voteValue, revoteFlag, stateRoot, merkleProof, ceremony id])`
+- `submitRevote(...)` (overwrites previous vote if nullifier matches)
+- `tallyVotes()` (computes and publishes final outcome after `tallyDeadline`)
+
+## Circom Circuits
+
+Under `circuits/`:
+
+- **`Vote.circom`**:  
+  - Computes burn address: `address == H(secret ∥ ceremonyID ∥ vote ∥ blindingFactor)`.  
+  - Computes nullifier: `address == H(secret ∥ ceremonyID ∥ blindingFactor)`.  
+  - Verifies Merkle Patricia inclusion (`stateRoot`, `accountRLP`, `accountProof`).  
+- **`rlp.circom`**: Supporting subcircuits.
+
+
+## Experimental Results
+
+- **Scalability**: Supports >1 million simulated voters with constant-time tallying.
+- **Gas Costs**: Proof verification ~200k gas per vote; tallying is O(1).
+- **Proof Generation**: ≤2s per witness on a modern CPU.
+
+## License & Citation
+
+Released under **CC BY 4.0**. See `LICENSE.md`.
+
+> “Burn Your Vote: Scalable and Publicly Verifiable Anonymous Voting via Proof-of-Burn,” Proceedings on Privacy Enhancing Technologies, 2025.
+
+For full protocol and security proofs, see the paper included as `burn-your-vote.pdf`.
