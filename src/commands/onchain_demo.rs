@@ -1,4 +1,5 @@
 use super::super::utils::proof::{decode_revert, get_contract_address, get_proof, get_public};
+use crate::utils::config::Config;
 use crate::utils::run_command;
 use ethers::prelude::*;
 use ethers::providers::{Http, Middleware, Provider};
@@ -7,8 +8,8 @@ use log::info;
 use std::error::Error;
 use std::sync::Arc;
 use structopt::StructOpt;
-#[derive(Debug, StructOpt)]
 
+#[derive(Debug, StructOpt, Clone)]
 pub struct OnchainDemoData {
     pk: String,
 }
@@ -16,16 +17,19 @@ pub struct OnchainDemoData {
 abigen!(Voting, "data/abi.json");
 
 pub async fn onchain_demo(
+    config: Config,
     demo_data: OnchainDemoData,
-    provider: Provider<Http>,
 ) -> Result<(), Box<dyn Error>> {
     info!("Voting demo ...");
     info!("Deploying the contracts ...");
-    let deploy_command = " cd contracts && forge script VotingScript --rpc-url http://localhost:8545 --broadcast && cd ..";
-    run_command(deploy_command).expect("failed to deploy the contracts");
+    let deploy_command = format!(
+        " cd contracts && forge script VotingScript --rpc-url {} --broadcast && cd ..",
+        config.network.url()
+    );
+    run_command(&deploy_command).expect("failed to deploy the contracts");
     info!("Contracts deployed...");
     info!("Setting up voting contract instance ...");
-
+    let provider: Provider<Http> = Provider::<Http>::try_from(config.network.url())?.clone();
     let chain_id = provider.get_chainid().await.unwrap();
 
     let wallet = demo_data
