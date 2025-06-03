@@ -1,17 +1,12 @@
 use super::get_mpt_node_type;
 use super::serialize_hex;
 use crate::circuits::mpt_c::MptCircuit;
-use alloy::primitives::keccak256;
-use alloy_rlp::Encodable;
 use ethers::providers::{Http, Middleware, Provider};
 use ethers::types::Address;
 use ethers::{prelude::*, utils::rlp};
 use log::info;
 
-pub async fn get_account_proof(address: H160) -> EIP1186ProofResponse {
-    let provider: Provider<Http> = Provider::<Http>::try_from("http://localhost:8545/")
-        .unwrap()
-        .clone();
+pub async fn get_account_proof(address: H160, provider: &Provider<Http>) -> EIP1186ProofResponse {
     let block = provider.get_block_number().await.unwrap();
     provider
         .get_proof(address, vec![], Some(BlockId::from(block)))
@@ -31,7 +26,7 @@ pub fn get_account_rlp(proof: EIP1186ProofResponse) -> Vec<u8> {
 
 pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -> MptCircuit {
     info!("Preparing MPT circuit data ...");
-    let addres_proof = get_account_proof(burn_address).await;
+    let addres_proof = get_account_proof(burn_address, &provider).await;
     let _account_rlp = get_account_rlp(addres_proof.clone());
     let rlp_hex = hex::encode(_account_rlp.clone());
 
@@ -60,7 +55,7 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
 
     let mut decoded_proof_bytes: Vec<Vec<Vec<u8>>> = vec![];
     for item in &addres_proof.account_proof {
-        let mut node = item.to_vec();
+        let node = item.to_vec();
         let rlp_decode: Vec<Vec<u8>> = rlp::decode_list(&node);
         decoded_proof_bytes.push(rlp_decode.clone());
 
@@ -76,9 +71,9 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
         proof.push(node_hex_array);
     }
 
-    let mut node_types = get_mpt_node_type(decoded_proof_bytes.clone());
-    let address_hash = hex::encode(keccak256(burn_address));
-    let sa = serialize_hex(&address_hash);
+    let node_types = get_mpt_node_type(decoded_proof_bytes.clone());
+    // let address_hash = hex::encode(keccak256(burn_address));
+    // let sa = serialize_hex(&address_hash);
     let mut node_items_len: Vec<Vec<usize>> = Vec::new();
     let mut node_lengths = Vec::new();
     for item in decoded_proof_bytes.clone() {
@@ -91,16 +86,10 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
         node_items_len.push(nl);
     }
 
-    let aaaaaa = hex::encode([
-        51, 93, 253, 141, 184, 39, 12, 245, 120, 220, 164, 70, 79, 239, 185, 39, 116, 83, 11, 202,
-        65, 208, 249, 226, 254, 161, 123, 220, 4, 202, 124, 214,
-    ]);
-    let h: Vec<u8> = serialize_hex(&aaaaaa);
-
     let max_proof_len = 8;
     let real_proof_len = proof.len().clone();
     let empty_array = [0; 1064].to_vec();
-    for i in 0..max_proof_len - real_proof_len {
+    for _ in 0..max_proof_len - real_proof_len {
         proof.push(empty_array.clone());
         prooflen.push(0);
     }
@@ -131,6 +120,7 @@ pub async fn prepare_mpt_data(burn_address: Address, provider: Provider<Http>) -
     let s_ba: Vec<u8> = serialize_hex(&ba);
 
     info!("MPT circuit data generated.");
+    info!("real_proof_len: {:?}", real_proof_len);
 
     MptCircuit::new(
         s_ba,
