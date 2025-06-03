@@ -1,33 +1,36 @@
 use crate::circuits::burn_address_c::*;
-use crate::circuits::Circuit;
-use crate::utils::{fr_repr_to_bytes, u256_to_fp};
+// use crate::circuits::Circuit;
+use crate::utils::{config::*, fr_repr_to_bytes, u256_to_fp};
 use ethers::types::Address;
 use ff::PrimeField;
 use log::info;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
 use primitive_types::U256;
 use structopt::StructOpt;
-
-#[derive(Debug, StructOpt)]
+#[derive(Debug, StructOpt, Clone)]
 pub struct BurnAddress {
     pub private_key: String,
     pub ceremony_id: u64,
-    pub random_secret: u64,
+    pub blinding_factor: u64,
     pub vote: u64,
 }
 
-pub async fn burn_address(burn_address: BurnAddress) -> (BurnAddressCircuit, Address) {
+pub async fn burn_address(
+    config: Config,
+    private_key: String,
+    blinding_factor: u64,
+    vote: u64,
+) -> (BurnAddressCircuit, Address) {
     info!("Genrating burn address ...");
 
-    let blinding_factor = rand::random::<u64>();
-    let private_key = U256::from_str_radix(&burn_address.private_key, 16).unwrap();
+    let private_key = U256::from_str_radix(&private_key.clone(), 16).unwrap();
 
     let private_key_fp = u256_to_fp(private_key);
 
-    let ceremony_id_fp = Fr::from_repr(FrRepr::from(burn_address.ceremony_id)).unwrap();
+    let ceremony_id_fp = Fr::from_repr(FrRepr::from(config.ceremony_id.unwrap())).unwrap();
     let blinding_factor_fp = Fr::from_repr(FrRepr::from(blinding_factor)).unwrap();
-    let random_secret_fp = Fr::from_repr(FrRepr::from(burn_address.random_secret)).unwrap();
-    let vote_fp = Fr::from_repr(FrRepr::from(burn_address.vote)).unwrap();
+    let random_secret_fp = Fr::from_repr(FrRepr::from(blinding_factor)).unwrap();
+    let vote_fp = Fr::from_repr(FrRepr::from(vote)).unwrap();
 
     let input: Vec<Fr> = vec![
         private_key_fp,
@@ -49,22 +52,11 @@ pub async fn burn_address(burn_address: BurnAddress) -> (BurnAddressCircuit, Add
         rep_str.clone(),
         private_key,
         blinding_factor,
-        burn_address.ceremony_id,
-        burn_address.random_secret,
-        burn_address.vote,
+        config.ceremony_id.unwrap(),
+        blinding_factor,
+        vote,
     );
-    info!("burn address generated: {:?}", address);
 
     (circuit, address)
 }
 
-pub async fn generate_burn_address_proof(circuit: BurnAddressCircuit) {
-    info!("Generating urn address proof ...");
-    let inputs = circuit.format_inputs().unwrap();
-    circuit.generate_input_file(inputs).unwrap();
-    circuit.generate_witness().unwrap();
-    circuit.setup_zkey().unwrap();
-    circuit.generate_proof().unwrap();
-    circuit.setup_vkey().unwrap();
-    circuit.verify_proof().unwrap();
-}
