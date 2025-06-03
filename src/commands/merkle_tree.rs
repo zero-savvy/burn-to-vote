@@ -1,14 +1,8 @@
-use crate::circuits::merkle_tree_c::*;
-use crate::circuits::Circuit;
+
 use crate::utils::mt::MerkleTree;
 use crate::utils::mt::Proof;
-use alloy::primitives::{address, Address};
-use ff::PrimeField;
-use poseidon_rs::{Fr, FrRepr, Poseidon};
-use std::fs::{self, File};
-use std::io::Write;
-use std::path::Path;
 use structopt::StructOpt;
+use poseidon_rs::Fr;
 
 pub async fn generate_tree<'a>(whitelist: &'a mut Vec<Fr>) -> MerkleTree<'a> {
     let mut tree = MerkleTree::new(whitelist);
@@ -17,7 +11,7 @@ pub async fn generate_tree<'a>(whitelist: &'a mut Vec<Fr>) -> MerkleTree<'a> {
     tree
 }
 
-#[derive(StructOpt, Debug)]
+#[derive(StructOpt, Debug, Clone, Copy)]
 pub struct UserIndex {
     pub index: usize,
 }
@@ -39,6 +33,8 @@ pub async fn generate_proof<'a>(tree: &'a MerkleTree<'a>, index: usize) -> Proof
 
 #[cfg(test)]
 mod tests {
+    use ff::PrimeField;
+    use poseidon_rs::{Fr, Poseidon};
 
     use super::*;
     #[tokio::test]
