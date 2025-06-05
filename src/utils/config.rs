@@ -1,16 +1,30 @@
-use log::info;
+use ethereum_types::U256;
+use log::{info, error};
 use structopt::StructOpt;
 use crate::commands::{demo::DemoData, onchain_demo::OnchainDemoData, vote::Vote};
 use bincode::{Decode, Encode};
 use ethers::providers::{Http, Middleware, Provider};
 use std::sync::Arc;
+use chrono::{DateTime, TimeZone, Utc};
 
 #[derive(Debug, StructOpt, Clone, Encode, Decode)]
 pub struct Config {
+    #[structopt(long)]
     pub network: Network,
+    #[structopt(long)]
     pub ceremony_id: Option<u64>,
+    #[structopt(long)]
     pub chain_id: Option<u64>,
+    #[structopt(long)]
+    pub votingDeadline : Option<String>,
+    #[structopt(long)]
+    pub tallyDeadline : Option<String>,
+    #[structopt(long)]
+    pub result: Option<u32>,
+    #[structopt(long)]
     pub white_list: Vec<u64>,
+    #[structopt(long)]
+    pub finilized: bool
 }
 
 impl Config {
@@ -22,6 +36,19 @@ impl Config {
         self.chain_id = Some(provider.get_chainid().await.unwrap().as_u64());
         let white_list = vec![0; 4];
         self.white_list = white_list;
+        let tm = provider.get_block_number().await.expect("failed to get block number");
+        let currect_block = provider.get_block(tm).await.expect("failed to get block.");
+        match currect_block {
+            Some(block) =>{
+                let current_time_stamp = block.timestamp;
+                self.votingDeadline = Some(current_time_stamp.to_string());
+                self.tallyDeadline = Some(current_time_stamp.to_string());
+
+            },
+            None=>{
+                error!("failed to set deadlines.")
+            }   
+        }
         info!("config: {:?}",self);
     }
 }
