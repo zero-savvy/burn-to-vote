@@ -163,10 +163,15 @@ Under `circuits/`:
 - **Gas Costs**: Proof verification ~200k gas per vote; tallying is O(1).
 - **Proof Generation**: ≤2s per witness on a modern CPU.
 
-## License & Citation
+## Reference
+If you have used this repo to develop a research work or product, please cite our paper:
+```
+@misc{cryptoeprint:2025/1022,
+  author       = {Stefan Dziembowski, Shahriar Ebrahimi, Haniyeh Habibi, Parisa Hassanizadeh and Pardis Toolabi},
+  title        = {Burn Your Vote: Decentralized and Publicly Verifiable Anonymous Voting at Scale},
+  howpublished = {Cryptology {ePrint} Archive, Paper 2025/1022},
+  year         = {2025},
+  url          = {https://eprint.iacr.org/2025/1022}
+}
 
-Released under **CC BY 4.0**. See `LICENSE.md`.
-
-> “Burn Your Vote: Scalable and Publicly Verifiable Anonymous Voting via Proof-of-Burn,” Proceedings on Privacy Enhancing Technologies, 2025.
-
-For full protocol and security proofs, see the paper included as `burn-your-vote.pdf`.
+```
