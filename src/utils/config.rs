@@ -6,6 +6,8 @@ use bincode::{Decode, Encode};
 use ethers::providers::{Http, Middleware, Provider};
 use std::sync::Arc;
 use chrono::{DateTime, TimeZone, Utc};
+use tokio::time::{timeout, Duration};
+use std::process;
 
 #[derive(Debug, StructOpt, Clone, Encode, Decode)]
 pub struct Config {
@@ -31,6 +33,10 @@ impl Config {
     pub async fn initiate_ceremony(&mut self) {
         let provider: Provider<Http> = Provider::<Http>::try_from(self.network.url())
             .expect("Error: failed to initiate provider.");
+        if let Err(err) = check_provider(&provider).await {
+            eprintln!("Provider check failed: {}", err);
+            process::exit(1);
+        }
         let ceremony_id = rand::random::<u64>();
         self.ceremony_id = Some(ceremony_id);
         self.chain_id = Some(provider.get_chainid().await.unwrap().as_u64());
@@ -105,3 +111,18 @@ pub enum Opt {
 //         .collect()
 // }
 
+
+async fn check_provider(provider:  &Provider<Http>) -> Result<(), String> {
+    match timeout(Duration::from_secs(5), provider.get_block_number()).await {
+        Ok(Ok(block_num)) => {
+            println!("✔ Provider is up. Current block: {}", block_num);
+            Ok(())
+        }
+        Ok(Err(rpc_err)) => {
+            Err(format!("RPC error when checking provider: {}", rpc_err))
+        }
+        Err(_) => {
+            Err("Timed out waiting for provider response".into())
+        }
+    }
+}
