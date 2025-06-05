@@ -42,7 +42,7 @@ impl<'a> Circuit for CircuitIdentifier<'a> {
             name = self.circuit_name
         );
         match self.run_command(&calculate_command) {
-            Ok(_) => info!("export_witness Command ran successfully!"),
+            Ok(_) => info!("generate_witness Command ran successfully!"),
             Err(e) => error!("generate_witness Command failed: {}", e),
         }
 
