@@ -165,13 +165,14 @@ Under `circuits/`:
 
 ## Reference
 If you have used this repo to develop a research work or product, please cite our paper:
+
+1. [Burn Your Vote: Decentralized and Publicly Verifiable Anonymous Voting at Scale](https://eprint.iacr.org/2025/1022)
 ```
 @misc{cryptoeprint:2025/1022,
   author       = {Stefan Dziembowski, Shahriar Ebrahimi, Haniyeh Habibi, Parisa Hassanizadeh and Pardis Toolabi},
   title        = {Burn Your Vote: Decentralized and Publicly Verifiable Anonymous Voting at Scale},
   howpublished = {Cryptology {ePrint} Archive, Paper 2025/1022},
-  year         = {2025},
-  url          = {https://eprint.iacr.org/2025/1022}
+  year         = {2025}
 }
 
 ```
