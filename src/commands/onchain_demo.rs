@@ -11,6 +11,7 @@ use structopt::StructOpt;
 
 #[derive(Debug, StructOpt, Clone)]
 pub struct OnchainDemoData {
+    pub ceremony_id: Option<u64>,
     pk: String,
 }
 
