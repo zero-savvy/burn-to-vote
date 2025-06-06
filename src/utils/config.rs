@@ -1,4 +1,4 @@
-use crate::commands::{demo::DemoData, onchain_demo::OnchainDemoData, tally::Tally, vote::Vote};
+use crate::commands::{demo::DemoData, onchain_demo::OnchainDemoData, vote::Vote};
 use alloy::primitives::U256;
 use bincode::{Decode, Encode};
 use chrono::{DateTime, TimeZone, Utc};
@@ -26,7 +26,7 @@ pub struct Config {
     #[structopt(long)]
     pub tallyDeadline: Option<String>,
     #[structopt(long)]
-    pub result: Option<bool>,
+    pub result: Option<VotingResult>,
     #[structopt(long)]
     pub white_list: Vec<u64>,
     #[structopt(long)]
@@ -93,7 +93,7 @@ impl Network {
 pub enum Opt {
     Initiate(Config),
     Vote(Vote),
-    Tally(Tally),
+    Tally,
     Demo(DemoData),
     OnchainDemo(OnchainDemoData),
 }
@@ -130,4 +130,22 @@ pub async fn get_time_stamp(provider: &Provider<Http>) -> primitive_types::U256 
         .expect("RPC error fetching block")
         .expect("No block data returned");
     primitive_types::U256::from(currect_block.timestamp.as_u64())
+}
+
+#[derive(Debug, StructOpt, Clone, Encode, Decode)]
+pub enum VotingResult {
+    Accepted,
+    Rejected,
+}
+
+impl std::str::FromStr for VotingResult {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "accepted" => Ok(VotingResult::Accepted),
+            "rejected" => Ok(VotingResult::Rejected),
+            _ => Err(format!("Invalid voting result: {}", s)),
+        }
+    }
 }
