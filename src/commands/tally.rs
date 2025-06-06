@@ -1,4 +1,4 @@
-use crate::utils::config::{get_time_stamp, Config};
+use crate::utils::config::{get_time_stamp, Config, VotingResult};
 use log::info;
 use structopt::StructOpt;
 use ethers::{
@@ -6,13 +6,8 @@ use ethers::{
     types::BlockId,
 };
 use primitive_types::U256;
-#[derive(Debug, StructOpt, Clone)]
-pub struct Tally {
-    ceremoni_id: u64,
-}
 pub async fn tally(
     config: &mut Config,
-    ceremony_id: Tally,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let provider: Provider<Http> = Provider::<Http>::try_from(config.clone().network.url())
     .expect("Error: failed to initiate provider.");
@@ -31,10 +26,11 @@ pub async fn tally(
         config.finilized = true;
 
         if yesVotes > noVotes {
-            config.result = Some(true)
+            config.result = Some(VotingResult::Accepted)
         }else {
-            config.result = Some(false)
+            config.result = Some(VotingResult::Rejected)
         }
+        info!("Final results: {:?}", config.result.as_ref().unwrap());
 
         Ok(())
     } else {
