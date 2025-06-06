@@ -1,3 +1,4 @@
+use crate::commands::tally::Tally;
 use crate::commands::{demo::DemoData, onchain_demo::OnchainDemoData, vote::Vote};
 use alloy::primitives::U256;
 use bincode::{Decode, Encode};
@@ -93,7 +94,8 @@ impl Network {
 pub enum Opt {
     Initiate(Config),
     Vote(Vote),
-    Tally,
+    Tally(Tally),
+    ListCeremonies,
     Demo(DemoData),
     OnchainDemo(OnchainDemoData),
 }
