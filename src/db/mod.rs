@@ -5,25 +5,24 @@ use sled::{Db, Tree};
 use voter::VotersT;
 
 mod ceremony;
-mod voter;
 mod keys;
 mod values;
+mod voter;
 
 #[derive(Debug)]
 pub struct VotingDB {
     pub db: Db,
     pub ceremonies: CeremonyT,
-    pub voters: VotersT
+    pub voters: VotersT,
 }
 
 impl VotingDB {
-
-    pub fn new(path: &str)->Result<Self>{
+    pub fn new(path: &str) -> Result<Self> {
         let db = sled::open(path)?;
         Ok(VotingDB {
             ceremonies: CeremonyT::new(&db)?,
             voters: VotersT::new(&db)?,
-            db
+            db,
         })
     }
 
@@ -33,5 +32,4 @@ impl VotingDB {
     pub fn voters(&self) -> &VotersT {
         &self.voters
     }
-    
 }

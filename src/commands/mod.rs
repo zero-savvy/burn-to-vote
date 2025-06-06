@@ -4,5 +4,5 @@ pub mod demo;
 pub mod merkle_tree;
 pub mod nullifier;
 pub mod onchain_demo;
-pub mod verify;
+pub mod tally;
 pub mod vote;

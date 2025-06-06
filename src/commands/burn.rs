@@ -74,9 +74,9 @@ pub async fn burn(
         .unwrap();
 
     assert_eq!(
-            pre_tx_balance + U256::from(parse_ether(burn_data.amount).unwrap()),
-            post_tx_balance
-        );
+        pre_tx_balance + U256::from(parse_ether(burn_data.amount).unwrap()),
+        post_tx_balance
+    );
     info!("Burn transaction hash: {:?}", receipt.transaction_hash);
 
     (receipt.transaction_hash, provider)

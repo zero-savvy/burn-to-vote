@@ -11,7 +11,10 @@ pub struct DemoData {
     pk: String,
 }
 
-pub async fn demo(config: Config, demo_data: DemoData) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn demo(
+    config: &mut Config,
+    demo_data: DemoData,
+) -> Result<(), Box<dyn std::error::Error>> {
     info!("Voting demo ...");
 
     // run_command("make vote").expect("Error: Failed to compile vote circuit.");

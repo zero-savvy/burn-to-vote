@@ -1,7 +1,6 @@
 use crate::circuits::{Circuit, CircuitIdentifier};
 type PrimitiveU256 = primitive_types::U256;
-use ethers::types::{U256, U64,
-};
+use ethers::types::{U256, U64};
 use ff::PrimeField;
 use poseidon_rs::Fr;
 use serde_json::json;

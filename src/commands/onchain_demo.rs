@@ -17,7 +17,7 @@ pub struct OnchainDemoData {
 abigen!(Voting, "data/abi.json");
 
 pub async fn onchain_demo(
-    config: Config,
+    config: &mut Config,
     demo_data: OnchainDemoData,
 ) -> Result<(), Box<dyn Error>> {
     info!("Voting demo ...");

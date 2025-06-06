@@ -1,8 +1,7 @@
-
 use crate::utils::mt::MerkleTree;
 use crate::utils::mt::Proof;
-use structopt::StructOpt;
 use poseidon_rs::Fr;
+use structopt::StructOpt;
 
 pub async fn generate_tree<'a>(whitelist: &'a mut Vec<Fr>) -> MerkleTree<'a> {
     let mut tree = MerkleTree::new(whitelist);

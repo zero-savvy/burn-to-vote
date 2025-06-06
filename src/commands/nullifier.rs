@@ -1,4 +1,3 @@
-
 use crate::utils::config::*;
 use crate::utils::u256_to_fp;
 use ff::PrimeField;

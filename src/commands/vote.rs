@@ -3,11 +3,11 @@ use structopt::StructOpt;
 
 use ethers::providers::{Http, Provider};
 use ff::PrimeField;
-use primitive_types::U256 as PrimitiveU256;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
+use primitive_types::U256 as PrimitiveU256;
 
 use crate::{
-    circuits::{Circuit, vote_c::VoteCircuit},
+    circuits::{vote_c::VoteCircuit, Circuit},
     commands::{
         burn::burn,
         burn_address::burn_address,
@@ -25,7 +25,7 @@ pub struct Vote {
     pub private_key: String,
 }
 
-pub async fn vote(mut config: Config, vote_data: Vote) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn std::error::Error>> {
     info!("initiate voting ..");
 
     let provider: Provider<Http> = Provider::<Http>::try_from(config.network.url())?.clone();

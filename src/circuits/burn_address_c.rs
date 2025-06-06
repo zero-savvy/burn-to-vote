@@ -1,6 +1,6 @@
 #![warn(dead_code)]
 #[macro_use]
-use crate::circuits::{Circuit, CircuitIdentifier, };
+use crate::circuits::{Circuit, CircuitIdentifier};
 use primitive_types::U256;
 
 pub struct BurnAddressCircuit {

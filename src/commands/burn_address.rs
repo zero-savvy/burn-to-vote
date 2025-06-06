@@ -59,4 +59,3 @@ pub async fn burn_address(
 
     (circuit, address)
 }
-

@@ -1,13 +1,17 @@
-use ethereum_types::U256;
-use log::{info, error};
-use structopt::StructOpt;
-use crate::commands::{demo::DemoData, onchain_demo::OnchainDemoData, vote::Vote};
+use crate::commands::{demo::DemoData, onchain_demo::OnchainDemoData, tally::Tally, vote::Vote};
+use alloy::primitives::U256;
 use bincode::{Decode, Encode};
-use ethers::providers::{Http, Middleware, Provider};
-use std::sync::Arc;
 use chrono::{DateTime, TimeZone, Utc};
-use tokio::time::{timeout, Duration};
+use ethers::types::U64;
+use ethers::{
+    providers::{self, Http, Middleware, Provider},
+    types::BlockId,
+};
+use log::{error, info};
 use std::process;
+use std::sync::Arc;
+use structopt::StructOpt;
+use tokio::time::{timeout, Duration};
 
 #[derive(Debug, StructOpt, Clone, Encode, Decode)]
 pub struct Config {
@@ -18,15 +22,19 @@ pub struct Config {
     #[structopt(long)]
     pub chain_id: Option<u64>,
     #[structopt(long)]
-    pub votingDeadline : Option<String>,
+    pub votingDeadline: Option<String>,
     #[structopt(long)]
-    pub tallyDeadline : Option<String>,
+    pub tallyDeadline: Option<String>,
     #[structopt(long)]
-    pub result: Option<u32>,
+    pub result: Option<bool>,
     #[structopt(long)]
     pub white_list: Vec<u64>,
     #[structopt(long)]
-    pub finilized: bool
+    pub yesVotes: u64,
+    #[structopt(long)]
+    pub noVotes: u64,
+    #[structopt(long)]
+    pub finilized: bool,
 }
 
 impl Config {
@@ -42,20 +50,12 @@ impl Config {
         self.chain_id = Some(provider.get_chainid().await.unwrap().as_u64());
         let white_list = vec![0; 4];
         self.white_list = white_list;
-        let tm = provider.get_block_number().await.expect("failed to get block number");
-        let currect_block = provider.get_block(tm).await.expect("failed to get block.");
-        match currect_block {
-            Some(block) =>{
-                let current_time_stamp = block.timestamp;
-                self.votingDeadline = Some(current_time_stamp.to_string());
-                self.tallyDeadline = Some(current_time_stamp.to_string());
+        let current_time_stamp = get_time_stamp(&provider).await;
 
-            },
-            None=>{
-                error!("failed to set deadlines.")
-            }   
-        }
-        info!("config: {:?}",self);
+        self.votingDeadline = Some(current_time_stamp.to_string());
+        self.tallyDeadline = Some(current_time_stamp.to_string());
+
+        info!("config: {:?}", self);
     }
 }
 
@@ -93,6 +93,7 @@ impl Network {
 pub enum Opt {
     Initiate(Config),
     Vote(Vote),
+    Tally(Tally),
     Demo(DemoData),
     OnchainDemo(OnchainDemoData),
 }
@@ -111,18 +112,22 @@ pub enum Opt {
 //         .collect()
 // }
 
-
-async fn check_provider(provider:  &Provider<Http>) -> Result<(), String> {
+async fn check_provider(provider: &Provider<Http>) -> Result<(), String> {
     match timeout(Duration::from_secs(5), provider.get_block_number()).await {
         Ok(Ok(block_num)) => {
             println!("✔ Provider is up. Current block: {}", block_num);
             Ok(())
         }
-        Ok(Err(rpc_err)) => {
-            Err(format!("RPC error when checking provider: {}", rpc_err))
-        }
-        Err(_) => {
-            Err("Timed out waiting for provider response".into())
-        }
+        Ok(Err(rpc_err)) => Err(format!("RPC error when checking provider: {}", rpc_err)),
+        Err(_) => Err("Timed out waiting for provider response".into()),
     }
+}
+
+pub async fn get_time_stamp(provider: &Provider<Http>) -> primitive_types::U256 {
+    let currect_block = provider
+        .get_block(ethers::types::BlockNumber::Number(U64::from("latest")))
+        .await
+        .expect("RPC error fetching block")
+        .expect("No block data returned");
+    primitive_types::U256::from(currect_block.timestamp.as_u64())
 }
