@@ -1,11 +1,10 @@
 #![allow(warnings)]
 mod circuits;
 mod commands;
-mod utils;
 mod db;
-use std::{path::Path, sync::Arc};
-use anyhow::Ok;
+mod utils;
 use db::VotingDB;
+use std::{path::Path, sync::Arc};
 use structopt::StructOpt;
 use utils::config::Opt;
 
@@ -21,22 +20,27 @@ async fn main() -> anyhow::Result<()> {
 
     match opt {
         Opt::Initiate(mut cfg) => {
-
             cfg.initiate_ceremony().await;
             db.ceremonies().save_ceremony(cfg);
         }
         other => {
-            let cfg = db.ceremonies.get_ceremony(None)?;
+            let mut cfg = db.ceremonies.get_ceremony(None)?;
 
             let res = match other {
-                Opt::Vote(v) => commands::vote::vote(cfg, v).await,
-                Opt::Demo(d) => commands::demo::demo(cfg, d).await,
-                Opt::OnchainDemo(d) => commands::onchain_demo::onchain_demo(cfg, d).await,
+                Opt::Vote(v) => commands::vote::vote(&mut cfg, v).await,
+                Opt::Tally(id) => commands::tally::tally(&mut cfg, id).await,
+                Opt::Demo(d) => commands::demo::demo(&mut cfg, d).await,
+                Opt::OnchainDemo(d) => commands::onchain_demo::onchain_demo(&mut cfg, d).await,
                 _ => unreachable!(),
             };
 
-            if let Err(e) = res {
-                eprintln!("Error: {:?}", e);
+            match res {
+                Ok(()) => {
+                    db.ceremonies().save_ceremony(cfg)?;
+                }
+                Err(e) => {
+                    eprintln!("Error: {:?}", e);
+                }
             }
         }
     }
