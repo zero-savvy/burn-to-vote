@@ -30,9 +30,9 @@ pub struct Config {
     #[structopt(long)]
     pub white_list: Vec<u64>,
     #[structopt(long)]
-    pub yesVotes: u64,
+    pub yesVotes: Option<u64>,
     #[structopt(long)]
-    pub noVotes: u64,
+    pub noVotes: Option<u64>,
     #[structopt(long)]
     pub finilized: bool,
 }
@@ -125,7 +125,7 @@ async fn check_provider(provider: &Provider<Http>) -> Result<(), String> {
 
 pub async fn get_time_stamp(provider: &Provider<Http>) -> primitive_types::U256 {
     let currect_block = provider
-        .get_block(ethers::types::BlockNumber::Number(U64::from("latest")))
+        .get_block(ethers::types::BlockNumber::Latest)
         .await
         .expect("RPC error fetching block")
         .expect("No block data returned");
