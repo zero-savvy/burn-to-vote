@@ -8,6 +8,7 @@ use structopt::StructOpt;
 #[derive(Debug, StructOpt, Clone)]
 
 pub struct DemoData {
+    pub ceremony_id: Option<u64>,
     pk: String,
 }
 
@@ -21,6 +22,7 @@ pub async fn demo(
     // info!("Vote_circuit compiled successfully.");
 
     let vote_data = Vote {
+        ceremony_id: demo_data.ceremony_id,
         private_key: demo_data.pk,
         vote: 1,
         revote: 0,
