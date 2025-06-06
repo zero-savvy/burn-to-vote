@@ -28,7 +28,7 @@ async fn main() -> anyhow::Result<()> {
 
             let res = match other {
                 Opt::Vote(v) => commands::vote::vote(&mut cfg, v).await,
-                Opt::Tally(id) => commands::tally::tally(&mut cfg, id).await,
+                Opt::Tally => commands::tally::tally(&mut cfg).await,
                 Opt::Demo(d) => commands::demo::demo(&mut cfg, d).await,
                 Opt::OnchainDemo(d) => commands::onchain_demo::onchain_demo(&mut cfg, d).await,
                 _ => unreachable!(),
