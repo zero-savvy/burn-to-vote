@@ -58,4 +58,22 @@ impl CeremonyT {
             }
         }
     }
+    pub fn get_all_ceremonies(&self) -> Result<Vec<Config>> {
+        let mut all_ceremonies = Vec::new();
+
+        for entry in self.ceremonies.iter() {
+            let (key, value) = entry?;
+
+            if key.as_ref() == b"current" {
+                continue;
+            }
+
+            let (config, _) = bincode::decode_from_slice(&value, bincode::config::standard())
+                .map_err(|e| anyhow!("Failed to decode ceremony for key {:?}: {}", key, e))?;
+
+            all_ceremonies.push(config);
+        }
+
+        Ok(all_ceremonies)
+    }
 }
