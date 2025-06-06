@@ -19,9 +19,15 @@ use crate::{
 
 #[derive(Debug, StructOpt, Clone)]
 pub struct Vote {
+    #[structopt(long)]
+    pub ceremony_id: Option<u64>,
+    #[structopt(long)]
     pub amount: PrimitiveU256,
+    #[structopt(long)]
     pub vote: u64,
+    #[structopt(long)]
     pub revote: u64,
+    #[structopt(long)]
     pub private_key: String,
 }
 
@@ -102,7 +108,6 @@ pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn st
         merkle_tree_proof.pathElements,
         merkle_tree_proof.pathIndices,
     );
-
 
     match vote_data.vote {
         1 => config.yesVotes = Some(config.yesVotes.unwrap_or(0) + 1),
