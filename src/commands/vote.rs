@@ -67,7 +67,6 @@ pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn st
     let leaf = leaf_hasher
         .hash(leaf_data.to_vec())
         .expect("Error: Failed to hash leaf data.");
-    println!("5");
 
     let mut fr_white_list: Vec<Fr> = config
         .white_list
@@ -77,7 +76,6 @@ pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn st
     fr_white_list[index] = leaf;
     let tree = generate_tree(&mut fr_white_list).await;
     let merkle_tree_proof = generate_proof(&tree, index).await;
-    println!("8");
 
     let circuit = VoteCircuit::new(
         burn_address_data.address,
@@ -105,6 +103,15 @@ pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn st
         merkle_tree_proof.pathIndices,
     );
 
+
+    match vote_data.vote {
+        1 => config.yesVotes = Some(config.yesVotes.unwrap_or(0) + 1),
+        0 => config.noVotes = Some(config.noVotes.unwrap_or(0) + 1),
+        _ => {
+            return Err("invalid vote value".into());
+        }
+    }
+    info!("updated config: {:?}", config);
     info!("VOTE circuit: ");
     let inputs = circuit.format_inputs()?;
     circuit.generate_input_file(inputs)?;
