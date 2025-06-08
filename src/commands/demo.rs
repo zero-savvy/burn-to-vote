@@ -18,8 +18,8 @@ pub async fn demo(
 ) -> Result<(), Box<dyn std::error::Error>> {
     info!("Voting demo ...");
 
-    // run_command("make vote").expect("Error: Failed to compile vote circuit.");
-    // info!("Vote_circuit compiled successfully.");
+    run_command("make vote").expect("Error: Failed to compile vote circuit.");
+    info!("Vote_circuit compiled successfully.");
 
     let vote_data = Vote {
         ceremony_id: demo_data.ceremony_id,
