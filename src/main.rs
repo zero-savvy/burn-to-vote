@@ -44,9 +44,7 @@ async fn main() -> anyhow::Result<()> {
             db.ceremonies().save_ceremony(cfg)?;
         }
         Opt::OnchainDemo(d) => {
-            let mut cfg = db.ceremonies().get_ceremony(d.ceremony_id)?;
-            commands::onchain_demo::onchain_demo(&mut cfg, d).await;
-            db.ceremonies().save_ceremony(cfg)?;
+            commands::onchain_demo::onchain_demo(d).await;
         }
         _ => unreachable!(),
     }
