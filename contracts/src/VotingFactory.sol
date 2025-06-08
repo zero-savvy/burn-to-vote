@@ -31,7 +31,7 @@ contract VotingFactory {
         uint256 ceremonyId,
         uint256 stateRoot
     ) external returns (address) {
-        if (contracts[salt] == address(0)) revert SaltAlreadyUsed(salt);
+        if (contracts[salt] != address(0)) revert SaltAlreadyUsed(salt);
 
         bytes memory bytecode = getCeremonyBytecode(ceremonyType);
         
@@ -45,7 +45,7 @@ contract VotingFactory {
             )
         }
 
-        if(deployedAddress != address(0)) revert DeploymentFailed();
+        if(deployedAddress == address(0)) revert DeploymentFailed();
         
         Voting(deployedAddress).initialize(
             verifier,
