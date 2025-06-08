@@ -69,20 +69,23 @@ pub fn get_contract_address() -> String {
 
     if let Some(data) = raw_data["transactions"].as_array() {
         for tx in data {
-            match tx["contractName"].as_str() {
-                Some("Voting") => {
-                    addr = tx["contractAddress"]
-                        .as_str()
-                        .expect("failed to parse contract adress")
-                        .to_string()
+            if let Some(function) = tx["function"].as_str() {
+                if function == "deployVotingContract(bytes32,uint8,address,uint256,uint256,uint256,uint256,uint256)" {
+                    if let Some(additional_contracts) = tx["additionalContracts"].as_array() {
+                        if let Some(contract) = additional_contracts.first() {
+                            addr = contract["address"]
+                                .as_str()
+                                .expect("failed to parse contract address")
+                                .to_string();
+                        }
+                    }
                 }
-                _ => (),
             }
         }
     }
 
     if addr == String::from("") {
-        error!("The contract address was not sound.")
+        error!("The contract address was not found.")
     }
     addr
 }
