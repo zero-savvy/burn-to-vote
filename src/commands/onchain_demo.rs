@@ -3,6 +3,8 @@ use crate::utils::config::Config;
 use crate::utils::run_command;
 use ethers::prelude::*;
 use ethers::providers::{Http, Middleware, Provider};
+use ethers::utils::keccak256;
+use keccak_hash::keccak;
 use log::error;
 use log::info;
 use std::error::Error;
@@ -32,12 +34,15 @@ pub async fn onchain_demo(
         .expect("No block data returned");
     let current_timestamp = current_block.timestamp.as_u64();
     
-    let voting_time = current_timestamp + 5;
-    let tally_time = current_timestamp + 10;
+    let voting_time = current_timestamp + 60;
+    let tally_time = current_timestamp + 120;
+
+    let salt = hex::encode(keccak256(public_data.data[2].to_string()));
     
     info!("Deploying the contracts ...");
     let deploy_command = format!(
-        "cd contracts && forge script VotingScript --rpc-url http://127.0.0.1:8545 --broadcast --sig 'run(uint256,uint256,uint256,uint256,uint256)' {} {} {} {} {} && cd ..",
+        "cd contracts && forge script VotingScript --rpc-url http://127.0.0.1:8545 --broadcast --sig 'run(bytes32,uint256,uint256,uint256,uint256,uint256)' {} {} {} {} {} {} && cd ..",
+        salt,
         voting_time,
         tally_time,
         public_data.data[2],
