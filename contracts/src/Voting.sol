@@ -17,6 +17,7 @@ contract Voting {
     uint128 private noVotes;
 
     bool public tallyCompleted;
+    bool private initialized;
 
     mapping(uint256 => uint8) public usedNullifiers;
 
@@ -24,21 +25,25 @@ contract Voting {
     event VotingResults(uint256 yesVotes, uint256 noVotes, bool passed);
     event GasUsed(uint256 gasUsed);
 
-    constructor(
+    function initialize(
         address _verifier,
         uint256 _submissionDeadline,
         uint256 _tallyDeadline,
         uint256 _merkle_root,
         uint256 _ceremony_id,
         uint256 _state_root
-    ) {
+    ) external {
+        require(!initialized, "Already initialized");
         require(_submissionDeadline < _tallyDeadline, "Submission deadline must be before tally deadline");
+        
         verifier = Groth16Verifier(_verifier);
         voteSubmissionDeadline = _submissionDeadline;
         tallyDeadline = _tallyDeadline;
         merkle_root = _merkle_root;
         ceremony_id = _ceremony_id;
-        state_root =_state_root;
+        state_root = _state_root;
+        
+        initialized = true;
     }
 
     function submitVote(
