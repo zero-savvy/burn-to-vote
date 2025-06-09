@@ -9,6 +9,7 @@ use structopt::StructOpt;
 
 #[derive(Debug, StructOpt, Clone)]
 pub struct Tally {
+    #[structopt(long)]
     pub ceremony_id: Option<u64>,
 }
 
