@@ -17,7 +17,7 @@
   "scripts": {
     "install-rapidsnark": "git clone https://github.com/iden3/rapidsnark.git circuits/rapidsnark && cd circuits/rapidsnark && npm install",
     "install-keccak": "git clone https://github.com/vocdoni/keccak256-circom.git circuits/keccak256-circom",
-    "install-forge-deps": "cd contracts && forge install foundry-rs/forge-std && forge install OpenZeppelin/openzeppelin-foundry-upgrades && forge install OpenZeppelin/openzeppelin-contracts-upgradeable && cd ..",
+    "install-forge-deps": "cd contracts && forge install foundry-rs/forge-std --no-commit && forge install OpenZeppelin/openzeppelin-foundry-upgrades --no-commit && forge install OpenZeppelin/openzeppelin-contracts-upgradeable --no-commit && cd ..",
     "install-deps": "npm run install-rapidsnark && npm run install-keccak && npm run install-forge-deps"
   }
 }
