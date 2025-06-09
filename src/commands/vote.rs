@@ -50,7 +50,7 @@ pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn st
         config.clone(),
         blinding_factor,
         vote_data.private_key.clone(),
-    );
+    ).await;
 
     let (_, provider) = burn(
         provider,
