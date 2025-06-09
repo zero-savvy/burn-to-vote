@@ -13,7 +13,7 @@ pub struct Nullifier {
     pub blinding_factor: u64,
 }
 
-pub fn generate_nullifier(data: Config, blinding_factor: u64, private_key: String) -> String {
+pub async fn generate_nullifier(data: Config, blinding_factor: u64, private_key: String) -> String {
     info!("generaring nullifier ..");
 
     let private_key = U256::from_str_radix(&private_key, 16).unwrap();
@@ -30,4 +30,26 @@ pub fn generate_nullifier(data: Config, blinding_factor: u64, private_key: Strin
     let hash_string = hash.into_repr().to_string();
 
     hash_string
+}
+
+
+// TODO: complete tests
+#[cfg(test)]
+mod tests {
+
+    use crate::commands::burn_address;
+
+    use super::*;
+    #[tokio::test]
+    async fn test_nullifier_generation(){
+        let mock_config = Config::mock_config().await;
+        let blinding_factor = rand::random::<u64>();
+        let pk = rand::random::<u64>().to_string();
+        let nullifier = generate_nullifier(mock_config.clone(), blinding_factor, pk.clone()).await;
+        let nullifier_clone = generate_nullifier(mock_config, blinding_factor, pk).await;
+
+        assert_eq!(nullifier, nullifier_clone);
+        
+    }
+
 }
