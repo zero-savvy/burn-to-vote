@@ -59,7 +59,6 @@ To set up the project, follow these steps to get the project up and running on y
     ```
 2. **Install Project Dependencies**:
     ```sh
-    npm install
     npm run install-deps
     ```
 
