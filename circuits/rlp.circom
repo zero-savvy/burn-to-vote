@@ -68,15 +68,15 @@ template Rlp(len){
 
     component storageHashSub = SubArray(len, 32, 8);
     storageHashSub.in <== rlp;
-    //  4 + balanceLen + 1(storage length 160(128+32))
-    storageHashSub.start <== 5 + balanceLen ;
-    storageHashSub.end <== 37 + balanceLen;
+    //  3 + balanceLen + 1(storage length 160(128+32))
+    storageHashSub.start <== 4 + balanceLen + isLongBalance;
+    storageHashSub.end <== 36 + balanceLen + isLongBalance;
 
     component CodeHashSub = SubArray(len, 32, 8);
     CodeHashSub.in <== rlp;
-    //  4 + balanceLen + 1(storage length 160(128+32))+ 32 +1)
-    CodeHashSub.start <== 38 + balanceLen ;
-    CodeHashSub.end <== 70 + balanceLen;
+    //  3 + balanceLen + 1(storage length 160(128+32))+ 32 +1)
+    CodeHashSub.start <== 37 + balanceLen + isLongBalance;
+    CodeHashSub.end <== 69 + balanceLen + isLongBalance;
 
     storageHash <== storageHashSub.out;
     codeHash <==  CodeHashSub.out;
