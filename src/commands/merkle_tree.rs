@@ -42,6 +42,7 @@ mod tests {
             Fr::from_str("0").unwrap(),
             Fr::from_str("1").unwrap(),
             Fr::from_str("2").unwrap(),
+            Fr::from_str("3").unwrap(),
         ]
         .to_vec();
         let tree = generate_tree(&mut addr).await;
