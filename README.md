@@ -168,6 +168,7 @@ Demonstrates fully on-chain interactions :
 - returns the tally results
 
 ```sh
+ make contracts
  cargo run -- onchain-demo [PRIVATE-KEY]
 ```
 
