@@ -19,7 +19,7 @@ A Rust-based implementation of a fully on-chain, anonymous voting protocol using
 ├── src
 │   ├── main.rs       # CLI entry point
 │   ├── circuits      # Circom circuit handlers
-│   ├── commands      # vote, demo, onchain_demo handlers
+│   ├── commands      # vote, tally, demo, onchain_demo handlers
 │   ├── utils         # configuration parsing, helper functions
 │   └── db            # simple on-disk storage for ceremony state
 └── contracts         # Solidity contracts (verifier + voting logic)
@@ -63,7 +63,8 @@ To set up the project, follow these steps to get the project up and running on y
 
 ## Usage
 
-To vote you need to generate an new ceremony.
+To vote you need to generate an new ceremony or use an existing one.
+If you already have the voting ceremony id you can skip this step.
 
 ### 1. Initiate Ceremony
 
