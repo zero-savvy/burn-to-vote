@@ -72,17 +72,24 @@ Configure a new voting instance with default config:
 network options: Ganache, Sepolia, Ethereum 
 
 ```sh
- cargo run -- initiate [NETWORK]
+ cargo run -- initiate --network [NETWORK]
 ```
 
 - Generates initial parameters
 ```sh
-Config { 
-    network,
-    ceremony_id(random u64), 
-    chain_id,
-    white_list(empty tree)
- }
+Config {
+     network,
+     ceremony_id,
+     chain_id,
+     votingDeadline,
+     tallyDeadline,
+     stateRoot,
+     result,
+     white_list,
+     yesVotes,
+     noVotes,
+     finilized,
+}
 ```
 
 ### 2. Vote
@@ -90,15 +97,37 @@ Config {
 Burn-to-vote flow: compute a burn address, nullifier, burn eth and generate a proof:
 
 ```sh
-cargo run -- vote [AMOUNT] [VOTE] [REVOTE] [PRIVATE-KEY]
+cargo run -- vote --amount [AMOUNT] --vote [VOTE] --revote [REVOTE-FLAG] --private-key [PRIVATE-KEY] --ceremony-id [CEREMONY-ID]
 ```
 
 - `AMOUNT`: The amout of ETH to burn.
 - `VOTE`:  vote value (e.g., 0 or 1 for yes/no).
 - `REVOTE`:  revote flag value (e.g., 0 1 for revoting).
 - `PRIVATE-KEY`: private key (for ZK burn transaction).
+- `CEREMONY-ID`: The unique ceremony identifier.
 
-### 3. Demo
+If no ceremony is providede the vote is applied to the latest generated ceremony.
+
+To get the list of available ceremonies:
+ 
+```sh
+cargo run -- list-ceremonies  
+```
+
+### 2. Tally
+
+Calculates and prints the result of ceremony if the tally time has passed:
+
+```sh
+cargo run -- tally --ceremony-id [CEREMONY-ID]
+```
+
+- `CEREMONY-ID`: The unique ceremony identifier.
+
+if no ceremony id is providede the tally is applied on the latest generated ceremony.
+
+
+### 4. Demo
 
 Runs an in-memory ceremony without on-chain dependencies (for testing):
 - compiles the vote circuit (~ 40 min)
@@ -116,7 +145,7 @@ cargo run -- demo [PRIVATE-KEY]
 ```
 
 
-### 4. Onchain Demo
+### 5. Onchain Demo
 
 Demonstrates fully on-chain interactions :
 
@@ -131,20 +160,38 @@ Demonstrates fully on-chain interactions :
 
 ## Smart Contract Details
 
-The Solidity contract in `contracts/` expects:
+The smart contracts in `contracts/` implement a factory pattern for deploying voting instances:
 
-- **Verifier Address**: Deployed Groth16 verifier (BN254).
-- **Submission Deadline**: UNIX timestamp to lock voting.
-- **Tally Deadline**: After this, anyone can call `tallyVotes()`.
-- **Merkle Root**: Allow-list root for eligible voters.
-- **State Root**: Ethereum state root at voting end (for verifying burn balances).
-- **Ceremony ID**: Unique voting id.
+### VotingFactory Contract
 
-Key functions (see `contracts/Voting.sol` for details):
+The factory contract (`contracts/src/VotingFactory.sol`) is responsible for deploying new voting instances with the following parameters:
 
-- `submitVote(proofA, proofB, proofC, [nullifier, voteValue, revoteFlag, stateRoot, merkleProof, ceremony id])`
-- `submitRevote(...)` (overwrites previous vote if nullifier matches)
-- `tallyVotes()` (computes and publishes final outcome after `tallyDeadline`)
+- **Verifier Address**: Deployed Groth16 verifier (BN254)
+- **Voting Deadline**: UNIX timestamp to lock voting
+- **Tally Deadline**: After this, anyone can call `tallyVotes()`
+- **Merkle Root**: Allow-list root for eligible voters
+- **State Root**: Ethereum state root at voting end (for verifying burn balances)
+- **Ceremony ID**: Unique voting identifier
+- **Salt**: Unique salt for deterministic contract address generation
+
+Key functions:
+- `deployVotingContract(salt, verifier, merkleRoot, stateRoot, votingDeadline, tallyDeadline, ceremonyId)`: Deploys a new voting contract instance
+- `getVotingContractAddress(salt)`: Returns the deterministic address for a voting contract given its salt
+
+### Voting Contract
+
+Each deployed voting contract instance (`contracts/src/Voting.sol`) implements the core voting logic:
+
+Key functions:
+- `submitVote(proofA, proofB, proofC, [nullifier, voteValue, revoteFlag, stateRoot, merkleProof, ceremonyId])`: Submits a vote with a zero-knowledge proof
+- `submitRevote(...)`: Overwrites a previous vote if the nullifier matches
+- `tallyVotes()`: Computes and publishes the final outcome after the tally deadline
+
+The factory pattern allows for:
+- Deterministic contract addresses based on salt
+- Multiple concurrent voting instances
+- Gas-efficient deployment of new voting contracts
+- Easy tracking of all deployed voting instances
 
 ## Circom Circuits
 
@@ -174,5 +221,3 @@ If you have used this repo to develop a research work or product, please cite ou
   howpublished = {Cryptology {ePrint} Archive, Paper 2025/1022},
   year         = {2025}
 }
-
-```
