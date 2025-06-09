@@ -223,3 +223,7 @@ Under `circuits/`:
 - **Scalability**: Supports >1 million simulated voters with constant-time tallying.
 - **Gas Costs**: Proof verification ~200k gas per vote; tallying is O(1).
 - **Proof Generation**: ≤2s per witness on a modern CPU.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
