@@ -1,4 +1,4 @@
-{  "abi": [
+{   "abi": [
   {
     "type": "function",
     "name": "ceremony_id",
@@ -11,8 +11,9 @@
     "name": "getResults",
     "inputs": [],
     "outputs": [
-      { "name": "", "type": "uint256", "internalType": "uint256" },
-      { "name": "", "type": "uint256", "internalType": "uint256" }
+      { "name": "yesVotes_", "type": "uint256", "internalType": "uint256" },
+      { "name": "noVotes_", "type": "uint256", "internalType": "uint256" },
+      { "name": "passed", "type": "bool", "internalType": "bool" }
     ],
     "stateMutability": "view"
   },
@@ -186,19 +187,6 @@
   },
   {
     "type": "event",
-    "name": "GasUsed",
-    "inputs": [
-      {
-        "name": "gasUsed",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
     "name": "VoteSubmitted",
     "inputs": [
       {
@@ -247,32 +235,8 @@
     ],
     "anonymous": false
   },
-  {
-    "type": "error",
-    "name": "InvalidCeremonyId",
-    "inputs": [
-      { "name": "provided", "type": "uint256", "internalType": "uint256" },
-      { "name": "expected", "type": "uint256", "internalType": "uint256" }
-    ]
-  },
-  {
-    "type": "error",
-    "name": "InvalidMerkleRoot",
-    "inputs": [
-      { "name": "provided", "type": "uint256", "internalType": "uint256" },
-      { "name": "expected", "type": "uint256", "internalType": "uint256" }
-    ]
-  },
   { "type": "error", "name": "InvalidProof", "inputs": [] },
   { "type": "error", "name": "InvalidRevoteValue", "inputs": [] },
-  {
-    "type": "error",
-    "name": "InvalidStateroot",
-    "inputs": [
-      { "name": "provided", "type": "uint256", "internalType": "uint256" },
-      { "name": "expected", "type": "uint256", "internalType": "uint256" }
-    ]
-  },
   {
     "type": "error",
     "name": "InvalidVote",
@@ -304,6 +268,7 @@
     ]
   },
   { "type": "error", "name": "RevotingNotAllowed", "inputs": [] },
+  { "type": "error", "name": "TallyNotAllowd", "inputs": [] },
   {
     "type": "error",
     "name": "VotingPeriodEnded",
