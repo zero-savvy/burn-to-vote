@@ -108,7 +108,7 @@ Config {
 ```
 
 ### 2. Vote
-
+Warning: this command might take (~ 1 hour) to run.
 Burn-to-vote flow: compute a burn address, nullifier, burn eth and generate a proof:
 
 ```sh
@@ -150,7 +150,7 @@ Runs an in-memory ceremony without on-chain dependencies (for testing):
 - creates a nullifier
 - burns a predetermined eth amount
 - adds the data to merkle tree
-- creates the vote circuit inputs, zkey, verification key
+- creates the vote circuit inputs, zkey, verification key (~ 1 hour)
 - creates the vote proof
 - verifies the proof off-chain
 
