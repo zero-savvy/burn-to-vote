@@ -111,7 +111,7 @@ If no ceremony is providede the vote is applied to the latest generated ceremony
 To get the list of available ceremonies:
  
 ```sh
-cargo run -- list-ceremonies  
+cargo run -- ceremonies  
 ```
 
 ### 2. Tally
