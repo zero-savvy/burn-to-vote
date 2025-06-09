@@ -59,3 +59,25 @@ pub async fn burn_address(
 
     (circuit, address)
 }
+
+
+// TODO: complete tests
+#[cfg(test)]
+mod tests {
+
+    use crate::commands::burn_address;
+
+    use super::*;
+    #[tokio::test]
+    async fn test_burn_address_generation(){
+        let mock_config = Config::mock_config().await;
+        let blinding_factor = rand::random::<u64>();
+        let pk = rand::random::<u64>().to_string();
+        let (_, ba) = burn_address(mock_config.clone(), pk.clone(), blinding_factor, 1).await;
+        let (_, ba_clone) = burn_address(mock_config, pk, blinding_factor, 1).await;
+
+        assert_eq!(ba, ba_clone);
+        
+    }
+
+}
