@@ -13,4 +13,4 @@ error NullifierMismatch(uint256 voteNullifier, uint256 revoteNullifier);
 error InvalidCeremonyType();
 error DeploymentFailed();
 error SaltAlreadyUsed(bytes32 salt);
-
+error TallyNotAllowd();

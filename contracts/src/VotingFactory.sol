@@ -5,21 +5,15 @@ import "./Voting.sol";
 import "./Errors.sol";
 
 contract VotingFactory {
-
-
     enum CeremonyType {
         Binary,
         Auction,
         MultipleChoice
     }
-    
-    event Deployed(
-        address indexed contractAddress,
-        CeremonyType votingType
-    );
 
-    mapping(bytes32 => address)  public contracts;
+    event Deployed(address indexed contractAddress, CeremonyType votingType);
 
+    mapping(bytes32 => address) public contracts;
 
     function deployVotingContract(
         bytes32 salt,
@@ -34,35 +28,24 @@ contract VotingFactory {
         if (contracts[salt] != address(0)) revert SaltAlreadyUsed(salt);
 
         bytes memory bytecode = getCeremonyBytecode(ceremonyType);
-        
+
         address deployedAddress;
         assembly {
-            deployedAddress := create2(
-                0,
-                add(bytecode, 0x20),
-                mload(bytecode),
-                salt
-            )
+            deployedAddress := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
         }
 
-        if(deployedAddress == address(0)) revert DeploymentFailed();
-        
+        if (deployedAddress == address(0)) revert DeploymentFailed();
+
         Voting(deployedAddress).initialize(
-            verifier,
-            submissionDeadline,
-            tallyDeadline,
-            merkleRoot,
-            ceremonyId,
-            stateRoot
+            verifier, submissionDeadline, tallyDeadline, merkleRoot, ceremonyId, stateRoot
         );
 
         contracts[salt] = deployedAddress;
-        
+
         emit Deployed(deployedAddress, ceremonyType);
-        
+
         return deployedAddress;
     }
-
 
     // function deployAuction(
     // ) external returns (address) {

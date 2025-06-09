@@ -27,7 +27,16 @@ contract VotingScript is Script {
 
         verifier = new Groth16Verifier();
         votingFactory = new VotingFactory();
-        address voting = votingFactory.deployVotingContract(salt, VotingFactory.CeremonyType.Binary, address(verifier), submissionDeadline, tallyDeadline, merkleRoot, ceremonyId, stateRoot);
+        address voting = votingFactory.deployVotingContract(
+            salt,
+            VotingFactory.CeremonyType.Binary,
+            address(verifier),
+            submissionDeadline,
+            tallyDeadline,
+            merkleRoot,
+            ceremonyId,
+            stateRoot
+        );
 
         vm.stopBroadcast();
         console.logAddress(address(voting));
