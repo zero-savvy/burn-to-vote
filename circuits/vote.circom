@@ -166,3 +166,12 @@ template vote(maxDepth) {
 }
 
 component main{public[ceremonyID, nullifier, vote, revote, mt_root]}  = vote(8);
+
+
+// public data
+// 0 => state_root
+// 1 => nullifier
+// 2 => ceremonyID
+// 3 => vote
+// 4 => revote
+// 5 => mt_root
