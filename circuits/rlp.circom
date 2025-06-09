@@ -18,27 +18,39 @@ template Rlp(len){
     // the nonce should be zero
     rlp[2] === 0x80;
     signal balanceLen;
-    // 70 =  1(0xf8) +1(dataLen)  + 1(nonce) + 1(balanceLen) + 33 + 33 
-    balanceLen <== rlpLen - 70;
+    signal isLongBalance;
+    signal isEqualTo128;
+    signal diff;
+    signal shortBalance;
+    signal longBalance;
+    signal finalBalance;
 
-    // balance prefix (rlp[3]) check
-    rlp[3] === 128 + balanceLen;
 
-    // nonce
-    nonce <== 0;
+    diff <== rlp[3] - 128;
 
-    // balance
-    // balance stats from th fifth index
-    // first index rlp[0] is 0xf8(list prefix)
-    // second index rlp[1] is the data length
-    // third index rlp[2]should be 0x80 since the nonce is zero
-    // fourth index rlp[3]is the length of the balnce(128 + balanceLen)
 
+    // 3 difference balance 
+    // balance == 0, rlp[3] == 128
+    // balance > 128, rlp[3] = 128+balance_len followed by balance amount from rlp[3 + 1] ... rlp [3+balance_len]
+    // balance < 128, rlp[3] == balance
+
+    component lessThan = LessThan(32);
+    lessThan.in[0] <== 128;
+    lessThan.in[1] <== rlp[3];
+    isLongBalance <== lessThan.out;
+
+    component equal128 = IsEqual();
+    equal128.in[0] <== rlp[3];
+    equal128.in[1] <== 128;
+    isEqualTo128 <== equal128.out;
+
+    balanceLen <== isLongBalance * (rlp[3] - 128) + (1 - isLongBalance);
+
+    // Extract balance if balance > 128
     component balanceSub = SubArray(len, 32, 8);
     balanceSub.in <== rlp;
     balanceSub.start <== 4;
     balanceSub.end <== 4 + balanceLen;
-
 
     component balanceInt = PaddedBytesToNum(32);
     balanceInt.realLen <== balanceLen;
@@ -46,7 +58,12 @@ template Rlp(len){
         balanceInt.bytes[i] <== balanceSub.out[i];
     }
 
-    balance <== balanceInt.num;
+    shortBalance <== (1 - isLongBalance) * rlp[3];
+    longBalance <== isLongBalance * balanceInt.num;
+
+    finalBalance <== shortBalance + longBalance;
+
+    balance <== (1 - isEqualTo128) * finalBalance;
     
 
     component storageHashSub = SubArray(len, 32, 8);
@@ -64,8 +81,7 @@ template Rlp(len){
     storageHash <== storageHashSub.out;
     codeHash <==  CodeHashSub.out;
 
-
 }
 
 
-// component main = rlp(82);
+// component main = Rlp(82);
