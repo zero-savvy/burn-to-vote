@@ -69,7 +69,8 @@ To set up the project, follow these steps to get the project up and running on y
 
 3. **Start Ganache Locally**:
     ```sh
-    ganache
+    ganache-cli
+    export PRIVATE_KEY=[PRIVATE-KEY]
     ```
 
     This will start a local blockchain instance for testing.
