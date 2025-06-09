@@ -16,14 +16,13 @@ contract Voting {
     uint128 private yesVotes;
     uint128 private noVotes;
 
-    bool public tallyCompleted;
-    bool private initialized;
+    bool public tallyCompleted = false;
+    bool private initialized = false;
 
     mapping(uint256 => uint8) public usedNullifiers;
 
     event VoteSubmitted(address indexed voter, uint256 nullifier, uint256 vote);
     event VotingResults(uint256 yesVotes, uint256 noVotes, bool passed);
-    event GasUsed(uint256 gasUsed);
 
     function initialize(
         address _verifier,
@@ -53,8 +52,8 @@ contract Voting {
         uint256[6] calldata pubSignals
     ) external {
         if (block.timestamp > voteSubmissionDeadline) revert VotingPeriodEnded(voteSubmissionDeadline, block.timestamp);
-        if (!(pubSignals[3] == 0 || pubSignals[3] == 1)) revert InvalidVote(pubSignals[2]);
-        if (usedNullifiers[pubSignals[1]] != 0) revert NullifierAlreadyUsed(pubSignals[0]);
+        if (!(pubSignals[3] == 0 || pubSignals[3] == 1)) revert InvalidVote(pubSignals[3]);
+        if (usedNullifiers[pubSignals[1]] != 0) revert NullifierAlreadyUsed(pubSignals[1]);
         if (pubSignals[4] == 1) revert RevotingNotAllowed();
         if (pubSignals[5] != merkle_root) revert InvalidMerkleRoot(pubSignals[5], merkle_root);
         if (pubSignals[2] != ceremony_id) revert InvalidCeremonyId(pubSignals[2], ceremony_id);
@@ -103,33 +102,29 @@ contract Voting {
 
         if (!(new_pubSignals[3] == 0 || new_pubSignals[3] == 1)) revert InvalidVote(new_pubSignals[3]);
         if (new_pubSignals[3] == old_pubSignals[3]) revert InvalidRevoteValue();
-        if (usedNullifiers[new_pubSignals[1]] != 1) revert NullifierAlreadyUsed(new_pubSignals[0]);
+        if (usedNullifiers[new_pubSignals[1]] != 1) revert NullifierAlreadyUsed(new_pubSignals[1]);
         if (new_pubSignals[4] == 0) revert RevotingNotAllowed();
-        if (new_pubSignals[5] != merkle_root) revert InvalidMerkleRoot(new_pubSignals[5], merkle_root);
-        if (new_pubSignals[5] != merkle_root) revert InvalidMerkleRoot(new_pubSignals[5], merkle_root);
-        if (new_pubSignals[5] != merkle_root) revert InvalidMerkleRoot(new_pubSignals[5], merkle_root);
-        if (new_pubSignals[5] != merkle_root) revert InvalidMerkleRoot(new_pubSignals[5], merkle_root);
         if (new_pubSignals[5] != merkle_root) revert InvalidMerkleRoot(new_pubSignals[5], merkle_root);
         if (new_pubSignals[2] != ceremony_id) revert InvalidCeremonyId(new_pubSignals[2], ceremony_id);
         if (new_pubSignals[0] != state_root) revert InvalidStateroot(new_pubSignals[0], state_root);
         bool proofIsValid = verifier.verifyProof(new_proofA, new_proofB, new_proofC, new_pubSignals);
         if (!proofIsValid) revert InvalidProof();
 
-        usedNullifiers[old_pubSignals[3]] += 1;
+        usedNullifiers[old_pubSignals[1]] += 1;
 
-        if (old_pubSignals[4] == 1 && new_pubSignals[4] == 0) {
+        if (old_pubSignals[3] == 1 && new_pubSignals[3] == 0) {
             yesVotes--;
             noVotes++;
-        } else if (old_pubSignals[4] == 0 && new_pubSignals[4] == 1) {
+        } else if (old_pubSignals[3] == 0 && new_pubSignals[3] == 1) {
             noVotes--;
             yesVotes++;
         }
 
-        emit VoteSubmitted(msg.sender, new_pubSignals[3], new_pubSignals[4]);
+        emit VoteSubmitted(msg.sender, new_pubSignals[1], new_pubSignals[3]);
     }
 
     function tallyVotes() external {
-        require(block.timestamp >= tallyDeadline, "Tallying is not yet allowed");
+        if(block.timestamp <= tallyDeadline) revert TallyNotAllowd();
         require(!tallyCompleted, "Tally has already been completed");
 
         tallyCompleted = true;
