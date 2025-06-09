@@ -1,5 +1,5 @@
 use ethers::{
-    core::types::TransactionRequest,
+    core::types::{TransactionRequest, U256 as EthersU256},
     middleware::SignerMiddleware,
     prelude::*,
     providers::{Http, Middleware, Provider},
@@ -28,7 +28,7 @@ pub async fn burn(
         burn_address,
         amount,
     };
-    info!("Burnig {:?} Eth ...", burn_data.amount);
+    info!("Burnig {:?} wei ...", burn_data.amount);
 
     let chain_id = provider.get_chainid().await.unwrap();
     let wallet: LocalWallet = burn_data
@@ -46,15 +46,13 @@ pub async fn burn(
         .get_balance(burn_data.burn_address, None)
         .await
         .unwrap();
-    let raw_wei = parse_ether("0.0001").unwrap(); // U256
-    let scaled = raw_wei / U256::exp10(15);
 
     let balance: U256 = provider.get_balance(wallet.address(), None).await.unwrap();
     info!("balance{:?}", balance);
 
     let tx = TransactionRequest::new()
         .to(to_address)
-        .value(U256::from(150));
+        .value(EthersU256::from(burn_data.amount.as_u128()));
 
     let pending_tx = client.send_transaction(tx, None).await.unwrap();
     let receipt = pending_tx
@@ -74,10 +72,16 @@ pub async fn burn(
         .unwrap();
 
     assert_eq!(
-        pre_tx_balance + U256::from(parse_ether(burn_data.amount).unwrap()),
-        post_tx_balance
+        pre_tx_balance + EthersU256::from(burn_data.amount.as_u128()),
+        post_tx_balance,
+        "Balance mismatch: expected {} wei increase, got {} wei",
+        burn_data.amount,
+        post_tx_balance - pre_tx_balance
     );
+
     info!("Burn transaction hash: {:?}", receipt.transaction_hash);
+
+    info!("Balance difference: {} wei", post_tx_balance - pre_tx_balance);
 
     (receipt.transaction_hash, provider)
 }
