@@ -32,7 +32,6 @@ pub async fn generate_nullifier(data: Config, blinding_factor: u64, private_key:
     hash_string
 }
 
-
 // TODO: complete tests
 #[cfg(test)]
 mod tests {
@@ -41,7 +40,7 @@ mod tests {
 
     use super::*;
     #[tokio::test]
-    async fn test_nullifier_generation(){
+    async fn test_nullifier_generation() {
         let mock_config = Config::mock_config().await;
         let blinding_factor = rand::random::<u64>();
         let pk = rand::random::<u64>().to_string();
@@ -49,7 +48,5 @@ mod tests {
         let nullifier_clone = generate_nullifier(mock_config, blinding_factor, pk).await;
 
         assert_eq!(nullifier, nullifier_clone);
-        
     }
-
 }

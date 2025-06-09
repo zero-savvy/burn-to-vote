@@ -6,6 +6,7 @@ use ff::PrimeField;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
 use primitive_types::U256 as PrimitiveU256;
 
+// TODO: BOUND VOTERS TO ONE VOTE
 use crate::{
     circuits::{vote_c::VoteCircuit, Circuit},
     commands::{
@@ -50,7 +51,8 @@ pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn st
         config.clone(),
         blinding_factor,
         vote_data.private_key.clone(),
-    ).await;
+    )
+    .await;
 
     let (_, provider) = burn(
         provider,

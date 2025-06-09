@@ -27,6 +27,8 @@ pub struct Config {
     #[structopt(long)]
     pub tallyDeadline: Option<String>,
     #[structopt(long)]
+    pub stateRoot: Option<String>,
+    #[structopt(long)]
     pub result: Option<VotingResult>,
     #[structopt(long)]
     pub white_list: Vec<u64>,
@@ -57,6 +59,21 @@ impl Config {
         self.tallyDeadline = Some(current_time_stamp.to_string());
 
         info!("config: {:?}", self);
+    }
+    pub async fn mock_config() -> Config {
+        Config {
+            network: Network::Ganache,
+            ceremony_id: Some(123),
+            chain_id: Some(123),
+            votingDeadline: Some("123".to_string()),
+            tallyDeadline: Some("123".to_string()),
+            stateRoot: Some("root".to_string()),
+            result: Some(VotingResult::Accepted),
+            white_list: [0, 0, 0, 0].to_vec(),
+            yesVotes: Some(3),
+            noVotes: None,
+            finilized: true,
+        }
     }
 }
 
@@ -95,7 +112,7 @@ pub enum Opt {
     Initiate(Config),
     Vote(Vote),
     Tally(Tally),
-    ListCeremonies,
+    Ceremonies,
     Demo(DemoData),
     OnchainDemo(OnchainDemoData),
 }

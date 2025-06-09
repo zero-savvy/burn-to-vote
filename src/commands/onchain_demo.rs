@@ -7,10 +7,10 @@ use ethers::utils::keccak256;
 use keccak_hash::keccak;
 use log::error;
 use log::info;
+use std::env;
 use std::error::Error;
 use std::sync::Arc;
 use structopt::StructOpt;
-use std::env;
 
 #[derive(Debug, StructOpt, Clone)]
 pub struct OnchainDemoData {
@@ -19,13 +19,11 @@ pub struct OnchainDemoData {
 
 abigen!(Voting, "data/abi.json");
 
-pub async fn onchain_demo(
-    demo_data: OnchainDemoData,
-) -> Result<(), Box<dyn Error>> {
+pub async fn onchain_demo(demo_data: OnchainDemoData) -> Result<(), Box<dyn Error>> {
     info!("Voting demo ...");
-    
+
     let public_data = get_public().await;
-    
+
     let provider: Provider<Http> = Provider::<Http>::try_from("http://127.0.0.1:8545")?.clone();
     let current_block = provider
         .get_block(ethers::types::BlockNumber::Latest)
@@ -33,12 +31,12 @@ pub async fn onchain_demo(
         .expect("RPC error fetching block")
         .expect("No block data returned");
     let current_timestamp = current_block.timestamp.as_u64();
-    
+
     let voting_time = current_timestamp + 60;
     let tally_time = current_timestamp + 120;
 
     let salt = hex::encode(keccak256(public_data.data[2].to_string()));
-    
+
     info!("Deploying the contracts ...");
     let deploy_command = format!(
         "cd contracts && forge script VotingScript --rpc-url http://127.0.0.1:8545 --broadcast --sig 'run(bytes32,uint256,uint256,uint256,uint256,uint256)' {} {} {} {} {} {} && cd ..",
@@ -52,7 +50,7 @@ pub async fn onchain_demo(
     info!("{:?}", deploy_command);
     run_command(&deploy_command).expect("failed to deploy the contracts");
     info!("Contracts deployed...");
-    
+
     info!("Setting up voting contract instance ...");
     let chain_id = provider.get_chainid().await.unwrap();
 
@@ -72,7 +70,8 @@ pub async fn onchain_demo(
     let proof = get_proof().await;
 
     info!("Sending the vote trx ...");
-    let submit_vote_call = contract.submit_vote(proof.pi_a, proof.pi_b, proof.pi_c, public_data.data);
+    let submit_vote_call =
+        contract.submit_vote(proof.pi_a, proof.pi_b, proof.pi_c, public_data.data);
 
     match submit_vote_call.send().await {
         Ok(receipt) => {
@@ -104,9 +103,12 @@ pub async fn onchain_demo(
         Ok(receipt) => {
             info!("Tally completed.");
             info!("Transaction hash: {:?}", receipt.tx_hash());
-            
+
             let results = contract.get_results().call().await?;
-            info!("Voting results - Yes votes: {}, No votes: {}", results.0, results.1);
+            info!(
+                "Voting results - Yes votes: {}, No votes: {}",
+                results.0, results.1
+            );
         }
         Err(e) => {
             error!("Failed to tally votes: {:?}", e);

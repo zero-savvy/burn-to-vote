@@ -34,8 +34,8 @@ async fn main() -> anyhow::Result<()> {
             commands::tally::tally(&mut cfg).await;
             db.ceremonies().save_ceremony(cfg)?;
         }
-        Opt::Ceremonies =>{
-            let list  =db.ceremonies().get_all_ceremonies()?;
+        Opt::Ceremonies => {
+            let list = db.ceremonies().get_all_ceremonies()?;
             info!("all ceremonies: {:?}", list)
         }
         Opt::Demo(d) => {
