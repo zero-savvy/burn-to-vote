@@ -1,154 +1,163 @@
-// // SPDX-License-Identifier: UNLICENSED
-// pragma solidity ^0.8.13;
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.13;
 
-// import {Test, console} from "forge-std/Test.sol";
-// import {Voting} from "../src/Voting.sol";
-// import {Groth16Verifier} from "../src/verifier.sol";
+import {Test, console} from "forge-std/Test.sol";
+import {VotingFactory} from "../src/VotingFactory.sol";
+import {Voting} from "../src/Voting.sol";
+import {Groth16Verifier} from "../src/verifier.sol";
+import {VotingPeriodEnded, InvalidVote, NullifierAlreadyUsed, RevotingNotAllowed, NullifierMismatch, InvalidRevoteValue} from "../src/Errors.sol";
 
-// contract VotingTest is Test {
-//     Voting public voting;
-//     Groth16Verifier public verifier;
 
-//     function setUp() public {
-//         // Deploy the verifier contract
-//         verifier = new Groth16Verifier();
+contract VotingTest is Test {
+    VotingFactory public votingFactory;
+    Voting public voting;
+    Groth16Verifier public verifier;
 
-//         // Set up timestamps for voting and tally deadlines
-//         uint256 votingTime = block.timestamp + 10000;
-//         uint256 tallyTime = block.timestamp + 20000;
-//         uint256 ceremeny_id = 16325618567567054338;
-//         uint256 mt = 6279442489816579343175600576641714715845361010123760250696645575814262324581;
-//         uint256 state_root = 9133689217370487228376476215699836963181592635914481284078419964281904630813;
+    uint256 submissionDeadline = block.timestamp + 10000;
+    uint256 tallyDeadline = block.timestamp + 20000;
+    uint256 ceremonyId = 7496824597605666358;
+    uint256 merkleRoot = 2460315761077221111371079137112756400365219279656913426802070198701997759860;
+    uint256 stateRoot = 16580658621263755616398168707812265815499667385403522275332483037094862039449;
+    bytes32 salt = keccak256(abi.encodePacked(ceremonyId));
 
-//         // Deploy the Voting contract
-//         voting = new Voting(address(verifier), votingTime, tallyTime, mt, ceremeny_id, state_root);
-//     }
+    event VoteSubmitted(address indexed voter, uint256 nullifier, uint256 vote);
 
-//     function testDeployment() public {
-//         // Check that the verifier address is set correctly
-//         assertEq(address(voting.verifier()), address(verifier), "Verifier address mismatch");
+    uint256[2] proofA = [
+        15735234741036841031785444279490969598560196843641202116530397007303416185676,
+        18150691990194341536057655269208744335697765123953767493612463362207859936053
+    ];
+    uint256[2][2] proofB = [
+        [
+            13266005699425396071609737237474717092791047403386583977505335368316493653834,
+            10496723520671847229028022026343553242445142007883043464366930756731799554837
+        ],
+        [
+            3995591568799800093966694878544427925521265551962048650602930242215399447150,
+            7737754626396588929108482656761721100100553711177325925043050569539144715458
+        ]
+    ];
+    uint256[2] proofC = [
+        1002095530778988323297856129135406269799571698438808857309929901200889493124,
+        13059467832921364130052777072151339381043283688520739469674524537959352978453
+    ];
+    uint256[6] pubSignals = [
+        16580658621263755616398168707812265815499667385403522275332483037094862039449,
+        9891682204978241203411276824529809676739256861554734859603992321540123681204,
+        7496824597605666358,
+        1,
+        0,
+        2460315761077221111371079137112756400365219279656913426802070198701997759860
+    ];
 
-//         // Check that the vote submission deadline is set correctly
-//         uint256 expectedVotingTime = block.timestamp + 10000;
-//         assertEq(voting.voteSubmissionDeadline(), expectedVotingTime, "Vote submission deadline mismatch");
+    function setUp() public {
+        verifier = new Groth16Verifier();
+        votingFactory = new VotingFactory();
+        address votingAddress = votingFactory.deployVotingContract(
+            salt,
+            VotingFactory.CeremonyType.Binary,
+            address(verifier),
+            submissionDeadline,
+            tallyDeadline,
+            merkleRoot,
+            ceremonyId,
+            stateRoot
+        );
+        voting = Voting(votingAddress);
+    }
 
-//         // Check that the tally deadline is set correctly
-//         uint256 expectedTallyTime = block.timestamp + 20000;
-//         assertEq(voting.tallyDeadline(), expectedTallyTime, "Tally deadline mismatch");
-//     }
+    function testVote() public {
+        vm.expectEmit(true, true, true, true);
+        emit VoteSubmitted(address(this), pubSignals[1], pubSignals[3]);
+        voting.submitVote(proofA, proofB, proofC, pubSignals);
+    }
 
-//     function testVoteSubmissionDeadline() public {
-//         // Ensure the vote submission deadline is in the future
-//         uint256 deadline = voting.voteSubmissionDeadline();
-//         assertTrue(deadline > block.timestamp, "Vote submission deadline is not in the future");
-//     }
+    function testDoubleVote() public {
+        voting.submitVote(proofA, proofB, proofC, pubSignals);
+        vm.expectRevert(abi.encodeWithSelector(NullifierAlreadyUsed.selector, pubSignals[1]));
+        voting.submitVote(proofA, proofB, proofC, pubSignals);
+    }
 
-//     function testTallyDeadline() public {
-//         // Ensure the tally deadline is after the vote submission deadline
-//         uint256 submissionDeadline = voting.voteSubmissionDeadline();
-//         uint256 tallyDeadline = voting.tallyDeadline();
-//         assertTrue(tallyDeadline > submissionDeadline, "Tally deadline is not after submission deadline");
-//     }
+    function testVotingTime() public {
+        vm.warp(submissionDeadline + 1);
+        vm.expectRevert(abi.encodeWithSelector(VotingPeriodEnded.selector, submissionDeadline, submissionDeadline + 1));
+        voting.submitVote(proofA, proofB, proofC, pubSignals);
+    }
 
-//     function testVote() public {
-//         uint256[2] memory proofA = [
-//             11461911343166044330456695269059929792395400910531367637149148476455041492912,
-//             19886538862381079473207778911105727625315370822735581170211603430406046448838
-//         ];
-//         uint256[2][2] memory proofB = [
-//             [
-//                 16250475503698907417494918297185825840713986646379737651665858753061739070827,
-//                 2863378482915918189823727888280946879088275398006714090657506748037047959922
-//             ],
-//             [
-//                 3281205606628297879259319685697544614446390832627250030433692892527431156623,
-//                 12345284791679238322161188376002935890147679113261980361506659523949366149066
-//             ]
-//         ];
-//         // 292172
-//         uint256[2] memory proofC = [
-//             16388857710257556035315260696986375113607619359587989416845442029898498201229,
-//             18445830738733662355634800715146197283294980453956291346982500933921629929172
-//         ];
-//         uint256[6] memory pubSignals = [
-//             9133689217370487228376476215699836963181592635914481284078419964281904630813,
-//             1142708857887860899307168100545612092579662650614529027477380939122736649282,
-//             16325618567567054338,
-//             1,
-//             0,
-//             6279442489816579343175600576641714715845361010123760250696645575814262324581
-//         ];
+    function testInvalidVote() public {
+        uint256[6] memory invalidVoteSignals = pubSignals;
+        invalidVoteSignals[3] = 2;
+        vm.expectRevert(abi.encodeWithSelector(InvalidVote.selector, 2));
+        voting.submitVote(proofA, proofB, proofC, invalidVoteSignals);
+    }
 
-//         voting.submitVote(proofA, proofB, proofC, pubSignals);
-//     }
+    function testRevoteNotAllowed() public {
+        uint256[6] memory revoteSignals = pubSignals;
+        revoteSignals[4] = 1;
+        vm.expectRevert(RevotingNotAllowed.selector);
+        voting.submitVote(proofA, proofB, proofC, revoteSignals);
+    }
 
-//     function testTally() public {
-//         uint256[2] memory proofA = [
-//             11461911343166044330456695269059929792395400910531367637149148476455041492912,
-//             19886538862381079473207778911105727625315370822735581170211603430406046448838
-//         ];
-//         uint256[2][2] memory proofB = [
-//             [
-//                 16250475503698907417494918297185825840713986646379737651665858753061739070827,
-//                 2863378482915918189823727888280946879088275398006714090657506748037047959922
-//             ],
-//             [
-//                 3281205606628297879259319685697544614446390832627250030433692892527431156623,
-//                 12345284791679238322161188376002935890147679113261980361506659523949366149066
-//             ]
-//         ];
-//         // 292172
-//         uint256[2] memory proofC = [
-//             16388857710257556035315260696986375113607619359587989416845442029898498201229,
-//             18445830738733662355634800715146197283294980453956291346982500933921629929172
-//         ];
-//         uint256[6] memory pubSignals = [
-//             9133689217370487228376476215699836963181592635914481284078419964281904630813,
-//             1142708857887860899307168100545612092579662650614529027477380939122736649282,
-//             16325618567567054338,
-//             1,
-//             0,
-//             6279442489816579343175600576641714715845361010123760250696645575814262324581
-//         ];
+    // function testRevote() public {
+    //     voting.submitVote(proofA, proofB, proofC, pubSignals);
+    //     uint256[6] memory revoteSignals = pubSignals;
+    //     revoteSignals[3] = 0;
+    //     revoteSignals[4] = 1;
+    //     vm.expectEmit(true, true, true, true);
+    //     emit VoteSubmitted(address(this), revoteSignals[1], revoteSignals[3]);
+    //     voting.submitRevote(
+    //         proofA, proofB, proofC, pubSignals,
+    //         proofA, proofB, proofC, revoteSignals
+    //     );
+    // }
 
-//         voting.submitVote(proofA, proofB, proofC, pubSignals);
+    function testRevoteInvalidNullifier() public {
+        voting.submitVote(proofA, proofB, proofC, pubSignals);
+        uint256[6] memory revoteSignals = pubSignals;
+        revoteSignals[1] = 123;
+        revoteSignals[3] = 0;
+        revoteSignals[4] = 1;
+        vm.expectRevert(abi.encodeWithSelector(NullifierMismatch.selector, pubSignals[1], 123));
+        voting.submitRevote(
+            proofA, proofB, proofC, pubSignals,
+            proofA, proofB, proofC, revoteSignals
+        );
+    }
 
-//         vm.warp(block.timestamp + 20000);
+    function testRevoteSameVote() public {
+        voting.submitVote(proofA, proofB, proofC, pubSignals);
+        uint256[6] memory revoteSignals = pubSignals;
+        revoteSignals[4] = 1;
+        vm.expectRevert(InvalidRevoteValue.selector);
+        voting.submitRevote(
+            proofA, proofB, proofC, pubSignals,
+            proofA, proofB, proofC, revoteSignals
+        );
+    }
 
-//         voting.tallyVotes();
-//         voting.getResults();
-//     }
+    function testRevoteAfterDeadline() public {
+        voting.submitVote(proofA, proofB, proofC, pubSignals);
+        uint256[6] memory revoteSignals = pubSignals;
+        revoteSignals[3] = 0;
+        revoteSignals[4] = 1;
+        vm.warp(submissionDeadline + 1);
+        vm.expectRevert(abi.encodeWithSelector(VotingPeriodEnded.selector, submissionDeadline, submissionDeadline + 1));
+        voting.submitRevote(
+            proofA, proofB, proofC, pubSignals,
+            proofA, proofB, proofC, revoteSignals
+        );
+    }
 
-//     function testRevote() public {
-//         uint256[2] memory proofA = [
-//             11461911343166044330456695269059929792395400910531367637149148476455041492912,
-//             19886538862381079473207778911105727625315370822735581170211603430406046448838
-//         ];
-//         uint256[2][2] memory proofB = [
-//             [
-//                 16250475503698907417494918297185825840713986646379737651665858753061739070827,
-//                 2863378482915918189823727888280946879088275398006714090657506748037047959922
-//             ],
-//             [
-//                 3281205606628297879259319685697544614446390832627250030433692892527431156623,
-//                 12345284791679238322161188376002935890147679113261980361506659523949366149066
-//             ]
-//         ];
-//         // 292172
-//         uint256[2] memory proofC = [
-//             16388857710257556035315260696986375113607619359587989416845442029898498201229,
-//             18445830738733662355634800715146197283294980453956291346982500933921629929172
-//         ];
-//         uint256[6] memory pubSignals = [
-//             9133689217370487228376476215699836963181592635914481284078419964281904630813,
-//             1142708857887860899307168100545612092579662650614529027477380939122736649282,
-//             16325618567567054338,
-//             1,
-//             0,
-//             6279442489816579343175600576641714715845361010123760250696645575814262324581
-//         ];
+    function testRevoteWithoutInitialVote() public {
+        uint256[6] memory revoteSignals = pubSignals;
+        revoteSignals[3] = 0;
+        revoteSignals[4] = 1;
+        vm.expectRevert(abi.encodeWithSelector(NullifierAlreadyUsed.selector, pubSignals[1]));
+        voting.submitRevote(
+            proofA, proofB, proofC, pubSignals,
+            proofA, proofB, proofC, revoteSignals
+        );
+    }
+}
 
-//         voting.submitVote(proofA, proofB, proofC, pubSignals);
-//         voting.submitRevote(proofA, proofB, proofC, pubSignals, proofA, proofB, proofC, pubSignals);
-//     }
-// }
+
+// TODO: add edge case tests
