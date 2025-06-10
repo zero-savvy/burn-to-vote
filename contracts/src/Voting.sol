@@ -135,7 +135,7 @@ contract Voting {
         if (!oldProofIsValid) revert InvalidProof();
 
         if (!(new_pubSignals[3] == 0 || new_pubSignals[3] == 1)) revert InvalidVote(new_pubSignals[3]);
-        if (new_pubSignals[3] == old_pubSignals[3]) revert InvalidRevoteValue();
+        if (new_pubSignals[3] != old_pubSignals[3]) revert InvalidRevoteValue();
         if (usedNullifiers[new_pubSignals[1]] != 1) revert NullifierAlreadyUsed(new_pubSignals[1]);
         if (new_pubSignals[4] == 0) revert RevotingNotAllowed();
         bool proofIsValid = verifier.verifyProof(
@@ -148,10 +148,10 @@ contract Voting {
 
         usedNullifiers[old_pubSignals[1]] += 1;
 
-        if (old_pubSignals[3] == 1 && new_pubSignals[3] == 0) {
+        if (old_pubSignals[3] == 1) {
             yesVotes--;
             noVotes++;
-        } else if (old_pubSignals[3] == 0 && new_pubSignals[3] == 1) {
+        } else if (old_pubSignals[3] == 0) {
             noVotes--;
             yesVotes++;
         }
