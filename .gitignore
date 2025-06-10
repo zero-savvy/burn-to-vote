@@ -3,6 +3,7 @@
 contracts/output.json
 contracts/broadcast/
 voting_db
+contracts/lib/
 
 # circuits
 
