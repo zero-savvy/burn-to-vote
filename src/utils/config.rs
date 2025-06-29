@@ -10,6 +10,7 @@ use ethers::{
 };
 use log::{error, info};
 use std::process;
+use std::str::FromStr;
 use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::time::{timeout, Duration};
@@ -20,6 +21,8 @@ pub struct Config {
     pub network: Network,
     #[structopt(long)]
     pub ceremony_id: Option<u64>,
+    #[structopt(long)]
+    pub ceremony_type: CeremonyType,
     #[structopt(long)]
     pub chain_id: Option<u64>,
     #[structopt(long)]
@@ -41,7 +44,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub async fn initiate_ceremony(&mut self) {
+    pub async fn initiate_ceremony(&mut self, ceremony_type: CeremonyType) {
         let provider: Provider<Http> = Provider::<Http>::try_from(self.network.url())
             .expect("Error: failed to initiate provider.");
         if let Err(err) = check_provider(&provider).await {
@@ -53,6 +56,7 @@ impl Config {
         self.chain_id = Some(provider.get_chainid().await.unwrap().as_u64());
         let white_list = vec![0; 4];
         self.white_list = white_list;
+        self.ceremony_type = ceremony_type;
         let current_time_stamp = get_time_stamp(&provider).await;
 
         self.votingDeadline = Some(current_time_stamp.to_string());
@@ -64,6 +68,7 @@ impl Config {
         Config {
             network: Network::Ganache,
             ceremony_id: Some(123),
+            ceremony_type: CeremonyType::Voting,
             chain_id: Some(123),
             votingDeadline: Some("123".to_string()),
             tallyDeadline: Some("123".to_string()),
@@ -74,6 +79,19 @@ impl Config {
             noVotes: None,
             finilized: true,
         }
+    }
+}
+
+impl std::str::FromStr for Config {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let args = ["dummy_program"]
+            .into_iter()
+            .chain(s.split_whitespace());
+        
+        Config::from_iter_safe(args)
+            .map_err(|e| e.to_string())
     }
 }
 
@@ -107,9 +125,28 @@ impl Network {
     }
 }
 
+#[derive(Debug, StructOpt, Clone, Encode, Decode)]
+pub enum CeremonyType {
+    Voting,
+    Auction
+
+}
+
+impl std::str::FromStr for CeremonyType {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "voting" => Ok(CeremonyType::Voting),
+            "auction" => Ok(CeremonyType::Auction),
+            _ => Err(format!("Invalid network: {}", s)),
+        }
+    }
+}
+
 #[derive(Debug, StructOpt, Clone)]
 pub enum Opt {
-    Initiate(Config),
+    Initiate(Initiate),
     Vote(Vote),
     Tally(Tally),
     Ceremonies,
@@ -167,4 +204,26 @@ impl std::str::FromStr for VotingResult {
             _ => Err(format!("Invalid voting result: {}", s)),
         }
     }
+}
+
+#[derive(Debug, StructOpt, Clone, Encode, Decode)]
+pub struct Initiate {
+    pub cfg: Config,
+    pub ceremony_type: CeremonyType
+}
+
+
+impl std::str::FromStr for Initiate {
+
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let args = ["dummy_program"]
+            .into_iter()
+            .chain(s.split_whitespace());
+        
+            Initiate::from_iter_safe(args)
+            .map_err(|e| e.to_string())
+    }
+    
 }
