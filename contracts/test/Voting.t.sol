@@ -6,7 +6,7 @@ import {VotingFactory} from "../src/VotingFactory.sol";
 import {Voting} from "../src/Voting.sol";
 import {Groth16Verifier} from "../src/verifier.sol";
 import {
-    VotingPeriodEnded,
+    SubmissionPeriodEnded,
     InvalidVote,
     NullifierAlreadyUsed,
     RevotingNotAllowed,
@@ -112,7 +112,9 @@ contract VotingTest is Test {
 
     function testVotingTime() public {
         vm.warp(submissionDeadline + 1);
-        vm.expectRevert(abi.encodeWithSelector(VotingPeriodEnded.selector, submissionDeadline, submissionDeadline + 1));
+        vm.expectRevert(
+            abi.encodeWithSelector(SubmissionPeriodEnded.selector, submissionDeadline, submissionDeadline + 1)
+        );
         voting.submitVote(proofA, proofB, proofC, pubSignals);
     }
 
@@ -155,7 +157,9 @@ contract VotingTest is Test {
         revotePubSignals[3] = 0;
         revotePubSignals[4] = 1;
         vm.warp(submissionDeadline + 1);
-        vm.expectRevert(abi.encodeWithSelector(VotingPeriodEnded.selector, submissionDeadline, submissionDeadline + 1));
+        vm.expectRevert(
+            abi.encodeWithSelector(SubmissionPeriodEnded.selector, submissionDeadline, submissionDeadline + 1)
+        );
         voting.submitRevote(
             proofA, proofB, proofC, pubSignals, revoteProofA, revoteProofB, revoteProofC, revotePubSignals
         );
