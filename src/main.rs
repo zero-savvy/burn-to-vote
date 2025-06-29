@@ -7,7 +7,9 @@ use db::VotingDB;
 use log::info;
 use std::{path::Path, sync::Arc};
 use structopt::StructOpt;
-use utils::config::Opt;
+use utils::config::{Opt, CeremonyType};
+
+use crate::utils::config::Initiate;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -20,9 +22,9 @@ async fn main() -> anyhow::Result<()> {
     let opt = Opt::from_args();
 
     match opt {
-        Opt::Initiate(mut cfg) => {
-            cfg.initiate_ceremony().await;
-            db.ceremonies().save_ceremony(cfg)?;
+        Opt::Initiate(mut init) => {
+            init.cfg.initiate_ceremony(init.ceremony_type).await;
+            db.ceremonies().save_ceremony(init.cfg)?;
         }
         Opt::Vote(v) => {
             let mut cfg = db.ceremonies().get_ceremony(v.ceremony_id)?;
