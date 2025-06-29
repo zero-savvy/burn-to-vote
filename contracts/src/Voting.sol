@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./verifier.sol";
 import "./Errors.sol";
+// add voting deadline
 
 /**
  * @title Voting
@@ -80,7 +81,9 @@ contract Voting {
         uint256[2] calldata proofC,
         uint256[6] calldata pubSignals
     ) external {
-        if (block.timestamp > voteSubmissionDeadline) revert VotingPeriodEnded(voteSubmissionDeadline, block.timestamp);
+        if (block.timestamp > voteSubmissionDeadline) {
+            revert SubmissionPeriodEnded(voteSubmissionDeadline, block.timestamp);
+        }
         if (!(pubSignals[3] == 0 || pubSignals[3] == 1)) revert InvalidVote(pubSignals[3]);
         if (usedNullifiers[pubSignals[1]] != 0) revert NullifierAlreadyUsed(pubSignals[1]);
         if (pubSignals[4] == 1) revert RevotingNotAllowed();
@@ -119,7 +122,9 @@ contract Voting {
         uint256[2] calldata new_proofC,
         uint256[6] calldata new_pubSignals
     ) external {
-        if (block.timestamp > voteSubmissionDeadline) revert VotingPeriodEnded(voteSubmissionDeadline, block.timestamp);
+        if (block.timestamp > voteSubmissionDeadline) {
+            revert SubmissionPeriodEnded(voteSubmissionDeadline, block.timestamp);
+        }
 
         if (old_pubSignals[1] != new_pubSignals[1]) revert NullifierMismatch(old_pubSignals[1], new_pubSignals[1]);
 
