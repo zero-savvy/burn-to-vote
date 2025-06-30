@@ -11,7 +11,7 @@ template BurnAddress() {
     signal input blinding_factor;
     signal input ceremonyID;
     signal input random_secret;
-    signal input vote;
+    signal input action_value;
 
 
 
@@ -20,7 +20,7 @@ template BurnAddress() {
     poseidonHash.inputs[1] <== ceremonyID;
     poseidonHash.inputs[2] <== blinding_factor;
     poseidonHash.inputs[3] <== random_secret;
-    poseidonHash.inputs[4] <== vote;
+    poseidonHash.inputs[4] <== action_value;
 
     component secretHash = Poseidon(2);
     secretHash.inputs[0] <== secret;
@@ -35,4 +35,4 @@ template BurnAddress() {
 }
 
 
-// component main{public[ceremonyID, vote]}  = BurnAddress(); 
+// component main{public[ceremonyID, action_value]}  = BurnAddress(); 
