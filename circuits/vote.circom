@@ -87,7 +87,7 @@ template vote(maxDepth) {
     burn_address.blinding_factor <== blinding_factor;
     burn_address.ceremonyID <== ceremonyID;
     burn_address.random_secret <== random_secret;
-    burn_address.vote <== vote;
+    burn_address.action_value <== vote;
 
     address === burn_address.address;
 
