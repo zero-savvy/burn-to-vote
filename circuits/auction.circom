@@ -90,7 +90,7 @@ template auction(maxDepth) {
     burn_address.blinding_factor <== blinding_factor;
     burn_address.ceremonyID <== ceremonyID;
     burn_address.random_secret <== random_secret;
-    burn_address.vote <== vote;
+    burn_address.action_value <== bid;
 
     address === burn_address.address;
 
@@ -168,13 +168,13 @@ template auction(maxDepth) {
 
 }
 
-component main{public[ceremonyID, nullifier, vote, revote, mt_root]}  = auction(8);
+component main{public[ceremonyID, nullifier, bid, bidMin, mt_root]}  = auction(8);
 
 
 // public data
 // 0 => state_root
 // 1 => nullifier
 // 2 => ceremonyID
-// 3 => vote
-// 4 => revote
+// 3 => bid
+// 4 => bidMin
 // 5 => mt_root
