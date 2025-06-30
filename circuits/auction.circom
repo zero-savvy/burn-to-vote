@@ -38,7 +38,7 @@ template auction(maxDepth) {
 
     // security checks
 
-    component bidCheck = LessEqThan(256);
+    component bidCheck = LessEqThan(252);
     bidCheck.in[0] <== bidMin;
     bidCheck.in[1] <== bid;
     bidCheck.out === 1;
