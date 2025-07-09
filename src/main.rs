@@ -23,8 +23,8 @@ async fn main() -> anyhow::Result<()> {
 
     match opt {
         Opt::Initiate(mut init) => {
-            init.cfg.initiate_ceremony(init.ceremony_type).await;
-            db.ceremonies().save_ceremony(init.cfg)?;
+            init.initiate_ceremony(init.ceremony_type.clone()).await;
+            db.ceremonies().save_ceremony(init)?;
         }
         Opt::Vote(v) => {
             let mut cfg = db.ceremonies().get_ceremony(v.ceremony_id)?;
