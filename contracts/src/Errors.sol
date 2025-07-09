@@ -15,7 +15,8 @@ error InvalidCeremonyType();
 error DeploymentFailed();
 error SaltAlreadyUsed(bytes32 salt);
 error TallyNotAllowd();
-
+error invalidBalance(uint256 balance);
 
 // token errors
 error InvalidAddress();
+error DuplicateAddress(address user);
