@@ -24,6 +24,7 @@ pub async fn demo(
     let vote_data = Vote {
         ceremony_id: demo_data.ceremony_id,
         private_key: demo_data.pk,
+        voting_block: 1,
         vote: 1,
         revote: 0,
         amount: PrimitiveU256::from(1),
