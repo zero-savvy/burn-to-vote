@@ -15,3 +15,7 @@ error InvalidCeremonyType();
 error DeploymentFailed();
 error SaltAlreadyUsed(bytes32 salt);
 error TallyNotAllowd();
+
+
+// token errors
+error InvalidAddress();
