@@ -23,6 +23,8 @@ pub struct Vote {
     #[structopt(long)]
     pub ceremony_id: Option<u64>,
     #[structopt(long)]
+    pub voting_block: u64,
+    #[structopt(long)]
     pub amount: PrimitiveU256,
     #[structopt(long)]
     pub vote: u64,
@@ -43,6 +45,7 @@ pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn st
         config.clone(),
         vote_data.private_key.clone(),
         blinding_factor,
+        vote_data.voting_block,
         vote_data.vote,
     )
     .await;
@@ -75,14 +78,13 @@ pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn st
     let leaf = leaf_hasher
         .hash(leaf_data.to_vec())
         .expect("Error: Failed to hash leaf data.");
-
-    let mut fr_white_list: Vec<Fr> = config
-        .white_list
-        .iter_mut()
-        .map(|x| Fr::from_repr(FrRepr::from(*x)).unwrap())
-        .collect();
-    fr_white_list[index] = leaf;
-    let tree = generate_tree(&mut fr_white_list).await;
+    let mut white_list: Vec<Fr> = Vec::new();
+    for i in 0 .. config.white_list.len() {
+        let str2uint = PrimitiveU256::from_str_radix(&config.white_list[i], 16)
+        .expect("Error: failed to get u256 from whitelist address.");
+        white_list[i] = u256_to_fp(str2uint);
+    };
+    let tree = generate_tree(&mut white_list).await;
     let merkle_tree_proof = generate_proof(&tree, index).await;
 
     let circuit = VoteCircuit::new(
