@@ -15,6 +15,7 @@ template auction(maxDepth) {
     signal input random_secret;
     signal input blinding_factor;
     signal input ceremonyID;
+    signal input votingBlockHash;
     
     signal input nonce;
     signal input balance;
@@ -91,6 +92,7 @@ template auction(maxDepth) {
     burn_address.ceremonyID <== ceremonyID;
     burn_address.random_secret <== random_secret;
     burn_address.action_value <== bid;
+    burn_address.votingBlockHash <== votingBlockHash;
 
     address === burn_address.address;
 
@@ -168,7 +170,7 @@ template auction(maxDepth) {
 
 }
 
-component main{public[ceremonyID, nullifier, bid, bidMin, mt_root]}  = auction(8);
+component main{public[ceremonyID, nullifier, bid, bidMin, mt_root, address]}  = auction(8);
 
 
 // public data
