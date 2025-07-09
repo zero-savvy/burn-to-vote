@@ -1,5 +1,8 @@
+use crate::commands::merkle_tree::generate_tree;
 use crate::commands::tally::Tally;
 use crate::commands::{demo::DemoData, onchain_demo::OnchainDemoData, vote::Vote};
+use crate::utils::proof::get_token_contract_address;
+use crate::utils::{run_command, u256_to_fp};
 use alloy::primitives::U256;
 use bincode::{Decode, Encode};
 use chrono::{DateTime, TimeZone, Utc};
@@ -8,12 +11,16 @@ use ethers::{
     providers::{self, Http, Middleware, Provider},
     types::BlockId,
 };
+use ethers::prelude::abigen;
 use log::{error, info};
+use poseidon_rs::Fr;
 use std::process;
 use std::str::FromStr;
 use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::time::{timeout, Duration};
+use primitive_types::U256 as PrimitiveU256;
+
 
 #[derive(Debug, StructOpt, Clone, Encode, Decode)]
 pub struct Config {
@@ -32,9 +39,11 @@ pub struct Config {
     #[structopt(long)]
     pub stateRoot: Option<String>,
     #[structopt(long)]
+    pub token: Option<String>,
+    #[structopt(long)]
     pub result: Option<VotingResult>,
     #[structopt(long)]
-    pub white_list: Vec<u64>,
+    pub white_list: Vec<String>,
     #[structopt(long)]
     pub yesVotes: Option<u64>,
     #[structopt(long)]
@@ -43,6 +52,9 @@ pub struct Config {
     pub finilized: bool,
 }
 
+abigen!(Voting, "data/token_abi.json");
+
+// Distribute tokens on the mark for auction based on the erc20 token allocatuon and the white list
 impl Config {
     pub async fn initiate_ceremony(&mut self, ceremony_type: CeremonyType) {
         let provider: Provider<Http> = Provider::<Http>::try_from(self.network.url())
@@ -54,13 +66,40 @@ impl Config {
         let ceremony_id = rand::random::<u64>();
         self.ceremony_id = Some(ceremony_id);
         self.chain_id = Some(provider.get_chainid().await.unwrap().as_u64());
-        let white_list = vec![0; 4];
-        self.white_list = white_list;
+        let mut white_list: Vec<Fr> = Vec::new();
+        let addresses: Vec<&str> = self.white_list[0].split(",").collect();
+        println!("white_list {:?}", addresses);
+        let formatted = format!("[{}]", addresses.join(","));
+        println!("white_list {:?}", formatted);
+
+        for i in 0 .. addresses.len() {
+            let str2uint = PrimitiveU256::from_str_radix(&addresses[i], 16)
+            .expect("Error: failed to get u256 from whitelist address.");
+            white_list.push(u256_to_fp(str2uint));
+        };
+        let tree = generate_tree(&mut white_list);
         self.ceremony_type = ceremony_type;
         let current_time_stamp = get_time_stamp(&provider).await;
 
         self.votingDeadline = Some(current_time_stamp.to_string());
         self.tallyDeadline = Some(current_time_stamp.to_string());
+        match self.ceremony_type {
+            CeremonyType::Auction => {
+                info!("Deploying the token ...");
+                let deploy_command = format!(
+                    " cd contracts && forge script TokenScript --rpc-url http://127.0.0.1:8545 --broadcast --sig 'run(address[])' {:?} && cd ..",
+                    formatted,
+                );
+                info!("{:?}", deploy_command);
+                run_command(&deploy_command).expect("failed to deploy the token");
+                info!("Contracts deployed...");
+
+                let address = get_token_contract_address();
+                self.token = Some(address);
+            },
+            _ => return
+        }
+
 
         info!("config: {:?}", self);
     }
@@ -73,8 +112,9 @@ impl Config {
             votingDeadline: Some("123".to_string()),
             tallyDeadline: Some("123".to_string()),
             stateRoot: Some("root".to_string()),
+            token: Some("0x00".to_string()),
             result: Some(VotingResult::Accepted),
-            white_list: [0, 0, 0, 0].to_vec(),
+            white_list: [String::from("0"), String::from("0"), String::from("0"), String::from("0")].to_vec(),
             yesVotes: Some(3),
             noVotes: None,
             finilized: true,
@@ -146,7 +186,7 @@ impl std::str::FromStr for CeremonyType {
 
 #[derive(Debug, StructOpt, Clone)]
 pub enum Opt {
-    Initiate(Initiate),
+    Initiate(Config),
     Vote(Vote),
     Tally(Tally),
     Ceremonies,
@@ -209,7 +249,6 @@ impl std::str::FromStr for VotingResult {
 #[derive(Debug, StructOpt, Clone, Encode, Decode)]
 pub struct Initiate {
     pub cfg: Config,
-    pub ceremony_type: CeremonyType
 }
 
 
