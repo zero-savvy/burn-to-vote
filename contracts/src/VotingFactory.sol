@@ -58,8 +58,9 @@ contract VotingFactory {
         uint256 _tallyDeadline,
         uint256 _merkleRoot,
         uint256 _ceremonyId,
-        uint256 _stateRoot
-    )external returns (address) {
+        uint256 _stateRoot,
+        address _ceremonyToken
+    ) external returns (address) {
         if (contracts[_salt] != address(0)) revert SaltAlreadyUsed(_salt);
         bytes memory bytecode = getCeremonyBytecode(_ceremonyType);
 
@@ -70,7 +71,14 @@ contract VotingFactory {
         }
 
         Auction(deployedAddress).initialize(
-            _verifier, _biddingDealine, _submissionDeadline, _tallyDeadline, _merkleRoot, _ceremonyId, _stateRoot
+            _verifier,
+            _biddingDealine,
+            _submissionDeadline,
+            _tallyDeadline,
+            _merkleRoot,
+            _ceremonyId,
+            _stateRoot,
+            _ceremonyToken
         );
 
         contracts[_salt] = deployedAddress;
