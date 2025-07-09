@@ -37,6 +37,10 @@ mpt_circuit:
 vote:
 	mkdir -p circuits/vote
 	circom circuits/vote.circom --r1cs --wasm --verbose -o circuits/vote -l ./node_modules
+
+auction:
+	mkdir -p circuits/auction
+	circom circuits/auction.circom --r1cs --wasm --verbose -o circuits/auction -l ./node_modules
 test:
 	mkdir -p circuits/test
 	circom circuits/test.circom --r1cs --wasm --sym --verbose -o circuits/test -l ./node_modules
