@@ -17,7 +17,7 @@ pub struct BurnAddress {
     pub ceremony_id: u64,
     pub blinding_factor: u64,
     pub votingBlock: u64,
-    pub vote: u64,
+    pub action_value: u64,
 }
 
 pub async fn burn_address(
@@ -25,8 +25,8 @@ pub async fn burn_address(
     private_key: String,
     blinding_factor: u64,
     staring_block: u64,
-    vote: u64,
-) -> (BurnAddressCircuit, Address) {
+    action_value: u64,
+) -> (BurnAddressCircuit, Address, String) {
     info!("Genrating burn address ...");
     let provider: Provider<Http> = Provider::<Http>::try_from(config.network.url()).expect("failed to run provider.").clone();
 
@@ -46,7 +46,7 @@ pub async fn burn_address(
     let random_secret_fp = Fr::from_repr(FrRepr::from(blinding_factor)).unwrap();
     let block_hash_fp= u256_to_fp(block_hash_u256);
 
-    let vote_fp = Fr::from_repr(FrRepr::from(vote)).unwrap();
+    let action_fp = Fr::from_repr(FrRepr::from(action_value)).unwrap();
 
     let input: Vec<Fr> = vec![
         private_key_fp,
@@ -54,7 +54,7 @@ pub async fn burn_address(
         blinding_factor_fp,
         random_secret_fp,
         block_hash_fp,
-        vote_fp,
+        action_fp,
     ];
 
     let poseidon = Poseidon::new();
@@ -72,10 +72,10 @@ pub async fn burn_address(
         config.ceremony_id.unwrap(),
         blinding_factor,
         block_hash_u256,
-        vote,
+        action_value,
     );
 
-    (circuit, address)
+    (circuit, address, block_hash_u256.to_string())
 }
 
 // TODO: complete tests
