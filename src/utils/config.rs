@@ -31,6 +31,8 @@ pub struct Config {
     #[structopt(long)]
     pub ceremony_type: CeremonyType,
     #[structopt(long)]
+    pub starting_block_hash: String,
+    #[structopt(long)]
     pub chain_id: Option<u64>,
     #[structopt(long)]
     pub votingDeadline: Option<String>,
@@ -48,6 +50,8 @@ pub struct Config {
     pub yesVotes: Option<u64>,
     #[structopt(long)]
     pub noVotes: Option<u64>,
+    #[structopt(long)]
+    pub min_bid: Option<u64>,
     #[structopt(long)]
     pub finilized: bool,
 }
@@ -108,6 +112,7 @@ impl Config {
             network: Network::Ganache,
             ceremony_id: Some(123),
             ceremony_type: CeremonyType::Voting,
+            starting_block_hash: "123".to_string(),
             chain_id: Some(123),
             votingDeadline: Some("123".to_string()),
             tallyDeadline: Some("123".to_string()),
@@ -117,6 +122,7 @@ impl Config {
             white_list: [String::from("0"), String::from("0"), String::from("0"), String::from("0")].to_vec(),
             yesVotes: Some(3),
             noVotes: None,
+            min_bid: Some(5),
             finilized: true,
         }
     }
