@@ -12,7 +12,7 @@ pub struct BurnAddressCircuit {
     pub ceremony_id: u64,
     pub random_secret: u64,
     pub block_hash : U256,
-    pub vote: u64,
+    pub action_value: u64,
 }
 
 impl BurnAddressCircuit {
@@ -23,7 +23,7 @@ impl BurnAddressCircuit {
         ceremony_id: u64,
         random_secret: u64,
         block_hash : U256,
-        vote: u64,
+        action_value: u64,
     ) -> Self {
         Self {
             identifier: CircuitIdentifier {
@@ -35,7 +35,7 @@ impl BurnAddressCircuit {
             ceremony_id,
             random_secret,
             block_hash,
-            vote,
+            action_value,
         }
     }
     pub fn format_inputs(&self) -> Result<String, Box<dyn std::error::Error>> {
@@ -46,7 +46,7 @@ impl BurnAddressCircuit {
             \"ceremonyID\": \"{}\",
             \"personalID\": \"{}\",
             \"votingBlockHash\": \"{}\",
-            \"vote\": \"{}\" }}",
+            \"action_value\": \"{}\" }}",
             U256::from_str_radix(&self.address[2..], 16)
                 .unwrap()
                 .to_string(),
@@ -55,7 +55,7 @@ impl BurnAddressCircuit {
             serde_json::to_string(&self.ceremony_id).unwrap(),
             serde_json::to_string(&self.random_secret).unwrap(),
             serde_json::to_string(&self.block_hash).unwrap(),
-            serde_json::to_string(&self.vote).unwrap()
+            serde_json::to_string(&self.action_value).unwrap()
         );
         Ok(inputs)
     }
