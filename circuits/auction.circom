@@ -6,7 +6,7 @@ include "mpt.circom";
 include "merkleTree.circom";
 include "burnAddress.circom";
 
-template auction(maxDepth) {
+template bid(maxDepth) {
 
     signal input address;
     signal input nullifier;
@@ -170,7 +170,7 @@ template auction(maxDepth) {
 
 }
 
-component main{public[ceremonyID, nullifier, bid, bidMin, mt_root, address]}  = auction(8);
+component main{public[ceremonyID, nullifier, bid, bidMin, mt_root, address]}  = bid(8);
 
 
 // public data
