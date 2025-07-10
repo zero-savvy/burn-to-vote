@@ -41,7 +41,7 @@ pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn st
 
     let blinding_factor = rand::random::<u64>();
 
-    let (burn_address_data, burn_address) = burn_address(
+    let (burn_address_data, burn_address, block_hash) = burn_address(
         config.clone(),
         vote_data.private_key.clone(),
         blinding_factor,
@@ -93,7 +93,7 @@ pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn st
         blinding_factor,
         burn_address_data.ceremony_id,
         burn_address_data.random_secret,
-        burn_address_data.vote,
+        burn_address_data.action_value,
         vote_data.revote,
         nullifier,
         mpt_data.nonce,
