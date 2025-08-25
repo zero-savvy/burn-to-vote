@@ -43,7 +43,7 @@ To set up the project, follow these steps to get the project up and running on y
 1. **Clone the Repository**:
     ```sh
     git clone git@github.com:--------anonymized-------.git
-    cd burn-to-vote
+    cd ---anonymized-dir-----
     ```
 2. **Install Project Dependencies**:
     ```sh
