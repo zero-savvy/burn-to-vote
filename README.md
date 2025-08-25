@@ -10,18 +10,6 @@ A Rust-based implementation of a fully on-chain, anonymous voting protocol using
 - **Lightweight ZKPs**: Uses Circom + Groth16 for succinct proofs; avoids heavy homomorphic encryption or MPC overhead.
 - **Rust CLI**: Convenient command-line interface powered by `structopt` and `tokio`.
 
-## Reference
-If you have used this repo to develop a research work or product, please cite our paper:
-
-1. [Burn Your Vote: Decentralized and Publicly Verifiable Anonymous Voting at Scale](https://eprint.iacr.org/2025/1022)
-```
-@misc{cryptoeprint:2025/1022,
-  author       = {Stefan Dziembowski, Shahriar Ebrahimi, Haniyeh Habibi, Parisa Hassanizadeh and Pardis Toolabi},
-  title        = {Burn Your Vote: Decentralized and Publicly Verifiable Anonymous Voting at Scale},
-  howpublished = {Cryptology {ePrint} Archive, Paper 2025/1022},
-  year         = {2025}
-}
-```
 
 ## Repository Layout
 
@@ -54,7 +42,7 @@ To set up the project, follow these steps to get the project up and running on y
 
 1. **Clone the Repository**:
     ```sh
-    git clone git@github.com:zero-savvy/burn-to-vote.git
+    git clone git@github.com:--------anonymized-------.git
     cd burn-to-vote
     ```
 2. **Install Project Dependencies**:
