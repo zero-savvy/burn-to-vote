@@ -123,9 +123,9 @@ pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn st
     let inputs = circuit.format_inputs()?;
     circuit.generate_input_file(inputs)?;
     circuit.generate_witness()?;
-    circuit.setup_zkey()?;
+    // circuit.setup_zkey()?;
     circuit.generate_proof()?;
-    circuit.setup_vkey()?;
+    // circuit.setup_vkey()?;
     circuit.verify_proof()?;
     circuit.generate_verifier()
 }
