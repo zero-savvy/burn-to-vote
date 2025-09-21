@@ -21,3 +21,4 @@ error InvalidCollateral(uint256 provided, uint256 expected);
 // token errors
 error InvalidAddress();
 error DuplicateAddress(address user);
+error WinnerCannotWithdraw();

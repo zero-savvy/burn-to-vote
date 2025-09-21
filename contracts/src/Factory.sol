@@ -59,7 +59,6 @@ contract Factory {
         uint256 _merkleRoot,
         uint256 _ceremonyId,
         uint256 _stateRoot,
-        address _ceremonyToken,
         uint256 _maxWinners
     ) external returns (address) {
         if (contracts[_salt] != address(0)) revert SaltAlreadyUsed(_salt);
@@ -79,7 +78,6 @@ contract Factory {
             _merkleRoot,
             _ceremonyId,
             _stateRoot,
-            _ceremonyToken,
             _maxWinners
         );
 

@@ -12,7 +12,7 @@ contract Auction is ReentrancyGuardTransient {
 
     uint256 merkleRoot;
     uint256 stateRoot;
-    uint256 ceremonId;
+    uint256 ceremonyId;
 
     uint256 biddingDeadline;
     uint256 bidSubmissionDeadline;
@@ -20,12 +20,12 @@ contract Auction is ReentrancyGuardTransient {
 
     uint256[] winingBids;
     address[] winners;
-    address biddingToken;
 
 
     event BidSubmitted(address indexed bidder, uint256 bid);
     bool private initialized = false;
     mapping(uint256 => bool) public usedNullifiers;
+    mapping(address => uint256) public collateral;
 
 
     function initialize(
@@ -36,7 +36,6 @@ contract Auction is ReentrancyGuardTransient {
         uint256 _merkleRoot,
         uint256 _ceremonyId,
         uint256 _stateRoot,
-        address _biddingToken,
         uint256 _maxWinners
     ) external {
         verifier = Groth16Verifier(_verifier);
@@ -45,8 +44,7 @@ contract Auction is ReentrancyGuardTransient {
         biddingDeadline = _biddingDealine;
         bidSubmissionDeadline = _submissionDeadline;
         resultDealine = _ResultDeadline;
-        ceremonId = _ceremonyId;
-        biddingToken = _biddingToken;
+        ceremonyId = _ceremonyId;
         winners = new address[](_maxWinners);
         winingBids = new uint256[](_maxWinners);
         initialized = true;
@@ -64,7 +62,7 @@ contract Auction is ReentrancyGuardTransient {
         }
         if (usedNullifiers[pubSignals[1]]) revert NullifierAlreadyUsed(pubSignals[1]);
         bool proofIsValid = verifier.verifyProof(
-            proofA, proofB, proofC, [stateRoot, pubSignals[1], ceremonId, pubSignals[3], pubSignals[4], merkleRoot]
+            proofA, proofB, proofC, [stateRoot, pubSignals[1], ceremonyId, pubSignals[3], pubSignals[4], merkleRoot]
         );
         if (!proofIsValid) revert InvalidProof();
 
@@ -72,6 +70,7 @@ contract Auction is ReentrancyGuardTransient {
 
         if (msg.value != pubSignals[3]) revert InvalidCollateral(msg.value, pubSignals[3]);
         checkAndInsertBid(pubSignals[3], msg.sender);
+        collateral[msg.sender] = pubSignals[3];
         emit BidSubmitted(msg.sender, pubSignals[3]);
 
     }
@@ -91,5 +90,18 @@ contract Auction is ReentrancyGuardTransient {
             }
         }
         return false;
+    }
+
+
+    function results() external view returns (address[] memory, uint256[] memory) {
+        if (block.timestamp < resultDealine) revert TallyNotAllowd();
+        return (winners, winingBids);
+    }
+
+
+    function withdrawCollateral() external {
+        if (block.timestamp < resultDealine) revert TallyNotAllowd();
+        if (msg.sender == winners[0]) revert WinnerCannotWithdraw();
+        payable(msg.sender).transfer(collateral[msg.sender]);
     }
 }
