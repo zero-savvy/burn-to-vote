@@ -16,6 +16,7 @@ error DeploymentFailed();
 error SaltAlreadyUsed(bytes32 salt);
 error TallyNotAllowd();
 error invalidBalance(uint256 balance);
+error InvalidCollateral(uint256 provided, uint256 expected);
 
 // token errors
 error InvalidAddress();
