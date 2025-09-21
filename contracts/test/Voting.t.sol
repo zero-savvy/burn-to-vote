@@ -85,9 +85,9 @@ contract VotingTest is Test {
     function setUp() public {
         verifier = new Groth16Verifier();
         factory = new Factory();
-        address votingAddress = votingFactory.deployVotingContract(
+        address votingAddress = factory.deployVotingContract(
             salt,
-            factory.CeremonyType.Binary,
+            Factory.CeremonyType.Binary,
             address(verifier),
             submissionDeadline,
             tallyDeadline,
