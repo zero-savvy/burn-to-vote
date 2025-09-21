@@ -26,8 +26,8 @@ contract VotingScript is Script {
         console.log("balance", b);
 
         verifier = new Groth16Verifier();
-        votingFactory = new Factory();
-        address voting = votingFactory.deployVotingContract(
+        factory = new Factory();
+        address voting = factory.deployVotingContract(
             salt,
             Factory.CeremonyType.Binary,
             address(verifier),
