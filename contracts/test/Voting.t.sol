@@ -2,7 +2,7 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {VotingFactory} from "../src/VotingFactory.sol";
+import {Factory} from "../src/Factory.sol";
 import {Voting} from "../src/Voting.sol";
 import {Groth16Verifier} from "../src/verifier.sol";
 import {
@@ -15,7 +15,7 @@ import {
 } from "../src/Errors.sol";
 
 contract VotingTest is Test {
-    VotingFactory public votingFactory;
+    Factory public factory;
     Voting public voting;
     Groth16Verifier public verifier;
 
@@ -84,10 +84,10 @@ contract VotingTest is Test {
 
     function setUp() public {
         verifier = new Groth16Verifier();
-        votingFactory = new VotingFactory();
+        factory = new Factory();
         address votingAddress = votingFactory.deployVotingContract(
             salt,
-            VotingFactory.CeremonyType.Binary,
+            factory.CeremonyType.Binary,
             address(verifier),
             submissionDeadline,
             tallyDeadline,
