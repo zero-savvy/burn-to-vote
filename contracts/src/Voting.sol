@@ -70,7 +70,7 @@ contract Voting {
      * @param proofA, proofB, proofC Groth16 proof
      * @param pubSignals Public signals for the proof verification
      * @notice The proof must verify that:
-     *         1. The voter is in the merkle tree
+     *         1. The voter burn address is in the mpt
      *         2. The nullifier hasn't been used before
      *         3. The vote is valid (0 or 1)
      *         4. The ceremony ID matches
