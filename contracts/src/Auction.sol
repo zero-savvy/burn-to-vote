@@ -4,9 +4,10 @@ pragma solidity ^0.8.0;
 import "./verifier.sol";
 import "./Errors.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuardTransient.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract Auction {
+contract Auction is ReentrancyGuardTransient {
     Groth16Verifier public verifier;
 
     uint256 merkleRoot;
@@ -56,7 +57,7 @@ contract Auction {
         uint256[2][2] calldata proofB,
         uint256[2] calldata proofC,
         uint256[6] calldata pubSignals
-    ) external payable returns (address) {
+    ) external payable{
         if (block.timestamp < biddingDeadline) revert CastingPeriodEnded(biddingDeadline, block.timestamp);
         if (block.timestamp > bidSubmissionDeadline) {
             revert SubmissionPeriodEnded(bidSubmissionDeadline, block.timestamp);

@@ -5,7 +5,7 @@ import "./Voting.sol";
 import "./Auction.sol";
 import "./Errors.sol";
 
-contract VotingFactory {
+contract Factory {
     enum CeremonyType {
         Binary,
         Auction,
@@ -59,7 +59,8 @@ contract VotingFactory {
         uint256 _merkleRoot,
         uint256 _ceremonyId,
         uint256 _stateRoot,
-        address _ceremonyToken
+        address _ceremonyToken,
+        uint256 _maxWinners
     ) external returns (address) {
         if (contracts[_salt] != address(0)) revert SaltAlreadyUsed(_salt);
         bytes memory bytecode = getCeremonyBytecode(_ceremonyType);
@@ -78,7 +79,8 @@ contract VotingFactory {
             _merkleRoot,
             _ceremonyId,
             _stateRoot,
-            _ceremonyToken
+            _ceremonyToken,
+            _maxWinners
         );
 
         contracts[_salt] = deployedAddress;
