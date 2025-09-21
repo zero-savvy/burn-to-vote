@@ -21,12 +21,11 @@ contract Auction is ReentrancyGuardTransient {
     uint256[] winingBids;
     address[] winners;
 
-
     event BidSubmitted(address indexed bidder, uint256 bid);
+
     bool private initialized = false;
     mapping(uint256 => bool) public usedNullifiers;
     mapping(address => uint256) public collateral;
-
 
     function initialize(
         address _verifier,
@@ -55,7 +54,7 @@ contract Auction is ReentrancyGuardTransient {
         uint256[2][2] calldata proofB,
         uint256[2] calldata proofC,
         uint256[6] calldata pubSignals
-    ) external payable{
+    ) external payable {
         if (block.timestamp < biddingDeadline) revert CastingPeriodEnded(biddingDeadline, block.timestamp);
         if (block.timestamp > bidSubmissionDeadline) {
             revert SubmissionPeriodEnded(bidSubmissionDeadline, block.timestamp);
@@ -72,10 +71,7 @@ contract Auction is ReentrancyGuardTransient {
         checkAndInsertBid(pubSignals[3], msg.sender);
         collateral[msg.sender] = pubSignals[3];
         emit BidSubmitted(msg.sender, pubSignals[3]);
-
     }
-
-
 
     function checkAndInsertBid(uint256 bid, address bidder) internal returns (bool) {
         for (uint256 i = 0; i < winners.length; i++) {
@@ -92,12 +88,10 @@ contract Auction is ReentrancyGuardTransient {
         return false;
     }
 
-
     function results() external view returns (address[] memory, uint256[] memory) {
         if (block.timestamp < resultDealine) revert TallyNotAllowd();
         return (winners, winingBids);
     }
-
 
     function withdrawCollateral() external {
         if (block.timestamp < resultDealine) revert TallyNotAllowd();
