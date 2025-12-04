@@ -2,11 +2,11 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {VotingFactory} from "../src/VotingFactory.sol";
+import {Factory} from "../src/Factory.sol";
 import {Voting} from "../src/Voting.sol";
 import {Groth16Verifier} from "../src/verifier.sol";
 import {
-    VotingPeriodEnded,
+    SubmissionPeriodEnded,
     InvalidVote,
     NullifierAlreadyUsed,
     RevotingNotAllowed,
@@ -15,7 +15,7 @@ import {
 } from "../src/Errors.sol";
 
 contract VotingTest is Test {
-    VotingFactory public votingFactory;
+    Factory public factory;
     Voting public voting;
     Groth16Verifier public verifier;
 
@@ -84,10 +84,10 @@ contract VotingTest is Test {
 
     function setUp() public {
         verifier = new Groth16Verifier();
-        votingFactory = new VotingFactory();
-        address votingAddress = votingFactory.deployVotingContract(
+        factory = new Factory();
+        address votingAddress = factory.deployVotingContract(
             salt,
-            VotingFactory.CeremonyType.Binary,
+            Factory.CeremonyType.Binary,
             address(verifier),
             submissionDeadline,
             tallyDeadline,
@@ -112,7 +112,9 @@ contract VotingTest is Test {
 
     function testVotingTime() public {
         vm.warp(submissionDeadline + 1);
-        vm.expectRevert(abi.encodeWithSelector(VotingPeriodEnded.selector, submissionDeadline, submissionDeadline + 1));
+        vm.expectRevert(
+            abi.encodeWithSelector(SubmissionPeriodEnded.selector, submissionDeadline, submissionDeadline + 1)
+        );
         voting.submitVote(proofA, proofB, proofC, pubSignals);
     }
 
@@ -155,7 +157,9 @@ contract VotingTest is Test {
         revotePubSignals[3] = 0;
         revotePubSignals[4] = 1;
         vm.warp(submissionDeadline + 1);
-        vm.expectRevert(abi.encodeWithSelector(VotingPeriodEnded.selector, submissionDeadline, submissionDeadline + 1));
+        vm.expectRevert(
+            abi.encodeWithSelector(SubmissionPeriodEnded.selector, submissionDeadline, submissionDeadline + 1)
+        );
         voting.submitRevote(
             proofA, proofB, proofC, pubSignals, revoteProofA, revoteProofB, revoteProofC, revotePubSignals
         );

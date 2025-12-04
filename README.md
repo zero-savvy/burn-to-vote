@@ -177,9 +177,9 @@ Demonstrates fully on-chain interactions :
 
 The smart contracts in `contracts/` implement a factory pattern for deploying voting instances:
 
-### VotingFactory Contract
+### Factory Contract
 
-The factory contract (`contracts/src/VotingFactory.sol`) is responsible for deploying new voting instances with the following parameters:
+The factory contract (`contracts/src/Factory.sol`) is responsible for deploying new voting instances with the following parameters:
 
 - **Verifier Address**: Deployed Groth16 verifier (BN254)
 - **Voting Deadline**: UNIX timestamp to lock voting

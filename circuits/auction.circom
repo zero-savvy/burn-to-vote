@@ -6,7 +6,7 @@ include "mpt.circom";
 include "merkleTree.circom";
 include "burnAddress.circom";
 
-template vote(maxDepth) {
+template bid(maxDepth) {
 
     signal input address;
     signal input nullifier;
@@ -15,6 +15,7 @@ template vote(maxDepth) {
     signal input random_secret;
     signal input blinding_factor;
     signal input ceremonyID;
+    signal input votingBlockHash;
     
     signal input nonce;
     signal input balance;
@@ -32,14 +33,17 @@ template vote(maxDepth) {
     signal input node_length[maxDepth];
     signal input leaf_nibbles;
 
-    signal input vote;
-    signal input revote;
+    signal input bidMin;
+    signal input bid;
 
 
     // security checks
 
-    vote * (1-vote) === 0;
-    revote * (1-revote) === 0;
+    component bidCheck = LessEqThan(252);
+    bidCheck.in[0] <== bidMin;
+    bidCheck.in[1] <== bid;
+    bidCheck.out === 1;
+
 
     component rlp_len_check = LessEqThan(8);
     rlp_len_check.in[0] <== account_rlp_len;
@@ -87,7 +91,8 @@ template vote(maxDepth) {
     burn_address.blinding_factor <== blinding_factor;
     burn_address.ceremonyID <== ceremonyID;
     burn_address.random_secret <== random_secret;
-    burn_address.action_value <== vote;
+    burn_address.action_value <== bid;
+    burn_address.votingBlockHash <== votingBlockHash;
 
     address === burn_address.address;
 
@@ -165,13 +170,13 @@ template vote(maxDepth) {
 
 }
 
-component main{public[ceremonyID, nullifier, vote, revote, mt_root]}  = vote(8);
+component main{public[ceremonyID, nullifier, bid, bidMin, mt_root, address]}  = bid(8);
 
 
 // public data
 // 0 => state_root
 // 1 => nullifier
 // 2 => ceremonyID
-// 3 => vote
-// 4 => revote
+// 3 => bid
+// 4 => bidMin
 // 5 => mt_root

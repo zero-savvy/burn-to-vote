@@ -1,6 +1,7 @@
 pragma solidity ^0.8.0;
 
-error VotingPeriodEnded(uint256 voteSubmissionDeadline, uint256 request_time);
+error SubmissionPeriodEnded(uint256 castingDeadline, uint256 request_time);
+error CastingPeriodEnded(uint256 castingDeadline, uint256 request_time);
 error InvalidVote(uint256 voteValue);
 error NullifierAlreadyUsed(uint256 nullifier);
 error RevotingNotAllowed();
@@ -14,3 +15,10 @@ error InvalidCeremonyType();
 error DeploymentFailed();
 error SaltAlreadyUsed(bytes32 salt);
 error TallyNotAllowd();
+error invalidBalance(uint256 balance);
+error InvalidCollateral(uint256 provided, uint256 expected);
+
+// token errors
+error InvalidAddress();
+error DuplicateAddress(address user);
+error WinnerCannotWithdraw();

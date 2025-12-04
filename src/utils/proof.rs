@@ -90,6 +90,30 @@ pub fn get_contract_address() -> String {
     addr
 }
 
+
+pub fn get_token_contract_address() ->String{
+    let path = "contracts/broadcast/AuctionErc20.s.sol/1337/run-latest.json";
+    let file = fs::read_to_string(path).expect("failed to parse trx file.");
+    let raw_data: serde_json::Value = serde_json::from_str(&file).expect("failed to get trx data.");
+    let mut addr = String::from("");
+    if let Some(data) = raw_data["transactions"].as_array() {
+        for tx in data {
+                    if let Some(address) = tx.get("contractAddress") {
+                            addr = address
+                                .as_str()
+                                .expect("failed to parse token contract address")
+                                .to_string();
+                    }
+        }
+    }
+
+    if addr == String::from("") {
+        error!("The contract address was not found.")
+    }
+    addr
+
+}
+
 pub fn decode_revert(data: &Bytes) -> Option<String> {
     if data.len() < 4 || data[0..4] != [0x08, 0xc3, 0x79, 0xa0] {
         return None;

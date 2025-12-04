@@ -36,6 +36,7 @@ template MerkleTreeChecker(levels) {
     component selectors[levels];
     component hashers[levels];
 
+
     for (var i=0; i<levels; i++){
         pathIndices[i] * (1 - pathIndices[i] ) === 0;
     }
