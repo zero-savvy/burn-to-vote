@@ -4,7 +4,7 @@ use ethers::{
     prelude::*,
     providers::{Http, Middleware, Provider},
     signers::{LocalWallet, Signer},
-    utils::parse_ether,
+    utils::{format_ether, parse_ether},
 };
 use log::info;
 use structopt::StructOpt;
@@ -28,7 +28,7 @@ pub async fn burn(
         burn_address,
         amount,
     };
-    info!("Burnig {:?} wei ...", burn_data.amount);
+    info!("Burnig {:?} ETH ...", burn_data.amount);
 
     let chain_id = provider.get_chainid().await.unwrap();
     let wallet: LocalWallet = burn_data
@@ -48,7 +48,7 @@ pub async fn burn(
         .unwrap();
 
     let balance: U256 = provider.get_balance(wallet.address(), None).await.unwrap();
-    info!("balance{:?}", balance);
+    info!("balance: {:?} ETH", format_ether(balance));
 
     let tx = TransactionRequest::new()
         .to(to_address)
