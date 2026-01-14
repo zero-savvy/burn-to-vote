@@ -1,14 +1,18 @@
+// bid
+// 1. initiare auction starts with the token distribiutions
+// contract is deployes after the start of the project 
+// and after the last block of voting since we need the state root of the last blick
+
 use log::info;
 use structopt::StructOpt;
 
-use ethers::providers::{Http, Provider};
+use ethers::providers::{Http, Middleware, Provider};
 use ff::PrimeField;
 use poseidon_rs::{Fr, FrRepr, Poseidon};
 use primitive_types::U256 as PrimitiveU256;
 
-// TODO: BOUND VOTERS TO ONE VOTE
 use crate::{
-    circuits::{vote_c::VoteCircuit, Circuit},
+    circuits::{bid_c::BidCircuit, Circuit},
     commands::{
         burn::burn,
         burn_address::burn_address,
@@ -19,7 +23,7 @@ use crate::{
 };
 
 #[derive(Debug, StructOpt, Clone)]
-pub struct Vote {
+pub struct Bid {
     #[structopt(long)]
     pub ceremony_id: Option<u64>,
     #[structopt(long)]
@@ -27,14 +31,12 @@ pub struct Vote {
     #[structopt(long)]
     pub amount: PrimitiveU256,
     #[structopt(long)]
-    pub vote: u64,
-    #[structopt(long)]
-    pub revote: u64,
+    pub bid: u64,
     #[structopt(long)]
     pub private_key: String,
 }
 
-pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn bid(config: &mut Config, bid_data: Bid) -> Result<(), Box<dyn std::error::Error>> {
     info!("initiate voting ..");
 
     let provider: Provider<Http> = Provider::<Http>::try_from(config.network.url())?.clone();
@@ -43,31 +45,31 @@ pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn st
 
     let (burn_address_data, burn_address, block_hash) = burn_address(
         config.clone(),
-        vote_data.private_key.clone(),
+        bid_data.private_key.clone(),
         blinding_factor,
-        vote_data.voting_block,
-        vote_data.vote,
+        bid_data.voting_block,
+        bid_data.bid,
     )
     .await;
 
     let nullifier = generate_nullifier(
         config.clone(),
         blinding_factor,
-        vote_data.private_key.clone(),
+        bid_data.private_key.clone(),
     )
     .await;
 
     let (_, provider) = burn(
         provider,
         burn_address,
-        vote_data.amount,
-        vote_data.private_key.clone(),
+        bid_data.amount,
+        bid_data.private_key.clone(),
     )
     .await;
 
     let mpt_data = prepare_mpt_data(burn_address, provider).await;
 
-    let secret: PrimitiveU256 = PrimitiveU256::from_str_radix(&vote_data.private_key, 16)
+    let secret: PrimitiveU256 = PrimitiveU256::from_str_radix(&bid_data.private_key, 16)
         .expect("Error: failed to get u256 from secret.");
     let random_secret_fr = Fr::from_repr(FrRepr::from(blinding_factor))
         .expect("Error: failed to unwrap random secret Fr.");
@@ -87,14 +89,15 @@ pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn st
     let tree = generate_tree(&mut white_list).await;
     let merkle_tree_proof = generate_proof(&tree, index).await;
 
-    let circuit = VoteCircuit::new(
+    let circuit = BidCircuit::new(
         burn_address_data.address,
         secret,
         blinding_factor,
         burn_address_data.ceremony_id,
+        block_hash,
         burn_address_data.random_secret,
         burn_address_data.action_value,
-        vote_data.revote,
+        config.min_bid.unwrap(),
         nullifier,
         mpt_data.nonce,
         mpt_data.balance,
@@ -113,21 +116,14 @@ pub async fn vote(config: &mut Config, vote_data: Vote) -> Result<(), Box<dyn st
         merkle_tree_proof.pathIndices,
     );
 
-    match vote_data.vote {
-        1 => config.yesVotes = Some(config.yesVotes.unwrap_or(0) + 1),
-        0 => config.noVotes = Some(config.noVotes.unwrap_or(0) + 1),
-        _ => {
-            return Err("invalid vote value".into());
-        }
-    }
     info!("updated config: {:?}", config);
-    info!("VOTE circuit: ");
+    info!("Auction circuit: ");
     let inputs = circuit.format_inputs()?;
     circuit.generate_input_file(inputs)?;
     circuit.generate_witness()?;
-    // circuit.setup_zkey()?;
+    circuit.setup_zkey()?;
     circuit.generate_proof()?;
-    // circuit.setup_vkey()?;
+    circuit.setup_vkey()?;
     circuit.verify_proof()?;
     circuit.generate_verifier()
 }

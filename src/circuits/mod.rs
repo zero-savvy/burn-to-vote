@@ -3,6 +3,7 @@ pub mod merkle_tree_c;
 pub mod mpt_c;
 pub mod nullifier_c;
 pub mod vote_c;
+pub mod bid_c;
 use log::{error, info};
 use std::error::Error;
 use std::fs::{self, File};

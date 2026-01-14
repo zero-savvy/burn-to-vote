@@ -6,3 +6,4 @@ pub mod nullifier;
 pub mod onchain_demo;
 pub mod tally;
 pub mod vote;
+pub mod bid;

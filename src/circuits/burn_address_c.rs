@@ -3,6 +3,7 @@
 use crate::circuits::{Circuit, CircuitIdentifier};
 use primitive_types::U256;
 
+// block hash refers to the srarting block of the ceremony
 pub struct BurnAddressCircuit {
     pub identifier: CircuitIdentifier<'static>,
     pub address: String,
@@ -10,7 +11,8 @@ pub struct BurnAddressCircuit {
     pub blinding_factor: u64,
     pub ceremony_id: u64,
     pub random_secret: u64,
-    pub vote: u64,
+    pub block_hash : U256,
+    pub action_value: u64,
 }
 
 impl BurnAddressCircuit {
@@ -20,7 +22,8 @@ impl BurnAddressCircuit {
         blinding_factor: u64,
         ceremony_id: u64,
         random_secret: u64,
-        vote: u64,
+        block_hash : U256,
+        action_value: u64,
     ) -> Self {
         Self {
             identifier: CircuitIdentifier {
@@ -31,7 +34,8 @@ impl BurnAddressCircuit {
             blinding_factor,
             ceremony_id,
             random_secret,
-            vote,
+            block_hash,
+            action_value,
         }
     }
     pub fn format_inputs(&self) -> Result<String, Box<dyn std::error::Error>> {
@@ -41,7 +45,8 @@ impl BurnAddressCircuit {
             \"blinding_factor\": \"{}\",
             \"ceremonyID\": \"{}\",
             \"personalID\": \"{}\",
-            \"vote\": \"{}\" }}",
+            \"votingBlockHash\": \"{}\",
+            \"action_value\": \"{}\" }}",
             U256::from_str_radix(&self.address[2..], 16)
                 .unwrap()
                 .to_string(),
@@ -49,7 +54,8 @@ impl BurnAddressCircuit {
             serde_json::to_string(&self.blinding_factor).unwrap(),
             serde_json::to_string(&self.ceremony_id).unwrap(),
             serde_json::to_string(&self.random_secret).unwrap(),
-            serde_json::to_string(&self.vote).unwrap()
+            serde_json::to_string(&self.block_hash).unwrap(),
+            serde_json::to_string(&self.action_value).unwrap()
         );
         Ok(inputs)
     }
