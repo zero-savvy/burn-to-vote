@@ -2,7 +2,9 @@ use bb_proof_verification::{UltraHonkZKProof, UltraHonkVerificationKey, verify_u
 
 mod merkle_tools;
 
-global N: u32 = 4;
+global N: u32 = 128;   // N = 2 ** H
+global H: u32 = 7;   // N = 2 ** H
+
 
 fn main(
     verification_key: UltraHonkVerificationKey,
@@ -10,8 +12,8 @@ fn main(
     public_inputs: pub [[Field; 5]; N],
     key_hash: [Field; N],
     eta: [Field; N],
-    path_elem: [[Field; 2]; N],
-    path_index: [[Field; 2]; N],
+    path_elem: [[Field; H]; N],
+    path_index: [[Field; H]; N],
     delta_usr: pub Field,
     v_id: pub Field,
     sr: pub Field,

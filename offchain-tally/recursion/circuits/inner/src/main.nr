@@ -26,8 +26,10 @@ pub fn merkle_tree_checker(leaf: Field, path_elements: [Field], path_indices: [F
     current_hash
 }
 
+global H: u32 = 7;
+
 fn main(lambda: Field, v: pub Field, a: Field, rlp: Field, 
-    path_elem: [Field; 2], path_index: [Field; 2], reg_path_elem: [Field; 2], reg_path_index: [Field; 2], 
+    path_elem: [Field; H], path_index: [Field; H], reg_path_elem: [Field; H], reg_path_index: [Field; H], 
     u_id: Field, alpha_info: Field, beta: Field, eta: pub Field, v_id: pub Field, delta_reg: pub Field, sr: pub Field) {
     let tmp = pedersen_hash([u_id,v_id,v]);
     let expected_lambda = pedersen_hash([tmp,beta]);
