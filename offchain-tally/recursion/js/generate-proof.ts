@@ -169,7 +169,7 @@ async function generateNoirMerkleInputs(depth = 3) {
     const innerCircuitNoir = new Noir(innerCircuit as CompiledCircuit);
     const innerBackend = new UltraHonkBackend(innerCircuit.bytecode, { threads: 1 }, { recursive: true });
 
-    const TREE_DEPTH = 2;
+    const TREE_DEPTH = 7;
     const LEAF_COUNT = 2 ** TREE_DEPTH;
     const input_data = await generateNoirMerkleInputs(TREE_DEPTH);
     
