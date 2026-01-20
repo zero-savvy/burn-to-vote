@@ -10,11 +10,7 @@ DATE_CMD=$(command -v gdate || command -v date)
 
 # Map folder names to input numbers
 FOLDERS=(
-    "1-attest-(Pi-zkRA)"
-    "2-recurse-(R1)"
-    "3-aggregate-(R2)"
-    "4-optimized-(R2+R1)"
-    "5-optimized-(2xR2+R1)"
+    "recursion"
 )
 
 start_time=""
